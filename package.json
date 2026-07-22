@@ -12,7 +12,7 @@
     "lint": "npx eslint"
   },
   "dependencies": {
-    "@enonic/nextjs-adapter": "^4.0.0",
+    "@enonic/nextjs-adapter": "^5.0.0",
     "cross-env": "^10.1.0",
     "html-react-parser": "^5.2.11",
     "next": "^16.3.0",
