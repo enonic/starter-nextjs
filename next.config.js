@@ -23,6 +23,18 @@ async function getEnonicHeaders() {
                 {
                     key: 'Content-Security-Policy',
                     value: `script-src 'self' 'unsafe-eval' 'unsafe-inline';`
+                },
+                {
+                    key: 'Access-Control-Allow-Origin',
+                    value: 'http://localhost:8080' // Can't be '*' when credentials are allowed
+                },
+                {
+                    key: 'Access-Control-Allow-Credentials',
+                    value: 'true' // Needed for cookies to be sent in cross-origin requests
+                },
+                {
+                    key: 'Access-Control-Allow-Methods',
+                    value: 'GET, POST, PUT, DELETE, PATCH, OPTIONS'
                 }
             ],
         },

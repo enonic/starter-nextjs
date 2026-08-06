@@ -6,6 +6,7 @@ import "../../../components/_mappings";
 import {Metadata} from 'next';
 import {draftMode} from 'next/headers';
 import React from 'react';
+import PageEditorScript from '../../../components/views/PageEditorScript';
 
 // NB. Using this option with default value bails out static generation !!!
 // export const dynamic = 'auto'
@@ -35,7 +36,10 @@ export default async function Page({params}: { params: Promise<PageProps> }) {
     console.debug(`Rendered ${draft ? 'draft ' : ''}page at [/${data.meta.locale}/${data.meta.path}]`);
 
     return (
-        <MainView {...data}/>
+        <>
+            <MainView {...data}/>
+            <PageEditorScript mode={data.meta.renderMode}/>
+        </>
     )
 };
 
@@ -51,5 +55,5 @@ export async function generateMetadata({params}: { params: Promise<PageProps> })
 }
 
 export async function generateStaticParams(props: { params: PageProps }): Promise<any[]> {
-    return await fetchContentPathsForAllLocales('\${site}/');
+    return await fetchContentPathsForAllLocales();
 }

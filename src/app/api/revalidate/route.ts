@@ -1,17 +1,18 @@
 import {revalidatePath} from 'next/cache';
 import {NextRequest} from 'next/server';
-import {validateToken} from '../../../utils';
+import {validateBlob} from '../../../utils';
 
-export async function GET(req: NextRequest) {
-    const params = req.nextUrl.searchParams;
+export async function GET(request: NextRequest) {
     // Check for secret to confirm this is a valid request
-    const token = params.get('token');
-    const response = validateToken(token);
+    const {searchParams} = request.nextUrl;
+    const xpBlob = searchParams.get('xp');
+
+    const response = validateBlob(xpBlob);
     if (response !== null) {
         return response;
     }
 
-    const path = params.get('path');
+    const path = searchParams.get('path');
     try {
         if (!path) {
             // This will revalidate everything
