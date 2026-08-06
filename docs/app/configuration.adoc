@@ -1,0 +1,47 @@
+= App configuration
+:toc: right
+include::../.variables.adoc[]
+
+Configure front-end servers in `<xp-home>/config/com.enonic.app.nextxp.cfg`. Each server has a name, URL, and shared secret.
+
+== Properties
+
+[source,properties]
+----
+nextjs.default.url=http://127.0.0.1:3000
+nextjs.default.secret=replace-this-secret
+
+nextjs.production.url=https://www.example.com
+nextjs.production.secret=replace-this-production-secret
+----
+
+[%header,cols="2,3"]
+|===
+| Property | Purpose
+
+| `nextjs.<name>.url`
+| Base URL XP uses for preview, renderability, and revalidation requests.
+
+| `nextjs.<name>.secret`
+| Token sent to the protected Next.js endpoints. It must equal `+ENONIC_API_TOKEN+` in that deployment.
+|===
+
+Names are case-insensitive in the configuration parser and appear in the site's **Configuration name** selector. Use `default` as the fallback and named entries when sites or environments use different front ends.
+
+== Defaults
+
+Without a matching configuration, the app falls back to:
+
+[source,properties]
+----
+nextjs.default.url=http://127.0.0.1:3000
+nextjs.default.secret=mySecretKey
+----
+
+These values are suitable only for local development. Configure a unique secret in every shared or production environment.
+
+== Network considerations
+
+The URL is resolved from the XP server, not the editor's browser. Use a hostname reachable from every XP cluster node. Avoid a trailing slash, use HTTPS outside a trusted local network, and ensure any intermediary forwards cookies and Content Studio headers.
+
+Configuration changes are read by the app without rebuilding it. Reopen or refresh the Content Studio preview after changing a target URL or secret.

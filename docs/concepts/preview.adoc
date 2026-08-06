@@ -1,0 +1,46 @@
+= Editing and preview
+:toc: right
+include::../.variables.adoc[]
+
+Next.XP lets Content Studio display the Next.js front end while editors work with draft content. The Next.XP app proxies preview requests to Next.js and returns the rendered response to Content Studio.
+
+== Preview handshake
+
+. Content Studio requests a site that has the Next.XP app configured.
+. The app selects a named front-end URL and shared secret.
+. The app forwards the request with the render mode, XP project, XP base URL, and editor session context.
+. The Next.js `/api/preview` route validates the token, enables Next.js Draft Mode, and redirects to the content path.
+. The adapter detects edit mode and queries the `draft` branch.
+
+The app caches the resulting Next.js preview cookie and reuses it for later preview and component requests.
+
+== Render modes
+
+[%header,cols="1,3"]
+|===
+| Mode | Behavior
+
+| `next`
+| Direct Next.js access. Uses published content and omits editing markup.
+
+| `edit`
+| Content Studio page editing. Uses draft content and adds component and region attributes.
+
+| `preview` or `inline`
+| Content Studio preview contexts. Uses draft content without normal public routing assumptions.
+
+| `live`
+| Published XP context. The preview proxy itself rejects live-mode proxying.
+|===
+
+== Component refresh
+
+Content Studio can request one component instead of refreshing the complete page. The adapter restricts the page tree to that component, and `MainView` delegates to `SingleComponent`. The starter wraps the response in a marker the XP proxy can extract safely.
+
+The `/api/renderable` endpoint tells Content Studio whether a descriptor has an explicit mapping. Catch-all views do not make a component selectable in edit mode.
+
+== Security
+
+The value of `+ENONIC_API_TOKEN+` in Next.js must match the secret configured for the selected front end in `com.enonic.app.nextxp.cfg`. Do not expose it through a `+NEXT_PUBLIC_+` variable. Restrict the preview endpoints to HTTPS in production.
+
+See <<../app/configuration#,App configuration>> and <<../starter/configuration#,Starter configuration>>.

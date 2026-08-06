@@ -1,0 +1,63 @@
+= Configuration
+:toc: right
+include::../.variables.adoc[]
+
+The adapter reads its connection and mapping settings from Next.js environment variables. Keep environment-specific values outside committed files when they contain secrets.
+
+== Server variables
+
+[%header,cols="1,1,3"]
+|===
+| Name | Required | Purpose
+
+| `+ENONIC_API+`
+| Yes
+| Absolute Guillotine endpoint URL, normally ending in `/site/`.
+
+| `+ENONIC_APP_NAME+`
+| Yes
+| XP application key that owns the content types and component descriptors used by the project.
+
+| `+ENONIC_MAPPINGS+`
+| Yes
+| Comma-separated `locale:project/site-path` mappings. The first is the default.
+
+| `+ENONIC_API_TOKEN+`
+| For preview and revalidation
+| Shared secret used by the starter's protected API routes. It must match the Next.XP app configuration.
+
+| `+ENONIC_LOGGING+`
+| No
+| Enables adapter diagnostic logging when configured by the application.
+
+| `MODE`
+| No
+| Set to `development` to expose development-only diagnostics and catch-all behavior.
+|===
+
+[source,text]
+----
+ENONIC_API=https://xp.example.com/site/
+ENONIC_APP_NAME=com.example.site
+ENONIC_MAPPINGS=en:website/site,no:website-no/site
+ENONIC_API_TOKEN=replace-with-a-long-random-value
+----
+
+== Browser-visible variables
+
+When common adapter exports are used in client bundles, publish the non-secret equivalents explicitly:
+
+[source,text]
+----
+NEXT_PUBLIC_ENONIC_API=$ENONIC_API
+NEXT_PUBLIC_ENONIC_APP_NAME=$ENONIC_APP_NAME
+NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS
+----
+
+Never publish `+ENONIC_API_TOKEN+`. Values prefixed with `+NEXT_PUBLIC_+` are embedded in browser JavaScript.
+
+== Next.js configuration
+
+The starter configures `@phrases` for both webpack and Turbopack, transpiles `@enonic/nextjs-adapter`, and supplies a Content Security Policy compatible with Content Studio embedding. Preserve those settings when merging the integration into an existing Next.js application.
+
+See <<../starter/configuration#,Starter configuration>> for the complete connection between Next.js and the XP app.

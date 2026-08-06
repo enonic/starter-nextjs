@@ -1,0 +1,33 @@
+= Installation
+:toc: right
+include::../.variables.adoc[]
+
+Install the **Next.XP** application from Enonic Market into an Enonic XP {xp-version} deployment. The app includes the XP-side proxy and revalidation support required by the standard integration.
+
+== Site setup
+
+For each XP site rendered by Next.js:
+
+. Add the Next.XP application to the site's applications.
+. Select the named front-end configuration in the Next.XP site form.
+. Save the site and verify preview in Content Studio.
+
+The selector is populated from the named entries in `com.enonic.app.nextxp.cfg`. If no configuration is selected, the app uses the `default` entry and ultimately falls back to local development values.
+
+== Required companion applications
+
+Guillotine exposes content to Next.js and must be installed and configured for each relevant project. Next.XP {nextxp-version} uses Guillotine {guillotine-version} on Enonic XP {xp-version}. Consult the https://developer.enonic.com/docs/guillotine/stable[Guillotine documentation] for schema and API setup.
+
+The XP application that owns the site's content types and page components remains separate. Its application key must match `+ENONIC_APP_NAME+` in the Next.js deployment.
+
+== Verification
+
+After installation, confirm that:
+
+* The configuration selector lists the expected front-end names.
+* XP can connect to the configured Next.js URL.
+* Content Studio preview enables Draft Mode without a token error.
+* An explicitly mapped page and component are reported as renderable.
+* Publishing content reaches the Next.js revalidation route.
+
+See <<configuration#,App configuration>> for the configuration file format.

@@ -1,0 +1,124 @@
+{
+    "menuItems": [
+        {
+            "title": "Next.XP",
+            "document": "index"
+        },
+        {
+            "title": "Concepts",
+            "menuItems": [
+                {
+                    "title": "Architecture",
+                    "document": "concepts/architecture"
+                },
+                {
+                    "title": "Content and rendering",
+                    "document": "concepts/content-and-rendering"
+                },
+                {
+                    "title": "Components and views",
+                    "document": "concepts/components"
+                },
+                {
+                    "title": "Editing and preview",
+                    "document": "concepts/preview"
+                },
+                {
+                    "title": "Projects and localization",
+                    "document": "concepts/localization"
+                }
+            ]
+        },
+        {
+            "title": "Next.js integration",
+            "menuItems": [
+                {
+                    "title": "Configuration",
+                    "document": "nextjs/configuration"
+                },
+                {
+                    "title": "Routing",
+                    "document": "nextjs/routing"
+                },
+                {
+                    "title": "Rich text, links, and media",
+                    "document": "nextjs/rich-text"
+                },
+                {
+                    "title": "Caching and revalidation",
+                    "document": "nextjs/caching"
+                },
+                {
+                    "title": "Deployment",
+                    "document": "nextjs/deployment"
+                }
+            ]
+        },
+        {
+            "title": "Next.js adapter",
+            "document": "adapter",
+            "menuItems": [
+                {
+                    "title": "Common API",
+                    "document": "adapter/common"
+                },
+                {
+                    "title": "Server API",
+                    "document": "adapter/server"
+                },
+                {
+                    "title": "Client API",
+                    "document": "adapter/client"
+                },
+                {
+                    "title": "Views",
+                    "document": "adapter/views"
+                }
+            ]
+        },
+        {
+            "title": "Next.js starter",
+            "document": "starter",
+            "menuItems": [
+                {
+                    "title": "Project structure",
+                    "document": "starter/project-structure"
+                },
+                {
+                    "title": "Configuration",
+                    "document": "starter/configuration"
+                }
+            ]
+        },
+        {
+            "title": "Next.XP app",
+            "document": "app",
+            "menuItems": [
+                {
+                    "title": "Installation",
+                    "document": "app/installation"
+                },
+                {
+                    "title": "Configuration",
+                    "document": "app/configuration"
+                },
+                {
+                    "title": "Services and mappings",
+                    "document": "app/services"
+                }
+            ]
+        },
+        {
+            "title": "Troubleshooting",
+            "document": "troubleshooting"
+        },
+        {
+            "title": "Release Notes",
+            "document": "release"
+        },
+        {
+            "title": "Upgrade Notes",
+            "document": "upgrade"
+        }
+    ]
+}

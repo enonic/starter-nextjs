@@ -1,0 +1,57 @@
+= Components and views
+:toc: right
+include::../.variables.adoc[]
+
+An XP page is composed from page, layout, part, text, image, and fragment components. Next.XP maps their XP descriptors to queries, processors, and React views through `ComponentRegistry`.
+
+== Mapping a component
+
+Register mappings once, before calling `fetchContent()`. The starter keeps them in `+src/components/_mappings.ts+`.
+
+[source,TypeScript]
+----
+import {ComponentRegistry} from '@enonic/nextjs-adapter';
+import Hero from './views/Hero';
+
+ComponentRegistry.addPart('com.example.app:hero', {
+    query: `query($path: ID!) {
+      guillotine { get(key: $path) { displayName } }
+    }`,
+    view: Hero
+});
+----
+
+A mapping may define:
+
+[%header,cols="1,3"]
+|===
+| Property | Purpose
+
+| `query`
+| Guillotine selection and, when needed, a variables function.
+
+| `configQuery`
+| Additional selection for component configuration.
+
+| `processor`
+| Asynchronous transformation applied before props reach the view. Return an object or `null`, never `undefined`.
+
+| `view`
+| React component used to render the mapping.
+|===
+
+Content types, pages, layouts, parts, macros, and generic component kinds have separate registration methods.
+
+== View props
+
+Page and component views receive their descriptor data, component path, runtime `meta`, shared `common` data, and processed `data` when a query is registered. Layout views also receive their regions.
+
+Render regions with the adapter's `Region` views. They preserve component ordering and add editing attributes in Content Studio.
+
+== Fallback mappings
+
+The special `+CATCH_ALL+` mapping is useful while developing because it exposes unmapped content through a diagnostic view. A catch-all is ignored for Content Studio renderability checks and for production visitor rendering, so every production component needs an explicit mapping.
+
+The adapter's `baseMappings` module registers its built-in handling for page component kinds. Import it before application-specific mappings.
+
+See <<../adapter/common#,Common API>> for `ComponentRegistry` and <<../adapter/views#,Views>> for the built-in renderers.

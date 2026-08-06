@@ -1,0 +1,90 @@
+= Client API
+:toc: right
+include::../.variables.adoc[]
+
+Import client-only localization helpers from `@enonic/nextjs-adapter/client`.
+
+== Usage
+
+Wrap localized client components in `LocaleContextProvider`, normally from the locale layout.
+
+[source,tsx]
+----
+'use client';
+
+import {
+    LocaleContextProvider,
+    useLocaleContext
+} from '@enonic/nextjs-adapter/client';
+
+function Greeting() {
+    const {localize} = useLocaleContext();
+    return <p>{localize('greeting')}</p>;
+}
+
+export function Localized({locale}) {
+    return (
+        <LocaleContextProvider locale={locale}>
+            <Greeting/>
+        </LocaleContextProvider>
+    );
+}
+----
+
+Phrase files are loaded through the starter's `@phrases` alias.
+
+== Functions
+
+=== LocaleContextProvider
+
+[.lead]
+Parameters
+
+`LocaleContextProvider()` takes a single props object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `children` | `ReactNode` | Descendants that receive the locale context.
+| `locale` | `string` | *Optional.* Initial locale and dictionary to load.
+|===
+
+[.lead]
+Returns
+
+A React context provider element.
+
+=== useLocaleContext
+
+Returns the nearest `LocaleContextType`. Call only from a React client component below `LocaleContextProvider`.
+
+[.lead]
+Returns
+
+`LocaleContextType`.
+
+== Classes
+
+This entry point exports no classes.
+
+== Type Definitions
+
+[#locale-context-type]
+=== LocaleContextType
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `locale` | `string` | Active locale.
+| `dictionary` | `Record<string, string>` | Loaded phrases.
+| `localize` | `(key, ...args) => string` | Resolves and formats a phrase.
+| `setLocale` | `(locale) => Promise<Dict>` | Loads another dictionary and activates it.
+|===
+
+== Constants
+
+This entry point exports no constants.

@@ -1,0 +1,122 @@
+= Views
+:toc: right
+include::../.variables.adoc[]
+
+Each built-in view is a default export below `@enonic/nextjs-adapter/views/`. Import only the view needed by the module.
+
+== Usage
+
+[source,tsx]
+----
+import MainView from '@enonic/nextjs-adapter/views/MainView';
+import Regions from '@enonic/nextjs-adapter/views/Region';
+import RichTextView from '@enonic/nextjs-adapter/views/RichTextView';
+----
+
+== Functions
+
+The views are React function components. Their reusable props shapes are listed under <<view-type-definitions,Type Definitions>>.
+
+=== MainView
+
+Entry point for `FetchContentResult`; selects full-content or single-component rendering.
+
+=== BaseContent
+
+Chooses a content-type view or delegates to the mapped page.
+
+=== BasePage
+
+Resolves and renders the mapped XP page descriptor from <<page-props,PageProps>>.
+
+=== BaseLayout
+
+Resolves a layout descriptor and passes <<layout-props,LayoutProps>> with normalized regions to the mapped view.
+
+=== BasePart
+
+Resolves a part descriptor and passes <<part-props,PartProps>> with processed data to the mapped view.
+
+=== BaseComponent
+
+Renders one normalized XP component and adds Content Studio attributes in edit mode.
+
+=== BaseMacro
+
+Resolves a macro mapping and retains macro editing behavior.
+
+=== Region
+
+Renders all regions or one named region while preserving component order. `RegionView` is the named export for rendering one <<region-props,RegionProps>> object directly.
+
+=== RichTextView
+
+Renders <<rich-text-view-props,RichTextViewProps>> as processed rich text, internal links, images, macros, and custom replacements.
+
+=== Fragment
+
+Renders the component tree stored by an XP fragment.
+
+=== SingleComponent
+
+Renders the component requested by Content Studio during an incremental refresh.
+
+=== StaticContent
+
+Preserves server-rendered editor HTML during hydration when its `condition` is true.
+
+=== PropsView
+
+Development view that prints page, component, data, and common props.
+
+=== Empty
+
+Base mapping for deliberately empty output.
+
+=== Text
+
+Base mapping for XP text components.
+
+=== DefaultMacro
+
+Fallback renderer imported from `@enonic/nextjs-adapter/views/macros/DefaultMacro`.
+
+=== DisableMacro
+
+Renderer for disabled macros, imported from `@enonic/nextjs-adapter/views/macros/DisableMacro`.
+
+== Classes
+
+This entry point exports no classes.
+
+[#view-type-definitions]
+== Type Definitions
+
+[#page-props]
+=== PageProps
+
+Provides mapped page data, component path, processed `data`, shared `common` data, and `MetaData`.
+
+[#layout-props]
+=== LayoutProps
+
+Provides mapped layout data including regions, component path, shared data, and `MetaData`.
+
+[#part-props]
+=== PartProps
+
+Provides mapped part data, component path, processed and shared data, and `MetaData`.
+
+[#rich-text-view-props]
+=== RichTextViewProps
+
+Requires processed `RichTextData` and `MetaData`; optionally accepts a CSS class, wrapper tag, and custom DOM replacer.
+
+[#region-props]
+=== RegionProps
+
+Requires a region name and `MetaData`; optionally accepts components, a CSS class, and shared data.
+
+== Constants
+
+The views entry points export no constants.

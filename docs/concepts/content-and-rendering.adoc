@@ -1,0 +1,50 @@
+= Content and rendering
+:toc: right
+include::../.variables.adoc[]
+
+Next.XP renders an XP content item by combining its content data with its page component tree. Queries and React views are registered in the Next.js application; content and page composition remain in XP.
+
+== Fetch sequence
+
+`fetchContent()` performs the integration's main read operation:
+
+. Resolve the locale, XP project, site path, render mode, and branch.
+. Query Guillotine for the content type and page metadata.
+. Select registered queries for the content type and component descriptors.
+. Combine those selections into a Guillotine data query.
+. Run registered processors and attach their results to the page tree.
+. Return a `FetchContentResult` for rendering.
+
+The metadata request allows the adapter to request only the data required by the mapped content and components.
+
+== Result model
+
+[%header,cols="1,3"]
+|===
+| Property | Purpose
+
+| `data`
+| Result of the query registered for the content type.
+
+| `common`
+| Shared result from `ComponentRegistry.setCommonQuery()`. It is passed to page and component views.
+
+| `page`
+| Normalized XP page and region tree. Individual components contain their processed query result in `data`.
+
+| `meta`
+| Runtime context such as content identity, project, site, locale, branch, render mode, and request type.
+
+| `error`
+| Structured error information when content cannot be resolved or fetched.
+|===
+
+Call `validateData()` before rendering. It converts missing-content and shortcut results into the corresponding Next.js navigation behavior.
+
+== Rendering
+
+`MainView` renders either the complete content item or one requested component. It uses `ComponentRegistry` to select views for content types, pages, layouts, and parts. Regions retain the order defined by the XP page structure.
+
+In edit mode, adapter views add the DOM attributes Content Studio needs to identify components and regions. These wrappers are omitted from normal visitor rendering.
+
+See <<components#,Components and views>> for mappings and <<../adapter/server#,Server API>> for `fetchContent()`.

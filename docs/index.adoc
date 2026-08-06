@@ -1,0 +1,91 @@
+= Next.XP
+:toc: right
+include::.variables.adoc[]
+
+Next.XP is Enonic's standard integration between link:{next-docs}[Next.js] and https://developer.enonic.com/docs/platform[Enonic XP].
+
+IMPORTANT: Looking for a guided introduction? Follow the https://developer.enonic.com/learn/next.xp[Next.XP tutorial] to build a complete site step by step. This documentation is the product reference and can be read in any order.
+
+== About
+
+With Next.XP, editors create structured content and assemble pages in Enonic Content Studio. The Next.js application queries that content through Guillotine, maps Enonic page components to React components, and renders the resulting site. Editors can preview their changes in Content Studio while developers continue to use the standard Next.js application model and toolchain.
+
+Next.XP combines several independent software components into a holistic solution, making it easier to build content-driven websites with a Next.js front-end.
+
+It is Enonic's recommended starting point for Next.js, not a mandatory architecture. Projects may adopt the complete suite, use individual components, or build a custom integration directly against Enonic APIs.
+
+== What Next.XP provides
+
+Next.XP connects the editing experience in Enonic XP to the rendering capabilities of Next.js. The integration provides:
+
+* Content retrieval from the Guillotine GraphQL API
+* Mapping between Enonic page components and React components
+* Content Studio preview of the Next.js front-end
+* Processing of links and rich text from Enonic content
+* Support for localized content and front-end text
+* A starter project with the recommended application structure and configuration
+
+Next.XP does not replace either platform. Content models, content, and page composition remain in Enonic XP, while routing, React components, data fetching, and front-end delivery remain in Next.js.
+
+== How it fits together
+
+A Next.XP solution has two running sides. Enonic XP stores and manages the content, and exposes it through the Guillotine GraphQL API. The Next.js application uses the adapter to fetch and render that content. The Next.XP Enonic application provides Content Studio preview and event notification to the Next.js front-end.
+
+In production, visitors access the Next.js front-end. Editors work in Content Studio, where the same front-end is loaded in an editing context with the information required to preview pages and components.
+
+== Components
+
+The product consists of three components that are released together by major version:
+
+[%header,cols="1,1,2"]
+|===
+| Component | Distribution | Purpose
+
+| `@enonic/nextjs-adapter`
+| https://www.npmjs.com/package/@enonic/nextjs-adapter[npm]
+| Library used by the Next.js front-end: fetches content via the Guillotine GraphQL API, maps Enonic components to React views, processes rich text, and handles preview and localization.
+
+| `starter-nextjs`
+| https://github.com/enonic/starter-nextjs[GitHub]
+| Next.js starter template representing canonical adapter usage — the recommended starting point for new projects.
+
+| Next.XP app (`app-nextxp`)
+| https://github.com/enonic/app-nextxp[GitHub] / https://market.enonic.com[Enonic Market]
+| XP application for the back-end: enables front-end preview in Content Studio and holds the front-end server configuration.
+|===
+
+Most front-end development happens in a project created from `starter-nextjs`. That project depends on `@enonic/nextjs-adapter`, while the corresponding Next.XP app runs in the Enonic XP installation.
+
+== Using this reference
+
+Use this documentation when you need to understand or configure the Next.XP integration itself. It covers the supported stack, the contracts between its components, and changes between product versions.
+
+For broader platform concepts, refer to the relevant upstream documentation:
+
+* https://developer.enonic.com/docs/guillotine/stable[Guillotine] for GraphQL schemas, queries, and API configuration
+* https://developer.enonic.com/docs/xp/stable[Enonic XP] for content types, page components, Content Studio, and platform administration
+* https://nextjs.org/docs[Next.js] for routing, rendering, caching, and other framework concepts
+
+The https://developer.enonic.com/learn/next.xp[Next.XP tutorial] is the recommended starting point for a first implementation. This reference complements it with information that is intended to remain useful after the initial setup.
+
+Start with <<concepts/architecture#,Architecture>> to understand the request paths, then use the references for the <<adapter#,Next.js adapter>>, <<starter#,Next.js starter>>, and <<app#,Next.XP app>>. For an existing application, begin with <<nextjs/configuration#,Configuration>>. Common failures are collected under <<troubleshooting#,Troubleshooting>>.
+
+== Versioning
+
+The Next.XP product version follows the major version of `@enonic/nextjs-adapter`. The adapter is the version driver, and the starter and Next.XP app follow the same major. Patch versions may differ between components within a major and do not need to match exactly.
+
+Next.XP {nextxp-version} is based on:
+
+[%header,cols="2,1"]
+|===
+| Component | Version
+| Enonic XP | {xp-version}
+| Guillotine | {guillotine-version}
+| `@enonic/nextjs-adapter` | {adapter-version}
+| Next.js | {next-version}
+| React | {react-version}
+|===
+
+The adapter requires Node.js {node-minimum}+ and npm {npm-minimum}+.
+
+See the <<release#,release notes>> for what changed in each version, and the <<upgrade#,upgrade notes>> when moving between majors.

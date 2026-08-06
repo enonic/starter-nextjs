@@ -1,0 +1,38 @@
+= Caching and revalidation
+:toc: right
+include::../.variables.adoc[]
+
+Next.XP uses standard Next.js caching controls. The adapter passes `cache`, `next.revalidate`, and cache tags from `FetchOptions` to `fetch()`.
+
+== Time-based revalidation
+
+Export a `revalidate` interval from the catch-all page when content may be cached for a fixed period:
+
+[source,TypeScript]
+----
+export const revalidate = 3600;
+----
+
+This option requires the Next.js Node.js runtime. Use standard Next.js dynamic rendering when every request must read current content.
+
+== On-demand revalidation
+
+The Next.XP app subscribes to XP repository and content events. When published content changes, it calls the starter's `/api/revalidate` endpoint with the shared token.
+
+The endpoint uses `revalidatePath()`:
+
+* A content path revalidates the corresponding page.
+* An empty path revalidates the complete layout tree.
+* Move and rename events also revalidate the previous path.
+
+Requests are sent only from the XP cluster master to avoid duplicates. Bulk publication events are debounced.
+
+== Draft content
+
+Next.js Draft Mode bypasses normal public rendering assumptions for Content Studio. The adapter reads the `draft` branch in edit and preview modes and the `master` branch for direct Next.js requests. Do not cache editor responses in a shared public cache.
+
+== Static generation
+
+Use `fetchContentPathsForAllLocales()` with `generateStaticParams()` when the set of content paths is suitable for pre-rendering. Limit or replace its query for large sites. Static generation and on-demand revalidation may be combined.
+
+The token configured in `+ENONIC_API_TOKEN+` must remain server-side because it authorizes cache invalidation.

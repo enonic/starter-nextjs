@@ -1,0 +1,47 @@
+= Services and mappings
+:toc: right
+include::../.variables.adoc[]
+
+The Next.XP app contributes controller mappings, a configuration-selector service, and a content-event subscriber. Together they implement the XP side of preview and revalidation.
+
+== Site mappings
+
+The site descriptor maps site requests and component-service requests to `/lib/nextxp/proxy.js`. The proxy:
+
+* Selects the front-end URL and token from the site configuration.
+* Converts the XP editing URL into a site-relative Next.js path.
+* Forwards render mode, project, XP base URL, session cookie, and query parameters.
+* Obtains and caches the Next.js Draft Mode cookie.
+* Follows controlled redirects and retries expired preview sessions.
+* Rewrites HTML, JavaScript, CSS, and asset URLs for Content Studio.
+* Extracts a single-component response for incremental editor refresh.
+
+The proxy runs only for the `draft` branch and rejects `live` mode. Public requests should go to Next.js directly.
+
+== Configuration service
+
+The `configurations` XP service backs the site form's CustomSelector. It returns each configured name and URL; secrets are not included in the selector response.
+
+== Revalidation events
+
+On the XP cluster master, the app subscribes to repository and node events for projects containing a site configured with Next.XP. Published changes call the selected front end's `/api/revalidate` route.
+
+Bulk events are debounced. Move and rename events retain the old content path so both old and new cached routes can be invalidated. The active XP project is passed in the `Content-Studio-Project` header.
+
+== Front-end endpoints
+
+[%header,cols="2,3"]
+|===
+| Endpoint | Called for
+
+| `/api/preview`
+| Establishing Next.js Draft Mode.
+
+| `/api/renderable`
+| Checking whether content or a component has an explicit mapping.
+
+| `/api/revalidate`
+| Invalidating published Next.js paths.
+|===
+
+All endpoints must validate the shared token.

@@ -1,0 +1,28 @@
+= Next.js starter
+:toc: right
+include::.variables.adoc[]
+
+https://github.com/enonic/starter-nextjs[`starter-nextjs`] is the canonical starting point for an Enonic-backed Next.js application. It is a normal Next.js App Router project with the adapter wiring required for content rendering, localization, Content Studio preview, and revalidation.
+
+The starter is intentionally small. Copy it when beginning a project, or use it as a reference when integrating Next.XP into an existing Next.js application.
+
+== Included integration
+
+The project provides:
+
+* A locale-aware catch-all route for XP content paths
+* `fetchContent()` and `MainView` as the default rendering pipeline
+* Central registration of content and component mappings
+* Server and client phrase localization
+* Preview, renderability, and revalidation API routes
+* A Next.js proxy for locale routing
+* Webpack and Turbopack aliases required by the adapter
+* Development views for unmapped content
+
+== What to customize
+
+Replace the example application name, project mappings, common query, phrases, and views. Register each content type and page component used by the site. Preserve the integration routes and editing wrappers unless the replacement implements the same contracts.
+
+The starter is not the tutorial's completed example. The finished reference implementation lives in https://github.com/enonic/demo-nextjs[`demo-nextjs`], while the https://developer.enonic.com/learn/next.xp[Next.XP tutorial] explains the implementation step by step.
+
+See <<starter/project-structure#,Project structure>> and <<starter/configuration#,Starter configuration>>.
