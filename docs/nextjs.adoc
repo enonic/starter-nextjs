@@ -1,0 +1,39 @@
+= Next.js integration
+:toc: right
+include::.variables.adoc[]
+
+Next.XP adds a small integration layer to a standard Next.js App Router application. The application remains responsible for its routes, React components, rendering strategy, caching, and deployment; Next.XP supplies the conventions needed to fetch and preview Enonic content.
+
+== Integration boundary
+
+The Next.js application uses `@enonic/nextjs-adapter` to resolve an incoming route to an XP project, site, branch, and content path. Registered queries retrieve the required data from Guillotine, and registered views render the resulting content and component tree.
+
+The Next.js application exposes three protected route handlers that the Next.XP app calls for preview, renderability checks, and revalidation:
+
+[%header,cols="2,3"]
+|===
+| Endpoint | Responsibility
+
+| `/api/preview`
+| Enables Next.js Draft Mode for Content Studio.
+
+| `/api/renderable`
+| Reports whether content and component descriptors have explicit mappings.
+
+| `/api/revalidate`
+| Invalidates cached routes after published content changes.
+|===
+
+The locale-aware catch-all route and proxy complete the standard setup. They convert public Next.js paths into the project and site context required by Guillotine.
+
+== Choose the implementation
+
+https://github.com/enonic/starter-nextjs[`starter-nextjs`] contains the canonical implementation. Existing Next.js applications may copy only the relevant configuration, routes, mappings, and views. Next.XP does not prevent an application from querying Guillotine or rendering content differently.
+
+== Integration topics
+
+* <<nextjs/configuration#,Configuration>> defines environment variables and Next.js settings.
+* <<nextjs/routing#,Routing>> maps locales and public URLs to XP content paths.
+* <<nextjs/rich-text#,Rich text, links, and media>> handles structured references from XP.
+* <<nextjs/caching#,Caching and revalidation>> connects Next.js caching to XP publication events.
+* <<nextjs/deployment#,Deployment>> describes service connectivity and production checks.

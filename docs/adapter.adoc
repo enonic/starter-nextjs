@@ -4,6 +4,8 @@ include::.variables.adoc[]
 
 `@enonic/nextjs-adapter` is the front-end library at the center of Next.XP. It queries Guillotine, builds renderable page structures, maps XP descriptors to React views, processes URLs and rich text, and supplies Content Studio editing metadata.
 
+The adapter depends on `@enonic/react-components`, which provides reusable XP-aware React components and types. Adapter {adapter-version} uses its `RichText` renderer for links, images, and macros, while the adapter's own views handle the standard Next.XP page tree and its editing annotations.
+
 == Installation
 
 [source,bash]

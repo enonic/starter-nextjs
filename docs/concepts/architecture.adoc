@@ -38,6 +38,9 @@ The public site is served by Next.js. The Next.XP app is only in the Content Stu
 | `@enonic/nextjs-adapter`
 | Selects projects, queries Guillotine, builds the page tree, maps XP descriptors to React views, and adapts URLs and editing metadata.
 
+| `@enonic/react-components`
+| Supplies reusable React renderers and types for XP page structures and rich text, including edit-mode component and region annotations. Adapter {adapter-version} uses its rich-text layer directly while retaining its own page-tree wrappers.
+
 | `starter-nextjs`
 | Shows the canonical Next.js routes, component registry, localization, preview endpoints, and revalidation endpoint.
 

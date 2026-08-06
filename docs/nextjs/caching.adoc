@@ -17,7 +17,7 @@ This option requires the Next.js Node.js runtime. Use standard Next.js dynamic r
 
 == On-demand revalidation
 
-The Next.XP app subscribes to XP repository and content events. When published content changes, it calls the starter's `/api/revalidate` endpoint with the shared token.
+The Next.XP app subscribes to XP repository and content events. When published content changes, it calls the configured front end's `/api/revalidate` endpoint with the shared token.
 
 The endpoint uses `revalidatePath()`:
 

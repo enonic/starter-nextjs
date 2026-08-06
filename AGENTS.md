@@ -10,6 +10,8 @@ Next.XP is an umbrella product consisting of three components that ship together
 2. **`starter-nextjs`** — the Next.js starter template (github.com/enonic/starter-nextjs), representing canonical adapter usage.
 3. **`app-nextxp`** — the XP application (on Enonic Market) providing the back-end side: preview, component metadata, and front-end configuration.
 
+The adapter depends on **`@enonic/react-components`**, a separately versioned supporting library for rendering XP component trees and rich text in React. It is not a Next.XP version driver, but document where the adapter uses it and where it provides Content Studio annotations.
+
 This repo documents all three, targeted at **front-end/Next.js developers** integrating with Enonic, but should also make sense for **Enonic developers** adding a Next.js front-end.
 
 Keep content focused on Next.XP. The step-by-step tutorial lives in the `demo-nextjs` repo (published at https://developer.enonic.com/learn/next.xp) and builds on top of this content — do not duplicate tutorial material here.

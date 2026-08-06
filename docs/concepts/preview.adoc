@@ -33,6 +33,12 @@ The app caches the resulting Next.js preview cookie and reuses it for later prev
 | Published XP context. The preview proxy itself rejects live-mode proxying.
 |===
 
+== Editing annotations
+
+Content Studio recognizes rendered page structures through `data-portal-component-type` and `data-portal-region` attributes. Adapter {adapter-version} adds these attributes through its base component and region views when the render mode is `edit`.
+
+The supporting `@enonic/react-components` package also implements these annotations in its generic component wrapper and region renderers. Next.XP currently uses that package directly for rich-text rendering, while the adapter supplies the page-tree annotations in the standard integration.
+
 == Component refresh
 
 Content Studio can request one component instead of refreshing the complete page. The adapter restricts the page tree to that component, and `MainView` delegates to `SingleComponent`. The starter wraps the response in a marker the XP proxy can extract safely.

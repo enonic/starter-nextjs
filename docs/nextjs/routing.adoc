@@ -9,7 +9,29 @@ The starter uses the Next.js App Router with a locale segment followed by an opt
 src/app/[locale]/[[...contentPath]]/page.tsx
 ----
 
-This maps `/en/about/team` to locale `en` and content path `about/team`. The adapter adds the configured XP site path only when querying Guillotine.
+This maps `/en/about/team` to locale `en` and content path `about/team`.
+
+== Default path mapping
+
+The standard route maps the public URL path one-to-one to the content path below the configured XP site. It removes the locale segment before lookup, then the adapter adds the configured site path when querying Guillotine.
+
+For the mapping `en:website/site`:
+
+[%header,cols="1,2"]
+|===
+| Value | Path
+
+| Public URL
+| `/en/about/team`
+
+| Route `contentPath`
+| `about/team`
+
+| XP content
+| `/site/about/team`
+|===
+
+This is a convention implemented by the catch-all route in `starter-nextjs`, not a restriction imposed by the adapter. `fetchContent()` uses the `contentPath` supplied by the application and does not inspect the public URL. A custom Next.js route may therefore translate aliases, slugs, or other route parameters into a different XP content path before calling the adapter.
 
 == Locale rewrite
 

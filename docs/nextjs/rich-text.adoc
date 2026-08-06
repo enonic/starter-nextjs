@@ -2,7 +2,7 @@
 :toc: right
 include::../.variables.adoc[]
 
-Rich text from XP contains structured information for internal links, images, and macros in addition to HTML. `RichTextView` renders that information as React elements while preserving Content Studio editing behavior.
+Rich text from XP contains structured information for internal links, images, and macros in addition to HTML. The adapter's `RichTextView` adapts Next.XP metadata and URL handling, then delegates the underlying React rendering to `@enonic/react-components`.
 
 == Rich text data
 
@@ -17,7 +17,7 @@ export function Article({data, meta}) {
 }
 ----
 
-The view uses Next.js links for internal content, renders referenced images, and delegates registered macros through the component registry. A custom replacer may override individual DOM nodes.
+The view supplies `@enonic/react-components` with Next.js-aware link, image, and macro adapters. The supporting library parses the processed HTML and resolves its structured references. A custom replacer may override individual DOM nodes.
 
 == URL processing
 

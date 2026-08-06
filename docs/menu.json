@@ -6,6 +6,7 @@
         },
         {
             "title": "Concepts",
+            "document": "concepts",
             "menuItems": [
                 {
                     "title": "Architecture",
@@ -31,6 +32,7 @@
         },
         {
             "title": "Next.js integration",
+            "document": "nextjs",
             "menuItems": [
                 {
                     "title": "Configuration",

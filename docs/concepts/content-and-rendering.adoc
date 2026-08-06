@@ -45,6 +45,6 @@ Call `validateData()` before rendering. It converts missing-content and shortcut
 
 `MainView` renders either the complete content item or one requested component. It uses `ComponentRegistry` to select views for content types, pages, layouts, and parts. Regions retain the order defined by the XP page structure.
 
-In edit mode, adapter views add the DOM attributes Content Studio needs to identify components and regions. These wrappers are omitted from normal visitor rendering.
+In edit mode, the adapter's base component and region views add the DOM attributes Content Studio needs to identify components and regions. `@enonic/react-components` provides equivalent annotation behavior for applications using its component-tree renderers. These wrappers are omitted from normal visitor rendering.
 
 See <<components#,Components and views>> for mappings and <<../adapter/server#,Server API>> for `fetchContent()`.
