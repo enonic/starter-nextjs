@@ -1,0 +1,65 @@
+= Preview proxy
+:toc: right
+include::../.variables.adoc[]
+
+The Next.XP app provides the XP side of Content Studio preview. It proxies draft content requests to the external Next.js front end, carries the editor context across that boundary, and adapts the response for Content Studio.
+
+Public visitors do not use this proxy. They access the Next.js deployment directly, allowing its normal hosting and caching behavior to remain in control.
+
+== Request flow
+
+. Content Studio requests a site that has the Next.XP app configured.
+. The app selects the site's named front-end configuration and shared secret.
+. The preview proxy converts the XP editing URL into a site-relative Next.js path.
+. It forwards the render mode, XP project, XP base URL, editor session, query parameters, and shared token.
+. The front end validates the token through `/api/preview`, enables Next.js Draft Mode, and redirects to the requested content path.
+. The adapter detects the editing context and fetches content from the project's `draft` branch.
+. The proxy rewrites the response for display inside Content Studio.
+
+The resulting Draft Mode cookie is cached and reused for later preview and component requests. Expired preview sessions are re-established automatically.
+
+== Site mappings
+
+The app's site descriptor maps site requests and Content Studio component-service requests to `/lib/nextxp/proxy.js`. The proxy runs only for the `draft` branch and rejects `live` mode.
+
+For proxied responses, it:
+
+* Follows controlled redirects from the front end.
+* Rewrites HTML, JavaScript, CSS, asset, and application URLs so they remain reachable through Content Studio.
+* Preserves query parameters and the editor's XP session context.
+* Extracts a single component from a component-refresh response.
+
+These mappings are XP controller mappings. They are unrelated to the adapter's component mappings, which associate XP descriptors with React views and Guillotine queries.
+
+== Front-end selection
+
+The `configurations` XP service backs the site's **Configuration name** CustomSelector. It returns the names and URLs defined in `com.enonic.app.nextxp.cfg`, allowing each site to select a front end. Shared secrets are never included in the selector response.
+
+See <<configuration#,App configuration>> for defining front-end targets and tokens.
+
+== Front-end endpoints
+
+The preview flow calls two protected route handlers implemented by the Next.js front end. The starter provides their canonical implementations.
+
+[%header,cols="1,3"]
+|===
+| Endpoint | Purpose
+
+| `/api/preview`
+| Validates the shared token, establishes Next.js Draft Mode, and redirects to the requested route.
+
+| `/api/renderable`
+| Reports whether the front end has an explicit mapping for requested content or a component descriptor.
+|===
+
+The renderability check lets Content Studio distinguish editable components from descriptors the front end cannot render. Catch-all views do not make a descriptor explicitly renderable.
+
+== Component refresh
+
+Content Studio can request one component without refreshing the complete page. The app proxies the component-service request to Next.js. The adapter restricts the page tree to the requested component, and `MainView` delegates rendering to `SingleComponent`. The proxy then extracts the marked component response for Content Studio.
+
+== Security
+
+Both front-end endpoints must validate the configured shared token. Use HTTPS outside a trusted local network, keep the token out of public environment variables, and ensure the XP server—not only the editor's browser—can reach the configured front-end URL.
+
+See <<../concepts/preview#,Editing and preview>> for the complete editor-facing flow and render modes.

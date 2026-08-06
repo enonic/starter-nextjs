@@ -1,10 +1,10 @@
-= Next.XP
+= Next.js + Enonic XP = Next.XP
 :toc: right
 include::.variables.adoc[]
 
-Next.XP is Enonic's standard integration between link:{next-docs}[Next.js] and https://developer.enonic.com/docs/platform[Enonic XP].
+Optimized out-of-the-box integration between link:{next-docs}[Next.js] and https://developer.enonic.com/docs/platform[Enonic XP].
 
-IMPORTANT: Looking for a guided introduction? Follow the https://developer.enonic.com/learn/next.xp[Next.XP tutorial] to build a complete site step by step. This documentation is the product reference and can be read in any order.
+IMPORTANT: Looking for a guided introduction? Follow our https://developer.enonic.com/learn/nextjs[Next.js tutorial] to build a complete site step by step. This documentation is the product reference and can be read in any order.
 
 == About
 

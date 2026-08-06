@@ -22,4 +22,4 @@ The proxy accepts draft-branch editing traffic and rejects live-mode proxying. I
 
 The application ID is `com.enonic.app.nextxp`; its configuration file is `com.enonic.app.nextxp.cfg`.
 
-See <<app/installation#,Installation>>, <<app/configuration#,App configuration>>, and <<app/services#,Services and mappings>>.
+See <<app/installation#,Installation>>, <<app/configuration#,App configuration>>, <<app/preview#,Preview proxy>>, and <<app/revalidation#,Revalidation>>.

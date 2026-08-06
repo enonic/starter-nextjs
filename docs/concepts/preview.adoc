@@ -49,4 +49,4 @@ The `/api/renderable` endpoint tells Content Studio whether a descriptor has an 
 
 The value of `+ENONIC_API_TOKEN+` in Next.js must match the secret configured for the selected front end in `com.enonic.app.nextxp.cfg`. Do not expose it through a `+NEXT_PUBLIC_+` variable. Restrict the preview endpoints to HTTPS in production.
 
-See <<../app/configuration#,App configuration>> and <<../starter/configuration#,Starter configuration>>.
+See <<../app/preview#,Preview proxy>> for the XP-side implementation, <<../app/configuration#,App configuration>>, and <<../starter/configuration#,Starter configuration>>.

@@ -13,15 +13,15 @@
                     "document": "concepts/architecture"
                 },
                 {
-                    "title": "Content and rendering",
+                    "title": "Rendering",
                     "document": "concepts/content-and-rendering"
                 },
                 {
-                    "title": "Components and views",
+                    "title": "Components",
                     "document": "concepts/components"
                 },
                 {
-                    "title": "Editing and preview",
+                    "title": "Preview",
                     "document": "concepts/preview"
                 },
                 {
@@ -31,7 +31,7 @@
             ]
         },
         {
-            "title": "Next.js integration",
+            "title": "Integration",
             "document": "nextjs",
             "menuItems": [
                 {
@@ -43,11 +43,11 @@
                     "document": "nextjs/routing"
                 },
                 {
-                    "title": "Rich text, links, and media",
+                    "title": "Rich text",
                     "document": "nextjs/rich-text"
                 },
                 {
-                    "title": "Caching and revalidation",
+                    "title": "Caching",
                     "document": "nextjs/caching"
                 },
                 {
@@ -57,7 +57,7 @@
             ]
         },
         {
-            "title": "Next.js adapter",
+            "title": "Adapter",
             "document": "adapter",
             "menuItems": [
                 {
@@ -79,13 +79,9 @@
             ]
         },
         {
-            "title": "Next.js starter",
+            "title": "Starter",
             "document": "starter",
             "menuItems": [
-                {
-                    "title": "Project structure",
-                    "document": "starter/project-structure"
-                },
                 {
                     "title": "Configuration",
                     "document": "starter/configuration"
@@ -105,8 +101,12 @@
                     "document": "app/configuration"
                 },
                 {
-                    "title": "Services and mappings",
-                    "document": "app/services"
+                    "title": "Preview",
+                    "document": "app/preview"
+                },
+                {
+                    "title": "Revalidation",
+                    "document": "app/revalidation"
                 }
             ]
         },

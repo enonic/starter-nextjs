@@ -36,3 +36,5 @@ Next.js Draft Mode bypasses normal public rendering assumptions for Content Stud
 Use `fetchContentPathsForAllLocales()` with `generateStaticParams()` when the set of content paths is suitable for pre-rendering. Limit or replace its query for large sites. Static generation and on-demand revalidation may be combined.
 
 The token configured in `+ENONIC_API_TOKEN+` must remain server-side because it authorizes cache invalidation.
+
+See <<../app/revalidation#,Revalidation>> for the XP-side event handling and delivery flow.
