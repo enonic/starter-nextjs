@@ -8,11 +8,19 @@ Next.XP lets Content Studio display the Next.js front end while editors work wit
 
 . Content Studio requests a site that has the Next.XP app configured.
 . The app selects a named front-end URL and shared secret.
-. The app forwards the request with the render mode, XP project, XP base URL, and editor session context.
+. The app forwards the request with the render mode, XP project, XP base URL, and the current editor's XP session.
 . The Next.js `/api/preview` route validates the token, enables Next.js Draft Mode, and redirects to the content path.
-. The adapter detects edit mode and queries the `draft` branch.
+. The adapter detects edit mode, forwards the XP session to Guillotine, and queries the `draft` branch.
 
 The app caches the resulting Next.js preview cookie and reuses it for later preview and component requests.
+
+== Authentication and permissions
+
+Preview is available only through an authenticated Enonic Content Studio session. For every preview request, the Next.XP app passes the current editor's XP session to the Next.js front end over the protected server-to-server integration. The adapter then forwards that session as the `JSESSIONID` cookie on its Guillotine request.
+
+Guillotine therefore evaluates the draft query as the same Enonic user who opened the preview. XP's normal content permissions remain in effect: the rendered result contains only content that user is allowed to access. The front end does not query draft content through a privileged service account or bypass XP access controls.
+
+The shared API token and the Next.js Draft Mode cookie have different purposes. The token authenticates calls between the Next.XP app and the protected front-end endpoints, while the Draft Mode cookie selects draft rendering. Neither replaces the editor's XP identity or grants access to content by itself.
 
 == Render modes
 

@@ -3,6 +3,8 @@
 
 == Next.XP 5
 
+This is an XP8 compatibility release, allowing you to upgrade to XP8 with minimal changes to your Next.XP 4 project.
+
 === Enonic XP 8 support
 
 Next.XP is now based on Enonic XP 8:

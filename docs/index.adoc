@@ -53,9 +53,9 @@ Next.XP uses three release-aligned components and a shared React rendering libra
 | https://github.com/enonic/starter-nextjs[GitHub]
 | Next.js starter template representing canonical adapter usage — the recommended starting point for new projects.
 
-| Next.XP app (`app-nextxp`)
-| https://github.com/enonic/app-nextxp[GitHub] / https://market.enonic.com[Enonic Market]
-| XP application for the back-end: enables front-end preview in Content Studio and holds the front-end server configuration.
+| Next.XP app
+| https://market.enonic.com/vendors/enonic/next.xp[Enonic Market]
+| XP application for authenticated front-end preview in Content Studio and revalidation of published content.
 |===
 
 Most front-end development happens in a project created from `starter-nextjs`. That project depends on `@enonic/nextjs-adapter`, while the corresponding Next.XP app runs in the Enonic XP installation.

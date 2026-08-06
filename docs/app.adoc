@@ -2,24 +2,42 @@
 :toc: right
 include::.variables.adoc[]
 
-The Next.XP app is installed in Enonic XP and added to sites rendered by Next.js. It bridges Content Studio and the external front end; public visitors still access Next.js directly.
+The Next.XP app is the Enonic XP companion to a Next.js front end. Install it from https://market.enonic.com/vendors/enonic/next.xp[Enonic Market] and add it to each XP site rendered through Next.XP.
 
-== Responsibilities
+The app connects Content Studio to the external front end. It makes the Next.js site available to editors for authenticated preview and notifies the front end when published content must be revalidated. Public visitors still access Next.js directly.
 
-The app:
+== Install and connect
 
-* Adds a site configuration field for selecting a named Next.js server
-* Proxies Content Studio page and component preview requests
-* Supplies render mode, project, base URL, and editor session context
-* Rewrites proxied asset and application URLs for Content Studio
-* Triggers Next.js revalidation after published content changes
+. Install **Next.XP** from https://market.enonic.com/vendors/enonic/next.xp[Enonic Market] into Enonic XP {xp-version}.
+. Ensure Guillotine is installed and configured for every project the front end will query.
+. Add the Next.XP app to the XP site.
+. Define at least one front-end URL and shared secret as described in <<app/configuration#,Configuration>>.
+. Select that front-end configuration in the site's Next.XP form, then save the site.
+. Open the site in Content Studio and verify that preview loads the Next.js front end.
 
-Most implementation logic is supplied by the bundled `lib-nextxp` XP library. The app provides the installable application identity, site descriptors, configuration selector, and event subscription.
+The application that owns the site's content types and page components remains a separate XP application.
 
-== Scope
+== What the app provides
 
-The proxy accepts draft-branch editing traffic and rejects live-mode proxying. It is not intended to serve the public site. This separation allows the Next.js deployment and its CDN to handle visitor traffic normally.
+=== Authenticated preview
 
-The application ID is `com.enonic.app.nextxp`; its configuration file is `com.enonic.app.nextxp.cfg`.
+The app proxies Content Studio page and component requests to Next.js. It carries the current editor's XP session, render mode, project, and site context, then adapts the response for Content Studio. Guillotine queries are consequently performed with the authenticated editor's permissions.
 
-See <<app/installation#,Installation>>, <<app/configuration#,App configuration>>, <<app/preview#,Preview proxy>>, and <<app/revalidation#,Revalidation>>.
+See <<app/preview#,Preview>> for the request flow, protected front-end endpoints, and component refresh behavior.
+
+=== Published-content revalidation
+
+The app listens for published XP content changes and calls the selected front end's protected revalidation endpoint. This lets Next.js refresh affected routes while continuing to serve the public site through its normal hosting and cache infrastructure.
+
+See <<app/revalidation#,Revalidation>> for event and path handling.
+
+== Division of responsibility
+
+The Next.XP app does not render the public website or replace Guillotine:
+
+* Enonic XP and Content Studio manage content and page composition.
+* Guillotine exposes that content to the front end.
+* The Next.js application and adapter fetch and render the website.
+* The Next.XP app supplies the bridge required for editor preview and cache revalidation.
+
+After installation, use <<app/configuration#,Configuration>> to define the reachable Next.js deployments and secure their protected endpoints.

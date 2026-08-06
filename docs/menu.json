@@ -25,7 +25,7 @@
                     "document": "concepts/preview"
                 },
                 {
-                    "title": "Projects and localization",
+                    "title": "Localization",
                     "document": "concepts/localization"
                 }
             ]
@@ -92,10 +92,6 @@
             "title": "Next.XP app",
             "document": "app",
             "menuItems": [
-                {
-                    "title": "Installation",
-                    "document": "app/installation"
-                },
                 {
                     "title": "Configuration",
                     "document": "app/configuration"
