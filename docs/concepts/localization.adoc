@@ -6,7 +6,7 @@ Next.XP maps each front-end locale to an XP project and a site within that proje
 
 == Mapping format
 
-Set `+ENONIC_MAPPINGS+` to a comma-separated list:
+Set `+ENONIC_MAPPINGS+` env var to a comma-separated list:
 
 [source,text]
 ----
@@ -26,7 +26,7 @@ Each entry has the form `locale:project/site`, where the `/site` segment is opti
 | XP project queried through Guillotine.
 
 | `/site`
-| Site root added when resolving content in XP and removed from public URLs.
+| Site root path added when resolving content in XP and removed from public URLs.
 |===
 
 == Mapping selection
@@ -34,6 +34,8 @@ Each entry has the form `locale:project/site`, where the `/site` segment is opti
 For direct Next.js requests, the locale route selects the mapping. For Content Studio requests, the `Content-Studio-Project` header takes precedence so preview follows the editor's active project. If neither identifies a mapping, the default entry is used.
 
 The starter's `src/proxy.ts` rewrites URLs without a locale segment to the resolved locale route. Public content paths remain site-relative: an XP path such as `/site/about` is presented as `/en/about` when `en` is the active locale.
+
+Default locale (first one in the `ENONIC_MAPPINGS` list) is not explicitly required in the URL. For example, `/en/about` and `/about` both resolve to the same content when `en` is default.
 
 == Static phrases
 

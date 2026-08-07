@@ -6,13 +6,14 @@ Next.XP lets Content Studio display the Next.js front end while editors work wit
 
 == Preview handshake
 
-. Content Studio requests a site that has the Next.XP app configured.
+. Content Studio requests preview of a site that has the Next.XP app configured.
 . The app selects a named front-end URL and shared secret.
 . The app forwards the request with the render mode, XP project, XP base URL, and the current editor's XP session.
 . The Next.js `/api/preview` route validates the token, enables Next.js Draft Mode, and redirects to the content path.
 . The adapter detects edit mode, forwards the XP session to Guillotine, and queries the `draft` branch.
 
-The app caches the resulting Next.js preview cookie and reuses it for later preview and component requests.
+
+NOTE: The app caches the resulting Next.js preview cookie and reuses it for later preview and component requests.
 
 == Authentication and permissions
 
@@ -35,7 +36,7 @@ The shared API token and the Next.js Draft Mode cookie have different purposes. 
 | Content Studio page editing. Uses draft content and adds component and region attributes.
 
 | `preview` or `inline`
-| Content Studio preview contexts. Uses draft content without normal public routing assumptions.
+| Content Studio preview contexts. Uses draft content in Next.js draft mode.
 
 | `live`
 | Published XP context. The preview proxy itself rejects live-mode proxying.
@@ -43,7 +44,7 @@ The shared API token and the Next.js Draft Mode cookie have different purposes. 
 
 == Editing annotations
 
-Content Studio recognizes rendered page structures through `data-portal-component-type` and `data-portal-region` attributes. Adapter {adapter-version} adds these attributes through its base component and region views when the render mode is `edit`.
+Content Studio recognizes rendered page structures through `data-portal-component-type` and `data-portal-region` attributes. Adapter adds these attributes through its base component and region views when the render mode is `edit`.
 
 The supporting `@enonic/react-components` package also implements these annotations in its generic component wrapper and region renderers. Next.XP currently uses that package directly for rich-text rendering, while the adapter supplies the page-tree annotations in the standard integration.
 
@@ -55,6 +56,6 @@ The `/api/renderable` endpoint tells Content Studio whether a descriptor has an 
 
 == Security
 
-The value of `+ENONIC_API_TOKEN+` in Next.js must match the secret configured for the selected front end in `com.enonic.app.nextxp.cfg`. Do not expose it through a `+NEXT_PUBLIC_+` variable. Restrict the preview endpoints to HTTPS in production.
+The value of `+ENONIC_API_TOKEN+` env var in Next.js must match the secret configured for the selected front end in `com.enonic.app.nextxp.cfg` Enonic XP config file. Do not expose it through a `+NEXT_PUBLIC_+` variable. Restrict the preview endpoints to HTTPS in production.
 
 See <<../app/preview#,Preview proxy>> for the XP-side implementation, <<../app/configuration#,App configuration>>, and <<../starter/configuration#,Starter configuration>>.

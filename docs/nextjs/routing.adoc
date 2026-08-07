@@ -37,7 +37,7 @@ This is a convention implemented by the catch-all route in `starter-nextjs`, not
 
 `src/proxy.ts` resolves locale information before the route runs. If the URL already begins with a configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route.
 
-Exclude API routes, Next.js assets, and everything under `public/` from the proxy matcher. Add new public directories to the matcher exclusion when the project structure changes.
+Excluded are API routes, Next.js assets, and everything under `public/` from the proxy matcher. Remember to add new public directories to the matcher exclusion when the project structure changes.
 
 == XP and public paths
 

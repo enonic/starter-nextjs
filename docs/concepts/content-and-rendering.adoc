@@ -11,11 +11,11 @@ Next.XP renders an XP content item by combining its content data with its page c
 . Resolve the locale, XP project, site path, render mode, and branch.
 . Query Guillotine for the content type and page metadata.
 . Select registered queries for the content type and component descriptors.
-. Combine those selections into a Guillotine data query.
-. Run registered processors and attach their results to the page tree.
+. Combine all of those selections into a single Guillotine data query.
+. Run registered processors on the retrieved data and attach their results to the page tree.
 . Return a `FetchContentResult` for rendering.
 
-The metadata request allows the adapter to request only the data required by the mapped content and components.
+NOTE: The metadata request allows the adapter to request only the data required by the mapped content and components.
 
 == Result model
 
@@ -39,7 +39,7 @@ The metadata request allows the adapter to request only the data required by the
 | Structured error information when content cannot be resolved or fetched.
 |===
 
-Call `validateData()` before rendering. It converts missing-content and shortcut results into the corresponding Next.js navigation behavior.
+TIP: Call `validateData()` before rendering. It converts missing-content and shortcut results into the corresponding Next.js navigation behavior.
 
 == Rendering
 

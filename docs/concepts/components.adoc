@@ -2,9 +2,9 @@
 :toc: right
 include::../.variables.adoc[]
 
-An XP page is composed from page, layout, part, text, image, and fragment components. Next.XP maps their XP descriptors to queries, processors, and React views through `ComponentRegistry`.
+An XP page is composed of `page`, `layout`, `part`, `text`, and `fragment` components. Next.XP maps their XP descriptors to queries, processors, and React views through `ComponentRegistry`.
 
-The adapter builds on `@enonic/react-components`, a shared library for rendering XP component trees and rich text in React applications. That library provides its own component registry, base views, regions, rich-text renderer, and Content Studio annotations. Adapter {adapter-version} uses its rich-text renderer and types directly; the adapter's own base views and registry provide the page-tree integration described on this page.
+The adapter builds on `@enonic/react-components`, a shared library for rendering XP component trees and rich text in React applications. That library provides base views, regions and rich-text renderer. Adapter {adapter-version} uses its rich-text renderer and types directly; the adapter's own base views and registry provide the page-tree integration described on this page.
 
 == Mapping a component
 
@@ -33,22 +33,22 @@ A mapping may define:
 | Guillotine selection and, when needed, a variables function.
 
 | `configQuery`
-| Additional selection for component configuration.
+| Additional selection for component configuration. Can only contain fields from the component's `config` object. Result is merged into the component's `data.config` property.
 
 | `processor`
-| Asynchronous transformation applied before props reach the view. Return an object or `null`, never `undefined`.
+| Asynchronous transformation applied on the query result before props reach the view. Return an `object` or `null`, never `undefined`.
 
 | `view`
 | React component used to render the mapping.
 |===
 
-Content types, pages, layouts, parts, macros, and generic component kinds have separate registration methods.
+Content types, pages, layouts, parts, macros, and generic component kinds have separate registration methods, but all mappings share the same query, processor, and view properties. See <<../adapter/common#component-definition-params, Adapter type definitions>> for more details.
 
 == View props
 
 Page and component views receive their descriptor data, component path, runtime `meta`, shared `common` data, and processed `data` when a query is registered. Layout views also receive their regions.
 
-Render regions with the adapter's `Region` views. They preserve component ordering and add editing attributes in Content Studio. Applications using the component-tree renderers from `@enonic/react-components` receive equivalent region and component annotations from that library.
+Render regions with the adapter's `Region` view. They preserve component ordering and add editing attributes in Content Studio. Applications using the component-tree renderers from `@enonic/react-components` receive equivalent region and component annotations from that library.
 
 == Fallback mappings
 

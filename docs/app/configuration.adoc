@@ -26,7 +26,9 @@ nextjs.production.secret=replace-this-production-secret
 | Token sent to the protected Next.js endpoints. It must equal `+ENONIC_API_TOKEN+` in that deployment.
 |===
 
-Names are case-insensitive in the configuration parser and appear in the site's **Configuration name** selector. Use `default` as the fallback and named entries when sites or environments use different front ends.
+Names are case-insensitive in the configuration parser and appear in the site's **Configuration name** selector.
+
+NOTE: Use `default` name to override the default values.
 
 == Defaults
 

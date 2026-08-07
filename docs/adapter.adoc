@@ -13,7 +13,7 @@ The adapter depends on `@enonic/react-components`, which provides reusable XP-aw
 npm install @enonic/nextjs-adapter
 ----
 
-Adapter {adapter-version} requires Node.js {node-minimum}+, npm {npm-minimum}+, Next.js {next-version}, and React {react-version}.
+Adapter {adapter-version} requires Node.js {node-minimum} +, npm {npm-minimum} +, Next.js {next-version}, and React {react-version}.
 
 == Entry points
 

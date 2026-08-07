@@ -29,7 +29,7 @@ Use `getUrl()` for application fields that contain XP-generated URLs outside ric
 * Preserves XP media endpoints for direct rendering and adapts them to the Content Studio preview context.
 * Processes each candidate in an image `srcset`.
 
-Enonic XP 8 media references use `+/_/media:image/+` and `+/_/media:attachment/+`. Adapter {adapter-version} recognizes these formats.
+NOTE: Enonic XP 8 media references use `+/_/media:image/+` and `+/_/media:attachment/+`. Adapter {adapter-version} recognizes these formats.
 
 == Editing behavior
 
