@@ -23,7 +23,7 @@ The adapter reads its connection and mapping settings from Next.js environment v
 | Comma-separated `locale:project/site-path` mappings. The first is the default.
 
 | `+ENONIC_API_TOKEN+`
-| For preview and revalidation
+| Yes, for preview and revalidation
 | Shared secret used by the starter's protected API routes. It must match the Next.XP app configuration.
 
 | `+ENONIC_LOGGING+`

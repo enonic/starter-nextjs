@@ -12,7 +12,7 @@ The app connects Content Studio to the external front end. It makes the Next.js 
 . Ensure Guillotine is installed and configured for every project the front end will query.
 . Add the Next.XP app to the XP site.
 . Define at least one front-end URL and shared secret as described in <<app/configuration#,Configuration>>.
-. Select that front-end configuration in the site's Next.XP form, then save the site.
+. Select that front-end configuration in the site's Next.XP config form, then save the site.
 . Open the site in Content Studio and verify that preview loads the Next.js front end.
 
 The application that owns the site's content types and page components remains a separate XP application.

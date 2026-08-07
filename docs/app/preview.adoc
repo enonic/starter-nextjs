@@ -8,7 +8,7 @@ Public visitors do not use this proxy. They access the Next.js deployment direct
 
 == Request flow
 
-. Content Studio requests a site that has the Next.XP app configured.
+. Content Studio requests preview of a site that has the Next.XP app configured.
 . The app selects the site's named front-end configuration and shared secret.
 . The preview proxy converts the XP editing URL into a site-relative Next.js path.
 . It forwards the render mode, XP project, XP base URL, editor session, query parameters, and shared token.

@@ -513,48 +513,6 @@ Returns
 
 `JSX.Element`.
 
-=== shouldShowMissingView
-
-Returns whether missing-component diagnostics should be visible. They are shown in development and in XP render modes other than `next`.
-
-[.lead]
-Parameters
-
-`meta` (<<common#meta-data,MetaData>>) — runtime request and editing context.
-
-[.lead]
-Returns
-
-`boolean`.
-
-=== shouldShowErrorView
-
-Returns whether component errors should be visible. Errors are shown in edit mode.
-
-[.lead]
-Parameters
-
-`meta` (<<common#meta-data,MetaData>>) — runtime request and editing context.
-
-[.lead]
-Returns
-
-`boolean`.
-
-=== shouldShowPlaceholderView
-
-Returns whether empty-component placeholders should be visible. Placeholders are shown in edit mode.
-
-[.lead]
-Parameters
-
-`meta` (<<common#meta-data,MetaData>>) — runtime request and editing context.
-
-[.lead]
-Returns
-
-`boolean`.
-
 == Classes
 
 The view entry points export no classes.
