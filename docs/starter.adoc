@@ -4,7 +4,7 @@ include::.variables.adoc[]
 
 https://github.com/enonic/starter-nextjs[`starter-nextjs`] is the canonical starting point for an Enonic-backed Next.js application. It is a normal Next.js App Router project with the adapter wiring required for content rendering, localization, Content Studio preview, and revalidation.
 
-The Next.XP {nextxp-version} starter targets Next.js {next-version}, React {react-version}, and `@enonic/nextjs-adapter` {adapter-version}. These are product majors; individual dependency patch versions may change as the starter is maintained.
+NOTE: This page documents the starter as released for Next.XP {nextxp-version}, targeting Next.js {next-version}, React {react-version}, and `@enonic/nextjs-adapter` {adapter-version}. These are majors; individual dependency patch versions may change as the starter is maintained.
 
 The starter is intentionally small. Copy it when beginning a project, or use it as a reference when integrating Next.XP into an existing Next.js application.
 

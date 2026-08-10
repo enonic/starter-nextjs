@@ -10,8 +10,11 @@
 :xp-version: 8
 :guillotine-version: 8
 
-// Front-end stack
+// Next.XP components (app-nextxp versions independently of the adapter)
 :adapter-version: 5
+:app-version: 4
+
+// Front-end stack
 :next-version: 16
 :react-version: 19
 

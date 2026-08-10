@@ -4,6 +4,8 @@ include::.variables.adoc[]
 
 The Next.XP app is the Enonic XP companion to a Next.js front end. Install it from https://market.enonic.com/vendors/enonic/next.xp[Enonic Market] and add it to each XP site rendered through Next.XP.
 
+NOTE: This page documents Next.XP app {app-version}, released with Next.XP {nextxp-version}. The app versions independently of `@enonic/nextjs-adapter`, so its major does not match the product version.
+
 The app connects Content Studio to the external front end. It makes the Next.js site available to editors for authenticated preview and notifies the front end when published content must be revalidated. Public visitors still access Next.js directly.
 
 == Install and connect
