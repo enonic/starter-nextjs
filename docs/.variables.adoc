@@ -12,7 +12,7 @@
 
 // Next.XP components (app-nextxp versions independently of the adapter)
 :adapter-version: 5
-:app-version: 4
+:app-version: 5
 
 // Front-end stack
 :next-version: 16

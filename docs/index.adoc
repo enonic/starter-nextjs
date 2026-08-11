@@ -37,27 +37,23 @@ In production, visitors access the Next.js front-end. Editors work in Content St
 
 Next.XP uses three release-aligned components and a shared React rendering library:
 
-[%header,cols="1,1,1,3"]
+[%header,cols="1,1,3"]
 |===
-| Component | Version | Distribution | Purpose
+| Component | Distribution | Purpose
 
 | <<adapter#,`@enonic/nextjs-adapter`>>
-| {adapter-version}
 | https://www.npmjs.com/package/@enonic/nextjs-adapter[npm]
 | Library used by the Next.js front-end: fetches content via the Guillotine GraphQL API, maps Enonic components to React views, processes rich text, and handles preview and localization.
 
 | `@enonic/react-components`
-| Own release cycle
 | https://www.npmjs.com/package/@enonic/react-components[npm]
 | Framework-neutral React components for rendering XP page structures and rich text. It can also emit the component and region annotations Content Studio needs when its page renderers are used. Next.XP installs it through the adapter and uses its rich-text renderer and related types directly.
 
 | <<starter#,`starter-nextjs`>>
-| {nextxp-version}
 | https://github.com/enonic/starter-nextjs[GitHub]
 | Next.js starter template representing canonical adapter usage — the recommended starting point for new projects.
 
 | <<app#,Next.XP app>>
-| {app-version}
 | https://market.enonic.com/vendors/enonic/next.xp[Enonic Market]
 | XP application for authenticated front-end preview in Content Studio and revalidation of published content.
 |===
