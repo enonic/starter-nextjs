@@ -15,7 +15,7 @@
     "@enonic/nextjs-adapter": "^5.0.0",
     "cross-env": "^10.1.0",
     "html-react-parser": "^5.2.11",
-    "next": "^16.3.0",
+    "next": "^16.3.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "unescape": "^1.0.1"
