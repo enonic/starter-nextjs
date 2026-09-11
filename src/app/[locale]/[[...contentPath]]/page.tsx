@@ -1,10 +1,10 @@
-import {FetchContentResult, validateData} from "@enonic/nextjs-adapter";
-import {fetchContent, fetchContentPathsForAllLocales} from "@enonic/nextjs-adapter/server";
+import { FetchContentResult, validateData } from '@enonic/nextjs-adapter';
+import { fetchContent, fetchContentPathsForAllLocales } from '@enonic/nextjs-adapter/server';
 import MainView from '@enonic/nextjs-adapter/views/MainView';
 
-import "../../../components/_mappings";
-import {Metadata} from 'next';
-import {draftMode} from 'next/headers';
+import '../../../components/_mappings';
+import { Metadata } from 'next';
+import { draftMode } from 'next/headers';
 import React from 'react';
 import PageEditorScript from '../../../components/views/PageEditorScript';
 
@@ -33,12 +33,12 @@ export default async function Page({params}: { params: Promise<PageProps> }) {
 
     validateData(data);
 
-    console.debug(`Rendered ${draft ? 'draft ' : ''}page at [/${data.meta.locale}/${data.meta.path}]`);
+    console.debug(`Rendered ${draft ? 'draft ' : ''}page at '/${data.meta.locale}/${data.meta.path}'`);
 
     return (
         <>
             <MainView {...data}/>
-            <PageEditorScript mode={data.meta.renderMode}/>
+            <PageEditorScript meta={data.meta}/>
         </>
     )
 };

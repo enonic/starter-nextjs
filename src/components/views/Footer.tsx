@@ -1,6 +1,6 @@
-import {I18n} from '@enonic/nextjs-adapter';
 import Link from 'next/link';
 import React from 'react';
+import { I18n } from '@enonic/nextjs-adapter';
 
 const Footer = () => (
     <footer style={{

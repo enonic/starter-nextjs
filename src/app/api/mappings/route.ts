@@ -1,21 +1,26 @@
-import {NextResponse, NextRequest} from 'next/server';
-import {validateBlob} from '../../../utils';
+import { NextResponse, NextRequest } from 'next/server';
+import type { UrlMappingRule } from '@enonic/nextjs-adapter';
+import { localizeMappings } from '@enonic/nextjs-adapter';
+import { resolveProjectMapping, validateBlob } from '../../../utils';
 
-const MAPPINGS = [
+const MAPPINGS: UrlMappingRule[] = [
     {
         sources: ['/.*'],
-        target: '/${_path}',
+        target: '/${siteRelativePath}',
     },
 ];
 
 export function GET(request: NextRequest) {
-    const {searchParams} = request.nextUrl;
-    const xpBlob = searchParams.get('xp');
-
-    let response = validateBlob(xpBlob);
-    if (response !== null) {
-        return response;
+    const blob = validateBlob(request.nextUrl.searchParams.get('xp'));
+    if (!blob.ok) {
+        return blob.response;
     }
 
-    return NextResponse.json({mappings: MAPPINGS});
+    const mapping = resolveProjectMapping(blob.params.xpProject);
+    if (!mapping) {
+        return NextResponse.json({ message: `No locale mapping for project "${blob.params.xpProject}"` },
+            { status: 404 });
+    }
+
+    return NextResponse.json({ mappings: localizeMappings(MAPPINGS, mapping) });
 }

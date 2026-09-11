@@ -1,12 +1,13 @@
-import {RENDER_MODE, XP_REQUEST_TYPE} from '@enonic/nextjs-adapter';
-import {LocaleContextProvider} from '@enonic/nextjs-adapter/client';
-import {fetchContent} from '@enonic/nextjs-adapter/server';
+import { I18n, RENDER_MODE, XP_REQUEST_TYPE } from '@enonic/nextjs-adapter';
+import { LocaleContextProvider } from '@enonic/nextjs-adapter/client';
+import { fetchContent } from '@enonic/nextjs-adapter/server';
+import DraftModeIndicator from '@enonic/nextjs-adapter/views/DraftModeIndicator';
 import StaticContent from '@enonic/nextjs-adapter/views/StaticContent';
-import {ReactNode} from 'react';
+import { ReactNode } from 'react';
 
 import '../../../styles/globals.css';
 
-import {PageProps} from './page';
+import { PageProps } from './page';
 
 type LayoutProps = {
     params: Promise<PageProps>
@@ -42,6 +43,7 @@ export default async function PageLayout({params, children}: LayoutProps) {
         <LocaleContextProvider locale={resolvedParams.locale}>
             <StaticContent condition={isEdit}>
                 <main>{children}</main>
+                <DraftModeIndicator label={I18n.localize('draft-mode')}/>
             </StaticContent>
         </LocaleContextProvider>
     )

@@ -14,14 +14,22 @@ function getEnonicWebpackConfig(config, { buildId, dev, isServer, defaultLoaders
     return config;
 }
 
-function getXpOrigin() {
+function getOrigin(urlString) {
     try {
-        const url = new URL(process.env.ENONIC_API);
         // Cast 127.0.0.1 to localhost to avoid CORS issues when running XP locally
-        return url.origin.replace('127.0.0.1', 'localhost');
+        return new URL(urlString).origin.replace('127.0.0.1', 'localhost');
     } catch {
         return undefined;
     }
+}
+
+function getXpOrigin() {
+    // Admin may be served from a different domain than the API
+    const adminOrigin = getOrigin(process.env.ENONIC_ADMIN);
+    if (adminOrigin) {
+        return adminOrigin;
+    }
+    return getOrigin(process.env.ENONIC_API);
 }
 
 async function getEnonicHeaders() {
@@ -60,6 +68,10 @@ async function getEnonicHeaders() {
 }
 
 const config = {
+    env: {
+        // Evaluated once per build (or dev server start): lets the proxy recognise a draft cookie issued by another build
+        BUILD_ID: Date.now().toString(36),
+    },
     reactStrictMode: true,
     trailingSlash: false,
     transpilePackages: ['@enonic/nextjs-adapter'],

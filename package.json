@@ -12,23 +12,23 @@
     "lint": "npx eslint"
   },
   "dependencies": {
-    "@enonic/nextjs-adapter": "^6.0.0-beta.2",
+    "@enonic/nextjs-adapter": "file:../npm-nextjs-adapter/enonic-nextjs-adapter-0.0.0.tgz",
     "@enonic/page-editor": "^2.0.1",
     "cross-env": "^10.1.0",
-    "html-react-parser": "^5.2.11",
+    "html-react-parser": "^5.2.17",
     "next": "^16.2.3",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "unescape": "^1.0.1"
   },
   "devDependencies": {
-    "@types/node": "^25.0.3",
-    "@types/react": "^19.2.7",
+    "@types/node": "^25.4.0",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/parser": "^8.52.0",
+    "@typescript-eslint/parser": "^8.57.0",
     "eslint": "^9.39.2",
-    "eslint-config-next": "^16.1.1",
-    "prettier": "^3.7.4",
+    "eslint-config-next": "^16.1.6",
+    "prettier": "^3.8.1",
     "typescript": "5.9.3"
   }
 }
