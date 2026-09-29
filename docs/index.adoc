@@ -78,7 +78,7 @@ Start with <<concepts/architecture#,Architecture>> to understand the request pat
 
 == Versioning
 
-The Next.XP product version follows the major version of `@enonic/nextjs-adapter`. The adapter is the version driver and the starter is released alongside it, while the Next.XP app and `@enonic/react-components` version independently. The versions this documentation covers are listed in the component table above, and each component page repeats the version it documents.
+The Next.XP product version follows the major version of `@enonic/nextjs-adapter`. The adapter is the version driver and the starter and the Next.XP app are released alongside it, while `@enonic/react-components` versions independently. The versions this documentation covers are listed in the component table above, and each component page repeats the version it documents.
 
 Next.XP {nextxp-version} targets Next.js {next-version} and React {react-version}, and requires Node.js {node-minimum}+ and npm {npm-minimum}+.
 

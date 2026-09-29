@@ -10,7 +10,7 @@ A minimal local configuration is:
 
 [source,text]
 ----
-ENONIC_API=http://127.0.0.1:8080/site/
+ENONIC_API=http://localhost:8080/api
 ENONIC_APP_NAME=com.example.site
 ENONIC_MAPPINGS=en:website/site
 ENONIC_API_TOKEN=replace-this-secret
@@ -26,7 +26,7 @@ See <<../nextjs/configuration#,Configuration>> for the complete variable referen
 
 == Shared secret
 
-`+ENONIC_API_TOKEN+` protects all three integration routes. Set the same value as `nextjs.<name>.secret` in `com.enonic.app.nextxp.cfg`. Rotate both sides together.
+`+ENONIC_API_TOKEN+` protects the proxy and all three integration routes. Set the same value as `nextjs.<name>.secret` in `com.enonic.app.nextxp.cfg`. Rotate both sides together.
 
 == Component registry
 
@@ -43,4 +43,4 @@ Set a shared query only when multiple views need the same data. Its result is ad
 
 The starter demonstrates an hourly `revalidate` value and static-path generation. These are examples, not requirements. Choose static, revalidated, or dynamic rendering according to the site's freshness and scale requirements.
 
-Keep `transpilePackages`, the `@phrases` aliases, and the Content Studio-compatible response policy when modifying `next.config.js`.
+Keep `transpilePackages`, the `@phrases` aliases, `env.BUILD_ID`, the CORS headers, and the Content Studio-compatible response policy when modifying `next.config.js`.

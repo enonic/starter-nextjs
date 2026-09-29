@@ -1,6 +1,59 @@
 = Release Notes
 :toc: right
 
+== Next.XP 6
+
+Next.XP 6 replaces the XP-side preview proxy with a preview widget that loads the Next.js front end directly, and moves to Guillotine 9. It requires Enonic XP 8.1 or later.
+
+=== Direct Content Studio preview
+
+The Next.XP app 6 adds a "Next.js Preview" widget to Content Studio. It fetches URL mapping rules from the front end's new `/api/mappings` endpoint, caches them per project, resolves the selected content item to a Next.js URL, and lets Content Studio load that URL directly from the Next.js server. The preview works without adding the app to the site; add it to enable revalidation or to select a named configuration.
+
+The `/api/renderable` endpoint is no longer used.
+
+=== Live page editing
+
+Next.js-rendered pages now support Content Studio's live page editing: component drag-and-drop, inline text editing, and click-to-select.
+
+=== Encrypted requests
+
+Requests from XP to `/api/preview`, `/api/mappings`, and `/api/revalidate` carry an `xp` parameter encrypted with the shared secret, instead of a plain token. `ENONIC_API_TOKEN` is still required and is now the encryption key. The adapter exports `encryptParams()` and `decryptParams()`.
+
+=== Proxy-driven draft mode
+
+The starter's `src/proxy.ts` validates the `xp` parameter, enables draft mode through `/api/preview` when the draft cookie is missing or belongs to another build (`BUILD_ID` in `next.config.js`), and redirects to the same URL without the parameter. Draft mode alone switches the adapter to `edit` render mode.
+
+The default locale no longer has a URL prefix: the proxy rewrites prefix-less URLs to the default locale's internal route and redirects `/<default locale>/...` to `/...`.
+
+=== Automatic Content Studio CSP allow listing
+
+The Next.XP app adds its configured front-end origins, together with `'self'`, to Content Studio's Content Security Policy (`frame-src`, `connect-src`, and `style-src`). Manual `contentSecurityPolicy.header` configuration of Content Studio is no longer needed. The default `http://localhost:3000` origin is allowed in dev mode only.
+
+=== CORS headers
+
+The starter's `next.config.js` sets CORS headers allowing the XP admin origin, taken from the new optional `ENONIC_ADMIN` variable or the origin of `ENONIC_API`.
+
+=== Guillotine 9
+
+* Queries pass `siteKey`, `project`, and `branch` to the `guillotine()` field instead of relying on the endpoint URL. The adapter supplies these variables to every registered query.
+* `imageUrl`, `mediaUrl`, `attachmentUrl`, and `pageUrl` return objects and require a subselection. The `type: absolute` argument and the `type` field of the `processHtml` input are removed.
+
+=== New API URL format
+
+`ENONIC_API` points to the XP API root (for example `http://localhost:8080/api`) instead of the `/site` endpoint. The Guillotine endpoint is `ENONIC_API` + `/` + `GUILLOTINE_API` (default `com.enonic.app.guillotine:graphql`). Media URLs are built from the new optional `ENONIC_MEDIA_CDN`, defaulting to `ENONIC_API`; no `media.defaultBaseUrl` configuration is needed in XP.
+
+=== Adapter v6
+
+* Added `imageUrlQuery()`/`imageUrl()`, `mediaUrlQuery()`/`mediaUrl()`, `attachmentUrlQuery()`/`attachmentUrl()`, and `pageUrlQuery()`/`pageUrl()`.
+* Added `localizeMappings()`, `encryptParams()`, `decryptParams()`, `getContentBranch()`, `richTextFragments()`, `withRichTextFragments()`, and the `FROM_XP_PARAM` constant.
+* Added the `DraftModeIndicator` view.
+* `richTextQuery()` selects the full `imageUrl`, `mediaUrl`, and `pageUrl` objects for images and links, and `RichTextView` rewrites them to absolute media URLs and locale-prefixed routes.
+* Removed `getContentApiUrl()`, `getUrl()`, `getAsset()`, and `UrlProcessor`.
+* `MetaData.apiUrl` is replaced by `branch`, `project`, and `site`.
+* Query and variables functions receive a `GlobalVariables` object instead of the content path.
+* `BaseMacro` no longer accepts `renderInEditMode`, and `RichTextView` no longer accepts `renderMacroInEditMode`; macros render in Content Studio as on the public site.
+* `IS_DEV_MODE` follows `NODE_ENV` instead of the `MODE` variable.
+
 == Next.XP 5
 
 This is an XP8 compatibility release, allowing you to upgrade to XP8 with minimal changes to your Next.XP 4 project.

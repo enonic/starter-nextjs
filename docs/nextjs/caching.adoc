@@ -17,7 +17,7 @@ This option requires the Next.js Node.js runtime. Use standard Next.js dynamic r
 
 == On-demand revalidation
 
-The Next.XP app subscribes to XP repository and content events. When published content changes, it calls the configured front end's `/api/revalidate` endpoint with the shared token.
+The Next.XP app subscribes to XP repository and content events. When published content changes, it calls the configured front end's `/api/revalidate` endpoint, encrypting the request with the shared secret.
 
 The endpoint uses `revalidatePath()`:
 
@@ -34,6 +34,8 @@ Next.js Draft Mode bypasses normal public rendering assumptions for Content Stud
 == Static generation
 
 Use `fetchContentPathsForAllLocales()` with `generateStaticParams()` when the set of content paths is suitable for pre-rendering. Limit or replace its query for large sites. Static generation requires on-demand revalidation to keep static pages up to date when changes occur.
+
+The build queries the `master` branch of every project in `+ENONIC_MAPPINGS+`, so publish the site in each project before building.
 
 The token configured in `+ENONIC_API_TOKEN+` env var must always remain server-side because it authorizes cache invalidation and should not be propagated to the client-side.
 

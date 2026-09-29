@@ -38,8 +38,8 @@ The project provides:
 * `fetchContent()` and `MainView` as the default rendering pipeline
 * Central registration of content and component mappings
 * Server and client phrase localization
-* Preview, renderability, and revalidation API routes
-* A Next.js proxy for locale routing
+* Preview, mappings, and revalidation API routes
+* A Next.js proxy for locale routing and Content Studio draft mode
 * Webpack and Turbopack aliases required by the adapter
 * Development views for unmapped content
 
@@ -72,16 +72,16 @@ The project provides:
 | Path | Responsibility
 
 | `src/app/api/preview/route.ts`
-| Validates the shared token, enables Draft Mode, and redirects Content Studio to the requested path.
+| Validates the `xp` parameter, enables Draft Mode, and redirects Content Studio to the requested path.
 
-| `src/app/api/renderable/route.ts`
-| Reports whether content and component descriptors have explicit render mappings.
+| `src/app/api/mappings/route.ts`
+| Returns the rules the Next.XP app uses to resolve content items to Next.js URLs.
 
 | `src/app/api/revalidate/route.ts`
 | Accepts secured publication notifications and calls `revalidatePath()`.
 
 | `src/proxy.ts`
-| Resolves locale mappings and rewrites paths without a locale segment.
+| Resolves locale mappings, rewrites paths without a locale segment, and enables Draft Mode for Content Studio requests.
 |===
 
 == Components and data

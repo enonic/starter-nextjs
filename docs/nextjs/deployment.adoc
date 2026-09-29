@@ -2,7 +2,7 @@
 :toc: right
 include::../.variables.adoc[]
 
-A production Next.XP deployment consists of an XP service, a reachable Guillotine endpoint, and a Next.js service. Visitors connect to Next.js; Content Studio connects to it through the Next.XP app.
+A production Next.XP deployment consists of an XP service, a reachable Guillotine endpoint, and a Next.js service. Visitors connect to Next.js; Content Studio loads it directly in its preview pane.
 
 == Requirements
 
@@ -20,28 +20,28 @@ For Next.XP {nextxp-version}, the front end requires Node.js {node-minimum}+ and
 
 | XP server
 | Next.js server
-| Content Studio preview, renderability checks, and revalidation
+| URL mappings and revalidation
 
 | Browser
 | Next.js server
-| Public site traffic
+| Public site traffic and Content Studio preview
 |===
 
-The Next.js URL configured in XP must be reachable from the XP nodes; `localhost` is only appropriate when both services share a host. Use HTTPS and a private network where possible.
+The Next.js URL configured in XP must be reachable from the XP nodes and from editors' browsers; `localhost` is only appropriate when all of them share a host. Use HTTPS and a private network where possible.
 
 == Configuration alignment
 
 Before deployment, verify that:
 
 * `+ENONIC_MAPPINGS+` names existing XP projects and sites.
-* `+ENONIC_API+` addresses the correct Guillotine installation.
+* `+ENONIC_API+` points to the API root of the correct XP installation.
 * The same secret is used for `+ENONIC_API_TOKEN+` and the selected XP front-end configuration.
-* The Next.XP app is installed and added to every site that needs Content Studio preview.
+* The Next.XP app is installed with the front-end URL configured explicitly, and added to every site that needs revalidation.
 * The front-end response policy allows Content Studio to embed the site.
-* Preview and revalidation API routes are deployed with a server runtime.
+* Preview, mappings, and revalidation API routes are deployed with a server runtime.
 
 == Public delivery
 
-Next.XP does not prescribe a hosting provider. Standard Next.js deployment, CDN, cache, observability, and scaling guidance applies. Preserve request headers and cookies on the Content Studio preview path when a proxy or platform sits in front of Next.js.
+Next.XP does not prescribe a hosting provider. Standard Next.js deployment, CDN, cache, observability, and scaling guidance applies. Preserve query parameters and cookies on the Content Studio preview path when a proxy or platform sits in front of Next.js.
 
 See link:{next-docs}[Next.js documentation] for framework deployment options and link:{xp-docs}[XP documentation] for platform operations.

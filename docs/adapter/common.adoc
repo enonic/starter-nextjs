@@ -11,37 +11,28 @@ Exports from `@enonic/nextjs-adapter` may be used in shared code unless their be
 import {
     ComponentRegistry,
     getLocaleMapping,
-    getUrl,
     I18n,
+    imageUrl,
+    imageUrlQuery,
     validateData
 } from '@enonic/nextjs-adapter';
 ----
 
 == Functions
 
-=== getContentApiUrl
+=== getContentBranch
 
-Returns the Guillotine URL for the context's project and branch. Direct and live requests use `master`; editing contexts use `draft`.
+Returns the XP branch for a request context: `master` for direct Next.js and `live` requests, `draft` for editing contexts.
 
 [.lead]
 Parameters
 
-`getContentApiUrl()` takes a single `context` object with these properties:
-
-[%header,cols="1%,1%,98%a"]
-[frame="none"]
-[grid="none"]
-|===
-| Name | Type | Description
-| `contentPath` | `string` or `string[]` | Site-relative content path.
-| `headers` | `Headers` | *Optional.* Request headers carrying Content Studio context.
-| `locale` | `string` | *Optional.* Route locale.
-|===
+`getContentBranch()` takes an optional <<context,Context>> object. Without it, the branch follows the `RENDER_MODE` environment variable, defaulting to `master`.
 
 [.lead]
 Returns
 
-`string` — absolute Guillotine project and branch URL.
+`string` — `master` or `draft`.
 
 === getLocaleMapping
 
@@ -50,7 +41,7 @@ Resolves the locale, project, and site mapping for a request. The Content Studio
 [.lead]
 Parameters
 
-`getLocaleMapping()` takes the same single `context` object as `getContentApiUrl()`.
+`getLocaleMapping()` takes a single <<context,Context>> object.
 
 [.lead]
 Returns
@@ -106,16 +97,16 @@ Returns `{locale, locales, defaultLocale}` for a request context. The project he
 [.lead]
 Parameters
 
-`getRequestLocaleInfo()` takes the same single `context` object as `getContentApiUrl()`.
+`getRequestLocaleInfo()` takes a single <<context,Context>> object.
 
 [.lead]
 Returns
 
 An object containing the selected `locale`, all configured `locales`, and `defaultLocale`.
 
-=== getUrl
+=== localizeMappings
 
-Processes an internal content or media URL for the supplied `MetaData`. It removes the XP site prefix and applies the public locale or Content Studio base URL.
+Prefixes the targets of URL mapping rules with a locale, for the `/api/mappings` response. Targets of the default mapping are returned unchanged, because default-locale URLs carry no prefix. Sources stay site-relative.
 
 [.lead]
 Parameters
@@ -125,8 +116,89 @@ Parameters
 [grid="none"]
 |===
 | Name | Type | Description
-| `url` | `string` | URL to process.
-| `meta` | <<meta-data,MetaData>> | Runtime context returned by `fetchContent()`.
+| `mappings` | <<url-mapping-rule,UrlMappingRule>>`[]` | Rules to localize.
+| `mapping` | `{locale, default}` | Locale mapping of the project, normally from `getLocaleMappingByProjectId()`.
+|===
+
+[.lead]
+Returns
+
+<<url-mapping-rule,UrlMappingRule>>`[]`.
+
+[.lead]
+Example
+
+[source,TypeScript]
+----
+const MAPPINGS: UrlMappingRule[] = [
+    {sources: ['/.*'], target: '/${siteRelativePath}'}
+];
+
+return NextResponse.json({mappings: localizeMappings(MAPPINGS, mapping)});
+----
+
+=== encryptParams
+
+Encrypts a JSON-serializable object with AES-256-GCM, using the SHA-256 hash of `secret` as the key. The result is the `xp` blob format the Next.XP app sends. Requires Node.js `crypto`, so call it only from server code.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `params` | `Record<string, any>` | Values to encrypt.
+| `secret` | `string` | Shared secret, normally `+ENONIC_API_TOKEN+`.
+|===
+
+[.lead]
+Returns
+
+`string` — base64url-encoded IV, ciphertext, and authentication tag.
+
+=== decryptParams
+
+Decrypts an `xp` blob produced by the Next.XP app or `encryptParams()`. Successful decryption proves that the sender knows the shared secret. Requires Node.js `crypto`, so call it only from server code.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `blob` | `string` | Value of the `xp` parameter.
+| `secret` | `string` | Shared secret, normally `+ENONIC_API_TOKEN+`.
+|===
+
+[.lead]
+Returns
+
+`Record<string, any>` with the decrypted values, such as `xpProject`, or `null` when the blob is invalid or was encrypted with another secret.
+
+=== imageUrlQuery
+
+Returns the Guillotine selection for an image URL: `imageUrl(<args>)` with every field of the <<image-url,ImageUrl>> type. Use it inside a `... on media_Image` selection.
+
+[.lead]
+Parameters
+
+`imageUrlQuery()` takes a single `args` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `scale` | `string` | Image scale, for example `width(500)` or `block(100,100)`.
+| `quality` | `number` | *Optional.* JPEG quality.
+| `background` | `string` | *Optional.* Background color for transparent images.
+| `format` | `string` | *Optional.* Output format, for example `webp`.
+| `filter` | `string` | *Optional.* Image filter.
+| `params` | `Record<string, unknown>` | *Optional.* Extra query parameters added to the URL.
 |===
 
 [.lead]
@@ -134,14 +206,153 @@ Returns
 
 `string`.
 
-=== getAsset
+[.lead]
+Example
 
-Processes a resource URL without adding a locale segment. Use it for assets rather than navigable content links.
+[source,TypeScript]
+----
+`... on media_Image { ${imageUrlQuery({scale: 'width(500)'})} }`
+----
+
+=== mediaUrlQuery
+
+Returns the Guillotine selection `mediaUrl(<args>)` with every field of the <<attachment-url,AttachmentUrl>> type.
 
 [.lead]
 Parameters
 
-The same `url` and `meta` parameters as `getUrl()`.
+`mediaUrlQuery()` takes an optional <<media-url-args,MediaUrlArgs>> object.
+
+[.lead]
+Returns
+
+`string`.
+
+=== attachmentUrlQuery
+
+Returns the Guillotine selection `attachmentUrl(<args>)` with every field of the <<attachment-url,AttachmentUrl>> type.
+
+[.lead]
+Parameters
+
+`attachmentUrlQuery()` takes an optional <<media-url-args,MediaUrlArgs>> object.
+
+[.lead]
+Returns
+
+`string`.
+
+=== pageUrlQuery
+
+Returns the Guillotine selection `pageUrl(<args>) { url path queryString }`.
+
+[.lead]
+Parameters
+
+`pageUrlQuery()` takes an optional `args` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `params` | `Record<string, unknown>` | *Optional.* Extra query parameters added to the URL.
+|===
+
+[.lead]
+Returns
+
+`string`.
+
+=== imageUrl
+
+Builds an absolute image URL from the result of `imageUrlQuery()`: the media base URL (`+ENONIC_MEDIA_CDN+`, default `+ENONIC_API+`) followed by the media part of `path` and the `queryString`. In client code without a `+NEXT_PUBLIC_+` copy of these variables, the path is returned unchanged.
+
+[.lead]
+Parameters
+
+`data` (<<image-url,ImageUrl>>, or any object with `path` and an optional `queryString`) — URL object from Guillotine. May be `null` or `undefined`.
+
+[.lead]
+Returns
+
+`string`, or `undefined` when `data` is empty.
+
+=== mediaUrl
+
+Builds an absolute media URL from the result of `mediaUrlQuery()`, in the same way as `imageUrl()`.
+
+[.lead]
+Parameters
+
+`data` (<<attachment-url,AttachmentUrl>>, or any object with `path` and an optional `queryString`) — URL object from Guillotine. May be `null` or `undefined`.
+
+[.lead]
+Returns
+
+`string`, or `undefined` when `data` is empty.
+
+=== attachmentUrl
+
+Builds an absolute attachment URL from the result of `attachmentUrlQuery()`, in the same way as `imageUrl()`.
+
+[.lead]
+Parameters
+
+`data` (<<attachment-url,AttachmentUrl>>, or any object with `path` and an optional `queryString`) — URL object from Guillotine. May be `null` or `undefined`.
+
+[.lead]
+Returns
+
+`string`, or `undefined` when `data` is empty.
+
+=== pageUrl
+
+Builds a relative Next.js URL from the result of `pageUrlQuery()`. The site-relative `path` is prefixed with `meta.locale` unless it equals `meta.defaultLocale`.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `data` | <<page-url,PageUrl>> | URL object from Guillotine. Only `path` is required, so `{path: '/'}` gives the site root. May be `null` or `undefined`.
+| `meta` | `{locale, defaultLocale}` | Usually the page's <<meta-data,MetaData>>. Without `defaultLocale`, the locale prefix is always added, which gives the internal `/[locale]` route path.
+|===
+
+[.lead]
+Returns
+
+`string`, or `undefined` when `data` is empty.
+
+[.lead]
+Example
+
+[source,tsx]
+----
+<Link href={pageUrl(parent.pageUrl, meta)}>Back</Link>
+<Link href={pageUrl({path: '/'}, meta)}>Home</Link>
+----
+
+=== richTextFragments
+
+Returns the GraphQL fragment definitions spread by `richTextQuery()`, including the registered macros. `fetchGuillotine()` appends them automatically; use this function for queries sent through another client.
+
+[.lead]
+Returns
+
+`string`.
+
+=== withRichTextFragments
+
+Appends the rich-text fragment definitions a query spreads but does not define.
+
+[.lead]
+Parameters
+
+`query` (`string`) — GraphQL document.
 
 [.lead]
 Returns
@@ -288,26 +499,6 @@ Returns the active locale.
 
 Returns the loaded phrase dictionary.
 
-=== UrlProcessor
-
-Low-level URL processor used by `getUrl()`, `getAsset()`, and rich-text views.
-
-==== process
-
-Processes a URL using `MetaData`. Optional flags distinguish server-side output and resource URLs.
-
-==== processSrcSet
-
-Processes every URL in an image `srcset`, preserving width and pixel-density descriptors.
-
-==== isMediaLink
-
-Tests whether a rich-text link reference points to media.
-
-==== isContentImage
-
-Tests whether a rich-text image reference resolves to content.
-
 == Type Definitions
 
 [#context]
@@ -351,10 +542,101 @@ Tests whether a rich-text image reference resolves to content.
 | `view` | `React.FunctionComponent` | *Optional.* React renderer.
 |===
 
+[#global-variables]
+=== GlobalVariables
+
+Variables the adapter supplies to every registered query. A variables function must return them, optionally with additional variables.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `path` | `string` | Full XP content path, including the site.
+| `siteKey` | `string` | Site path from the locale mapping.
+| `project` | `string` | XP project from the locale mapping.
+| `branch` | `string` | `draft` in draft mode, otherwise `master`.
+|===
+
+[#url-mapping-rule]
+=== UrlMappingRule
+
+One rule of the `/api/mappings` response.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `sources` | `string[]` | Conditions a content item must meet. A `field:value` entry compares a content field, for example `type:portal:site`; any other entry is a regular expression matched against the item's site-relative path.
+| `target` | `string` | Next.js URL template. `+${siteRelativePath}+` is replaced by the item's site-relative path; other `+${field}+` placeholders are replaced by content field values.
+| `matchAny` | `boolean` | *Optional.* Match when any source matches instead of all. Default: `false`.
+|===
+
+[#image-url]
+=== ImageUrl
+
+Result of `imageUrlQuery()`.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `url` | `string` | Ready-made URL, with the base URL resolved by XP.
+| `path` | `string` | Full media API path with a leading slash.
+| `queryString` | `string` | URL-escaped query string with a `?` prefix.
+| `context` | `string` | Project context segment.
+| `id` | `string` | Content ID.
+| `fingerprint` | `string` | Media fingerprint.
+| `scale` | `string` | Processed scale segment.
+| `name` | `string` | File name, with the requested format extension.
+|===
+
+[#attachment-url]
+=== AttachmentUrl
+
+Result of `mediaUrlQuery()` and `attachmentUrlQuery()`. It has the `url`, `path`, `queryString`, `context`, `id`, `fingerprint`, and `name` fields of <<image-url,ImageUrl>>, plus:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `intent` | `string` | `download` or `inline`.
+|===
+
+[#page-url]
+=== PageUrl
+
+Result of `pageUrlQuery()`.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `url` | `string` | URL as XP resolves it.
+| `path` | `string` | Site-relative content path.
+| `queryString` | `string` | URL-escaped query string.
+|===
+
+[#media-url-args]
+=== MediaUrlArgs
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `download` | `boolean` | *Optional.* Serve the file as a download.
+| `params` | `Record<string, unknown>` | *Optional.* Extra query parameters added to the URL.
+|===
+
 [#meta-data]
 === MetaData
 
-Runtime information returned by `fetchContent()`: content identity and path, project, site, branch, API and preview base URLs, locale, render mode, request type, renderability, and requested component.
+Runtime information returned by `fetchContent()`: content identity and path, project, site, branch, XP base URL, locale, render mode, request type, renderability, and requested component.
 
 == Constants
 
@@ -366,7 +648,7 @@ Runtime information returned by `fetchContent()`: content identity and path, pro
 | Application key from the environment and descriptor-safe variants.
 
 | `+IS_DEV_MODE+`
-| Whether `MODE` is `development`.
+| Whether `NODE_ENV` is `development`, as under `next dev`.
 
 | `+CATCH_ALL+`
 | Registry key for a fallback definition.
@@ -376,6 +658,9 @@ Runtime information returned by `fetchContent()`: content identity and path, pro
 
 | `+XP_COMPONENT_TYPE+`, `+XP_REQUEST_TYPE+`
 | Normalized page-component kinds and fetch request kinds.
+
+| `+FROM_XP_PARAM+`
+| Name of the query parameter carrying the encrypted blob from XP: `xp`.
 
 | `+RENDER_MODE_HEADER+`, `+PROJECT_ID_HEADER+`, `+XP_BASE_URL_HEADER+`, `+JSESSIONID_HEADER+`
 | Header names shared with the XP preview proxy.

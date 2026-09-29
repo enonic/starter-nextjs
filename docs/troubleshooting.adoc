@@ -13,35 +13,47 @@ Start with the request path that is failing: direct Next.js rendering, Next.js-t
 | Adapter reports a missing environment variable
 | Define `+ENONIC_API+`, `+ENONIC_APP_NAME+`, and `+ENONIC_MAPPINGS+` before the Next.js process starts. Rebuild when changing browser-visible variables.
 
+| Every query fails with 404
+| `+ENONIC_API+` must point to the XP API root, for example `http://localhost:8080/api`, not to the `/site` endpoint.
+
 | Content returns 404
 | Check the locale mapping, XP project, site path, publication state, and requested site-relative path. Direct requests read `master`; Content Studio reads `draft`.
 
 | Guillotine returns validation errors
-| Verify the query against Guillotine {guillotine-version}, the application schema, variables, and project/branch endpoint. Component queries are combined, so the server log identifies the failing selection.
+| Verify the query against Guillotine {guillotine-version}, the application schema, variables, and the `siteKey`, `project`, and `branch` arguments of the `guillotine()` field. URL fields such as `imageUrl` require a subselection. Component queries are combined, so the server log identifies the failing selection.
 
 | Page renders but a component is missing
 | Register the exact application-qualified descriptor and import the mappings before `fetchContent()`. Catch-all mappings do not make components production-renderable.
 
-| Content Studio preview returns 407
-| The token sent by XP does not match `+ENONIC_API_TOKEN+`, or the token is absent. Compare it with `nextjs.<name>.secret`.
+| Content Studio preview returns 401
+| The `xp` parameter sent by XP cannot be decrypted with `+ENONIC_API_TOKEN+`, or is absent. Compare it with `nextjs.<name>.secret`.
+
+| Content Studio reports that the content cannot be rendered
+| Check that the project is listed in `+ENONIC_MAPPINGS+` and that XP can reach `/api/mappings`. Mappings are cached per project for up to 24 hours.
+
+| Preview is blocked by the browser
+| In production mode, only explicitly configured front-end URLs are allowed in Content Studio's Content Security Policy. For CORS errors, set `+ENONIC_ADMIN+` when the XP admin runs on another domain than `+ENONIC_API+`.
 
 | Content Studio cannot contact the front end
 | Test the configured URL from the XP host. `localhost` refers to the XP host or container, not the editor's computer.
 
 | Preview shows published instead of draft content
-| Confirm `/api/preview` enables Draft Mode and the proxy cookie is preserved. Check the `Content-Studio-Mode` header.
+| Confirm `/api/preview` enables Draft Mode and the draft cookie is preserved. Check that `env.BUILD_ID` is defined in `next.config.js`.
+
+| Images are missing in preview only
+| Use the same host for `+ENONIC_API+` (or `+ENONIC_MEDIA_CDN+`) as for Content Studio, for example `localhost` rather than `127.0.0.1`.
 
 | Internal links contain the XP site name
-| Check that the site segment in `+ENONIC_MAPPINGS+` matches the actual XP site path and render links through `getUrl()` or `RichTextView`.
+| Check that the site segment in `+ENONIC_MAPPINGS+` matches the actual XP site path and render links through `pageUrl()` or `RichTextView`.
 
 | Locale route loops or rewrites assets
 | Ensure `src/proxy.ts` excludes configured locales, API routes, Next.js internals, and all top-level public asset paths.
 
 | Published changes remain cached
-| Confirm the site uses Next.XP, the XP master node subscribed successfully, `/api/revalidate` is reachable, and the shared token matches.
+| Confirm the published site uses Next.XP, the XP master node subscribed successfully, `/api/revalidate` is reachable, and the shared token matches.
 
 | Component preview refresh fails but full page works
-| Verify the component has an explicit mapping and that the catch-all layout preserves the single-component marker used by the XP proxy.
+| Verify the component has an explicit mapping and that the catch-all layout preserves the single-component marker.
 |===
 
 == Diagnostic context

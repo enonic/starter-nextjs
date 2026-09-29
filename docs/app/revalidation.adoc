@@ -4,7 +4,7 @@ include::../.variables.adoc[]
 
 The Next.XP app notifies the Next.js front end when published XP content changes. This allows statically generated or cached routes to be refreshed without sending public traffic through XP.
 
-Revalidation is independent of the Content Studio preview proxy: preview reads current draft content through Next.js Draft Mode, while revalidation updates the public cache after content is published.
+Revalidation is independent of the Content Studio preview: preview reads current draft content through Next.js Draft Mode, while revalidation updates the public cache after content is published.
 
 == Content events
 
@@ -16,19 +16,19 @@ The subscriber runs on the XP cluster master so a clustered installation does no
 
 Normal publish events invalidates the affected site. Move and rename events also retain the previous path, allowing both the old and new public routes to be invalidated.
 
-The active XP project is sent in the `Content-Studio-Project` header. The front end uses it to resolve the correct locale and project mapping before invalidating paths.
+The active XP project is sent in the encrypted `xp` parameter and in the `Content-Studio-Project` header. The front end uses it to resolve the correct locale and project mapping before invalidating paths.
 
 == Front-end endpoint
 
 The app calls the protected `/api/revalidate` route on the selected Next.js front end. The starter provides the canonical route handler; a custom front end must implement the same integration contract.
 
-The handler validates the shared token and applies Next.js path revalidation to the affected routes or the entire site, depending on the presence of the `path` parameter. The front end remains responsible for its caching policy and for any additional tags or application-specific caches.
+The handler decrypts the `xp` parameter with the shared secret and applies Next.js path revalidation to the affected routes or the entire site, depending on the presence of the `path` parameter. The front end remains responsible for its caching policy and for any additional tags or application-specific caches.
 
 See <<../nextjs/caching#,Caching and revalidation>> for the corresponding Next.js behavior.
 
 == Configuration and security
 
-The destination URL and token come from the site's selected entry in `com.enonic.app.nextxp.cfg`. The token must match `+ENONIC_API_TOKEN+` env var in the front-end deployment, and `/api/revalidate` must reject requests with an invalid token.
+The destination URL and token come from the site's selected entry in `com.enonic.app.nextxp.cfg`. The token must match `+ENONIC_API_TOKEN+` env var in the front-end deployment, and `/api/revalidate` must reject requests whose `xp` parameter cannot be decrypted.
 
 XP must be able to reach the configured URL from the cluster master. Use HTTPS outside a trusted local network and use a unique secret for every shared or production environment.
 

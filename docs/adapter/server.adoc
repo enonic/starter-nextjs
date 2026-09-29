@@ -54,7 +54,7 @@ const result = await fetchContent({
 
 === fetchGuillotine
 
-Sends a GraphQL request to Guillotine, minifies the query, and normalizes GraphQL and transport errors into a `GuillotineResult`.
+Sends a GraphQL request to Guillotine, minifies the query, and normalizes GraphQL and transport errors into a `GuillotineResult`. The query must pass `project` and `branch`, and `siteKey` where needed, to the `guillotine()` field.
 
 [.lead]
 Parameters

@@ -12,7 +12,7 @@ The adapter reads its connection and mapping settings from Next.js environment v
 
 | `+ENONIC_API+`
 | Yes
-| Absolute Guillotine endpoint URL, normally ending in `/site/`.
+| Absolute URL of the Enonic XP API root, for example `http://localhost:8080/api`.
 
 | `+ENONIC_APP_NAME+`
 | Yes
@@ -24,24 +24,34 @@ The adapter reads its connection and mapping settings from Next.js environment v
 
 | `+ENONIC_API_TOKEN+`
 | Yes, for preview and revalidation
-| Shared secret used by the starter's protected API routes. It must match the Next.XP app configuration.
+| Shared secret used by the starter's proxy and protected API routes. It must match the Next.XP app configuration.
+
+| `+GUILLOTINE_API+`
+| No
+| Guillotine API appended to `+ENONIC_API+`. Default: `com.enonic.app.guillotine:graphql`.
+
+| `+ENONIC_MEDIA_CDN+`
+| No
+| Base URL for images and attachments. Default: `+ENONIC_API+`.
+
+| `+ENONIC_ADMIN+`
+| No
+| Enonic admin URL, used for CORS when the admin is served from a different domain than the API. Default: the origin of `+ENONIC_API+`.
 
 | `+ENONIC_LOGGING+`
 | No
 | Enables adapter diagnostic logging when configured by the application.
-
-| `MODE`
-| No
-| Set to `development` to expose development-only diagnostics and catch-all behavior.
 |===
 
 [source,text]
 ----
-ENONIC_API=https://xp.example.com/site/
+ENONIC_API=https://xp.example.com/api
 ENONIC_APP_NAME=com.example.site
 ENONIC_MAPPINGS=en:website/site,no:website-no/site
 ENONIC_API_TOKEN=replace-with-a-long-random-value
 ----
+
+Development-only diagnostics and catch-all behavior are enabled when `NODE_ENV` is `development`, as under `next dev`.
 
 == Browser-visible variables
 
@@ -52,12 +62,13 @@ When common adapter exports are used in client bundles, publish the non-secret e
 NEXT_PUBLIC_ENONIC_API=$ENONIC_API
 NEXT_PUBLIC_ENONIC_APP_NAME=$ENONIC_APP_NAME
 NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS
+NEXT_PUBLIC_ENONIC_MEDIA_CDN=$ENONIC_MEDIA_CDN
 ----
 
 Never publish `+ENONIC_API_TOKEN+`. Values prefixed with `+NEXT_PUBLIC_+` are embedded in browser JavaScript.
 
 == Next.js configuration
 
-The starter configures `@phrases` for both webpack and Turbopack, transpiles `@enonic/nextjs-adapter`, and supplies a Content Security Policy compatible with Content Studio embedding. Preserve those settings when merging the integration into an existing Next.js application.
+The starter configures `@phrases` for both webpack and Turbopack, transpiles `@enonic/nextjs-adapter`, supplies a Content Security Policy compatible with Content Studio embedding, sets CORS headers allowing the XP admin origin, and defines `env.BUILD_ID`, used to detect a draft cookie issued by another build. Preserve those settings when merging the integration into an existing Next.js application.
 
 See <<../starter/configuration#,Starter configuration>> for the complete connection between Next.js and the XP app.

@@ -4,15 +4,15 @@
 // then reference attributes like {adapter-version} in the text.
 
 // Next.XP product version (follows the adapter major)
-:nextxp-version: 5
+:nextxp-version: 6
 
 // Enonic stack
-:xp-version: 8
-:guillotine-version: 8
+:xp-version: 8.1
+:guillotine-version: 9
 
-// Next.XP components (app-nextxp versions independently of the adapter)
-:adapter-version: 5
-:app-version: 5
+// Next.XP components
+:adapter-version: 6
+:app-version: 6
 
 // Front-end stack
 :next-version: 16

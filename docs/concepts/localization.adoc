@@ -29,13 +29,15 @@ Each entry has the form `locale:project/site`, where the `/site` segment is opti
 | Site root path added when resolving content in XP and removed from public URLs.
 |===
 
+Every project used for Content Studio preview must appear in the list. Otherwise `/api/mappings` answers `404` and Content Studio reports that the content cannot be rendered.
+
 == Mapping selection
 
-For direct Next.js requests, the locale route selects the mapping. For Content Studio requests, the `Content-Studio-Project` header takes precedence so preview follows the editor's active project. If neither identifies a mapping, the default entry is used.
+For direct Next.js requests, the locale route selects the mapping. For Content Studio requests, the preview URL carries the locale of the editor's active project, so preview follows that project. If neither identifies a mapping, the default entry is used.
 
-The starter's `src/proxy.ts` rewrites URLs without a locale segment to the resolved locale route. Public content paths remain site-relative: an XP path such as `/site/about` is presented as `/en/about` when `en` is the active locale.
+The starter's `src/proxy.ts` rewrites URLs without a locale segment to the default locale route. Public content paths remain site-relative: an XP path such as `/site/about` is presented as `/no/about` when `no` is the active locale.
 
-Default locale (first one in the `ENONIC_MAPPINGS` list) is not explicitly required in the URL. For example, `/en/about` and `/about` both resolve to the same content when `en` is default.
+Default locale (first one in the `ENONIC_MAPPINGS` list) is not included in the URL. For example, `/about` resolves to the content when `en` is default, and `/en/about` redirects to `/about`.
 
 == Static phrases
 

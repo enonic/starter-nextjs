@@ -9,20 +9,20 @@ The starter uses the Next.js App Router with a locale segment followed by an opt
 src/app/[locale]/[[...contentPath]]/page.tsx
 ----
 
-This maps `/en/about/team` to locale `en` and content path `about/team`.
+This maps `/no/about/team` to locale `no` and content path `about/team`.
 
 == Default path mapping
 
 The standard route maps the public URL path one-to-one to the content path below the configured XP site. It removes the locale segment before lookup, then the adapter adds the configured site path when querying Guillotine.
 
-For the mapping `en:website/site`:
+For the non-default mapping `no:website-no/site`:
 
 [%header,cols="1,2"]
 |===
 | Value | Path
 
 | Public URL
-| `/en/about/team`
+| `/no/about/team`
 
 | Route `contentPath`
 | `about/team`
@@ -35,15 +35,15 @@ This is a convention implemented by the catch-all route in `starter-nextjs`, not
 
 == Locale rewrite
 
-`src/proxy.ts` resolves locale information before the route runs. If the URL already begins with a configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route.
+`src/proxy.ts` resolves locale information before the route runs. If the URL already begins with a non-default configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route. A URL beginning with the default locale is redirected to the same path without it. When the URL carries Content Studio's `xp` parameter, the proxy first enables draft mode through `/api/preview` and removes the parameter.
 
 Excluded are API routes, Next.js assets, and everything under `public/` from the proxy matcher. Remember to add new public directories to the matcher exclusion when the project structure changes.
 
 == XP and public paths
 
-XP stores content below a site, but public URLs are site-relative. For a mapping such as `en:website/site`, XP content `/site/news/item` becomes `/en/news/item` in Next.js. `UrlProcessor` applies the same rule to links returned in content.
+XP stores content below a site, but public URLs are site-relative. For a mapping such as `no:website-no/site`, XP content `/site/news/item` becomes `/no/news/item` in Next.js. `pageUrl()` applies the same rule to links returned in content.
 
-Non-default locales are included in processed internal URLs. External absolute URLs and fragment-only links are left unchanged; absolute XP URLs may be normalized into site-relative links.
+Non-default locales are included in internal URLs. External absolute URLs are left unchanged.
 
 == Missing content and shortcuts
 

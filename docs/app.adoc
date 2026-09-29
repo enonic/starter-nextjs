@@ -4,7 +4,7 @@ include::.variables.adoc[]
 
 The Next.XP app is the Enonic XP companion to a Next.js front end. Install it from https://market.enonic.com/vendors/enonic/next.xp[Enonic Market] and add it to each XP site rendered through Next.XP.
 
-NOTE: This page documents Next.XP app {app-version}, released with Next.XP {nextxp-version}. The app versions independently of `@enonic/nextjs-adapter`, so its major does not match the product version.
+NOTE: This page documents Next.XP app {app-version}, released with Next.XP {nextxp-version}. The app follows the major version of `@enonic/nextjs-adapter`.
 
 The app connects Content Studio to the external front end. It makes the Next.js site available to editors for authenticated preview and notifies the front end when published content must be revalidated. Public visitors still access Next.js directly.
 
@@ -23,7 +23,7 @@ The application that owns the site's content types and page components remains a
 
 === Authenticated preview
 
-The app proxies Content Studio page and component requests to Next.js. It carries the current editor's XP session, render mode, project, and site context, then adapts the response for Content Studio. Guillotine queries are consequently performed with the authenticated editor's permissions.
+The app adds a "Next.js Preview" widget that resolves the Next.js URL of the content selected in Content Studio. Content Studio then loads the page directly from Next.js, which renders draft content in Draft Mode.
 
 See <<app/preview#,Preview>> for the request flow, protected front-end endpoints, and component refresh behavior.
 

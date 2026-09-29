@@ -21,13 +21,20 @@ The view supplies `@enonic/react-components` with Next.js-aware link, image, and
 
 == URL processing
 
-Use `getUrl()` for application fields that contain XP-generated URLs outside rich text. `UrlProcessor`:
+In Guillotine {guillotine-version}, `imageUrl`, `mediaUrl`, `attachmentUrl`, and `pageUrl` return objects and require a subselection. For application fields outside rich text, query them with the adapter's helpers and render them with the matching functions:
 
-* Removes the configured XP site prefix from content URLs.
-* Adds a non-default locale to internal front-end URLs.
-* Preserves external absolute and fragment-only URLs.
-* Preserves XP media endpoints for direct rendering and adapts them to the Content Studio preview context.
-* Processes each candidate in an image `srcset`.
+* `imageUrlQuery()`/`imageUrl()`, `mediaUrlQuery()`/`mediaUrl()`, and `attachmentUrlQuery()`/`attachmentUrl()` build absolute media URLs based on `+ENONIC_MEDIA_CDN+`, which defaults to `+ENONIC_API+`.
+* `pageUrlQuery()`/`pageUrl(data, meta)` build site-relative content URLs, adding a non-default locale.
+
+[source,TypeScript]
+----
+`... on media_Image { ${imageUrlQuery({scale: 'width(500)'})} }`
+
+<img src={imageUrl(photo.imageUrl)}/>
+<Link href={pageUrl(parent.pageUrl, meta)}>Back</Link>
+----
+
+`RichTextView` applies the same functions to links and images in rich text.
 
 NOTE: Enonic XP 8 media references use `+/_/media:image/+` and `+/_/media:attachment/+`. Adapter {adapter-version} recognizes these formats.
 

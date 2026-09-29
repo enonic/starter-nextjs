@@ -8,7 +8,7 @@ Next.XP adds a small integration layer to a standard Next.js App Router applicat
 
 The Next.js application uses `@enonic/nextjs-adapter` to resolve an incoming route to an XP project, site, branch, and content path. Registered queries retrieve the required data from Guillotine, and registered views render the resulting content and component tree.
 
-The Next.js application exposes three protected route handlers that the Next.XP app calls for preview, renderability checks, and revalidation:
+The Next.js application exposes three protected route handlers that the Next.XP app calls for preview, URL mappings, and revalidation:
 
 [%header,cols="2,3"]
 |===
@@ -17,8 +17,8 @@ The Next.js application exposes three protected route handlers that the Next.XP 
 | `/api/preview`
 | Enables Next.js Draft Mode for Content Studio.
 
-| `/api/renderable`
-| Reports whether content and component descriptors have explicit mappings.
+| `/api/mappings`
+| Returns the rules the Next.XP app uses to resolve content items to Next.js URLs.
 
 | `/api/revalidate`
 | Invalidates cached routes after published content changes.

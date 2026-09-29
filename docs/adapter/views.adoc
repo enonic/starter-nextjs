@@ -162,7 +162,7 @@ Returns
 
 === BaseMacro
 
-Resolves a rich-text macro in `ComponentRegistry`. In edit mode it preserves macro syntax unless `renderInEditMode` is enabled; macro configuration values are normalized before reaching the mapped view.
+Resolves a rich-text macro in `ComponentRegistry`. Macro configuration values are normalized before reaching the mapped view.
 
 [.lead]
 Parameters
@@ -177,7 +177,6 @@ Parameters
 | `children` | `ReactNode` | Content enclosed by the macro.
 | `data` | `Omit<`<<macro-data,`MacroData`>>`, 'ref'>` | Macro name, descriptor, and Guillotine configuration.
 | `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
-| `renderInEditMode` | `boolean` | *Optional.* Render the mapped macro inside Content Studio instead of preserving its source syntax. Default: `false`.
 |===
 
 [.lead]
@@ -267,8 +266,7 @@ Parameters
 | `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context used for URLs and annotations.
 | `className` | `string` | *Optional.* CSS class applied to the rich-text wrapper.
 | `tag` | `string` | *Optional.* HTML element used as the wrapper.
-| `renderMacroInEditMode` | `boolean` | *Optional.* Render mapped macros in edit mode. Default: `true`.
-| `customReplacer` | `(domNode, data, meta, renderMacroInEditMode) => ReactElement \| DOMNode` | *Optional.* Replaces an HTML parser node. Returning the original node leaves it unchanged.
+| `customReplacer` | `(domNode, data, meta) => ReactElement \| DOMNode` | *Optional.* Replaces an HTML parser node. Returning the original node leaves it unchanged.
 |===
 
 [.lead]
@@ -364,6 +362,36 @@ Example
 </StaticContent>
 ----
 
+=== DraftModeIndicator
+
+Renders a button that disables Next.js draft mode when the page is opened in draft mode outside Content Studio.
+
+[.lead]
+Parameters
+
+`DraftModeIndicator()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `label` | `string` | *Optional.* Button text. Default: `Draft Mode`.
+|===
+
+[.lead]
+Returns
+
+`Promise<JSX.Element>`, or `null` when draft mode is disabled.
+
+[.lead]
+Example
+
+[source,tsx]
+----
+<DraftModeIndicator label={I18n.localize('draft-mode')}/>
+----
+
 === PropsView
 
 Development view that prints JSON representations of known mapping props. Its declaration accepts any props object; these are the properties it displays:
@@ -399,7 +427,7 @@ Returns
 
 === Text
 
-Base mapping for XP text components. It delegates the text value to `RichTextView` and disables mapped macro rendering in edit mode.
+Base mapping for XP text components. It delegates the text value to `RichTextView`.
 
 [.lead]
 Parameters

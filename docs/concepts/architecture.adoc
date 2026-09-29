@@ -21,7 +21,7 @@ Visitors and editors reach the same Next.js application through different paths:
 | Draft content, with editing metadata and preview context
 |===
 
-The public site is served by Next.js. The Next.XP app is only in the Content Studio preview path; it is not a production reverse proxy.
+The public site is served by Next.js. The Next.XP app only resolves the Next.js URL that Content Studio loads; it is not a proxy.
 
 == Responsibilities
 
@@ -45,7 +45,7 @@ The public site is served by Next.js. The Next.XP app is only in the Content Stu
 | Shows the canonical Next.js routes, component registry, localization, preview endpoints, and revalidation endpoint.
 
 | Next.XP app
-| Connects Content Studio to the front-end server, proxies preview responses, and notifies Next.js after publication.
+| Connects Content Studio to the front-end server, resolves preview URLs, and notifies Next.js after publication.
 |===
 
 == Data flow
@@ -56,4 +56,4 @@ See <<content-and-rendering#,Content and rendering>> for the request model and <
 
 == Trust boundaries
 
-The Next.js server must be able to reach Guillotine, and XP must be able to reach the Next.js preview endpoints. A shared token protects preview, renderability, and revalidation requests. Keep this token server-side and use HTTPS between separately hosted services.
+The Next.js server must be able to reach Guillotine, XP must be able to reach the Next.js endpoints, and editors' browsers must be able to reach the Next.js server. A shared secret encrypts preview, mappings, and revalidation requests. Keep this secret server-side and use HTTPS between separately hosted services.
