@@ -10,7 +10,7 @@ export function GET(req: NextRequest) {
     return processRequest(req);
 }
 
-export async function processRequest(request: NextRequest): Promise<NextResponse> {
+async function processRequest(request: NextRequest): Promise<NextResponse> {
     const {searchParams} = request.nextUrl;
     const xpBlob = searchParams.get('xp');
     const path = searchParams.get('path') || '/';

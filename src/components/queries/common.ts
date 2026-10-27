@@ -5,7 +5,7 @@ import type {GlobalVariables} from '@enonic/nextjs-adapter';
 
 export const commonQuery = `
 query {
-  guillotine(siteKey: $siteKey, project: $project, branch: $branch) {
+  guillotine(scopeKey: $scopeKey, project: $project, branch: $branch) {
     get(key: $path) {
       displayName
       _id

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2017",
     "lib": [
       "dom",
       "dom.iterable",
@@ -23,10 +23,9 @@
         "name": "next"
       }
     ],
-    "baseUrl": ".",
     "paths": {
       "@phrases/*": [
-        "src/phrases/*"
+        "./src/phrases/*"
       ]
     }
   },
