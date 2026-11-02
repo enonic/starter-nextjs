@@ -16,7 +16,7 @@
     "@enonic/page-editor": "^2.0.1",
     "cross-env": "^10.1.0",
     "html-react-parser": "^5.2.17",
-    "next": "^16.0.10",
+    "next": "^16.4.3",
     "react": "^19.2.6",
     "react-dom": "^19.3.0",
     "unescape": "^1.0.1"
@@ -27,8 +27,12 @@
     "@types/react-dom": "^19.3.0",
     "@typescript-eslint/parser": "^8.70.0",
     "eslint": "^9",
-    "eslint-config-next": "^16.1.6",
+    "eslint-config-next": "^16.4.3",
     "prettier": "^3.9.6",
     "typescript": "6.0.3"
+  },
+  "//": "Security override for GHSA-g3hv-75wg-m249. Remove once ESLint and its plugins depend on minimatch >=11.0.1 directly.",
+  "overrides": {
+    "minimatch": "^11.0.4"
   }
 }
