@@ -1,33 +1,74 @@
 = Release Notes
 :toc: right
 
+For Next.XP 5 and earlier release notes, select the 5.x documentation version.
+
 == Next.XP 6
 
-Next.XP 6 replaces the XP-side preview proxy with a preview widget that loads the Next.js front end directly, and moves to Guillotine 9. It requires Enonic XP 8.1 or later.
+Next.XP 6 replaces the XP-side preview proxy with a custom Next.js preview in Content Studio. Content Studio loads the front end directly from Next.js. This release also moves to Guillotine 9 and requires Enonic XP 8.1, as well as Content Studio 6.1 or later.
 
-=== Direct Content Studio preview
+=== New Content Studio preview
 
-The Next.XP app 6 adds a "Next.js Preview" widget to Content Studio. It fetches URL mapping rules from the front end's new `/api/mappings` endpoint, caches them per project, resolves the selected content item to a Next.js URL, and lets Content Studio load that URL directly from the Next.js server. The preview works without adding the app to the site; add it to enable revalidation or to select a named configuration.
+The Next.XP app 6 provides the "Next.js Preview" live view extension in Content Studio. It fetches URL mapping rules from the front end's new `/api/mappings` endpoint, caches them per project, resolves the selected content item to a Next.js URL, and lets Content Studio load that URL directly from the Next.js server. Site setup is unchanged: add the Next.XP app to the XP site and select its front-end configuration.
 
 The `/api/renderable` endpoint is no longer used.
 
-=== Live page editing
+=== Visual page editing
 
-Next.js-rendered pages now support Content Studio's live page editing: component drag-and-drop, inline text editing, and click-to-select.
+Next.js-rendered pages now support visual page editing through the `@enonic/page-editor` npm package, bundled with the front-end. It enables component drag-and-drop and click-to-select, and can also be used with other frameworks.
 
-=== Encrypted requests
+Macros now render in Content Studio as they do on the public site.
 
-Requests from XP to `/api/preview`, `/api/mappings`, and `/api/revalidate` carry an `xp` parameter encrypted with the shared secret, instead of a plain token. `ENONIC_API_TOKEN` is still required and is now the encryption key. The adapter exports `encryptParams()` and `decryptParams()`.
+=== Encrypted token
 
-=== Proxy-driven draft mode
+Requests from XP to `/api/preview`, `/api/mappings`, and `/api/revalidate` now carry an `xp` parameter encrypted with the shared secret, instead of plain text values.
 
-The starter's `src/proxy.ts` validates the `xp` parameter, enables draft mode through `/api/preview` when the draft cookie is missing or belongs to another build (`BUILD_ID` in `next.config.js`), and redirects to the same URL without the parameter. Draft mode alone switches the adapter to `edit` render mode.
+`ENONIC_API_TOKEN` is still required and is now the encryption key. The adapter exports `encryptParams()` and `decryptParams()`.
 
-The default locale no longer has a URL prefix: the proxy rewrites prefix-less URLs to the default locale's internal route and redirects `/<default locale>/...` to `/...`.
+=== Next.js draft mode
 
-=== Automatic Content Studio CSP allow listing
+Next.XP 6 uses Next.js cookie-based Draft Mode. The starter's `src/proxy.ts` validates the `xp` parameter, enables draft mode through `/api/preview` when the draft cookie is missing or belongs to another build (`BUILD_ID` in `next.config.js`), and redirects to the same URL without the parameter. Draft mode alone switches the adapter to `edit` render mode.
 
-The Next.XP app adds its configured front-end origins, together with `'self'`, to Content Studio's Content Security Policy (`frame-src`, `connect-src`, and `style-src`). Manual `contentSecurityPolicy.header` configuration of Content Studio is no longer needed. The default `http://localhost:3000` origin is allowed in dev mode only.
+Draft mode persists while the browser's draft cookie remains valid. Opening the same front-end URL directly, including in a new tab outside Content Studio, therefore continues to show draft content.
+
+The adapter's <<adapter/views#draft-mode-indicator,DraftModeIndicator>> provides a button to exit draft mode when the page is opened outside Content Studio. The starter includes it in the page layout. Clicking the button disables draft mode and reloads the page without the preview parameter, returning to the live site with published content.
+
+=== Default-locale URL redirects
+
+URLs without a default-locale prefix were already supported in Next.XP 5, and the adapter generated public links without that prefix. In v6, the starter also redirects explicitly prefixed URLs to the URL without the default locale.
+
+For example, with `+ENONIC_MAPPINGS=en:website/site,no:website-no/site+`, `en` is the default because it is listed first. For ordinary public requests:
+
+[%header,cols="1,2,2"]
+[frame="none"]
+[grid="none"]
+|===
+| Requested URL | v5 starter | v6 starter
+
+| `/about`
+| Serves English content; browser URL stays `/about`.
+| Same behavior.
+
+| `/en/about`
+| Serves English content; browser URL stays `/en/about`.
+| Redirects to `/about`.
+
+| `/en`
+| Serves the English home page; browser URL stays `/en`.
+| Redirects to `/`.
+
+| `/no/about`
+| Serves Norwegian content; browser URL stays `/no/about`.
+| Same behavior: non-default locales keep their prefix.
+|===
+
+Internally, `/about` is still rewritten to `/en/about` for the Next.js locale route. A rewrite leaves the browser URL unchanged; the new redirect changes it. The v6 `pageUrl()` helper continues to omit the default locale from generated public links. See <<nextjs/routing#,Routing>> for details.
+
+=== Automatic Content Studio CSP handling
+
+The Next.XP app uses XP 8.1's new Content Security Policy API through an https://developer.enonic.com/docs/code/stable/web/extensions/processors[extension response processor]. It adds the configured front-end origins to Content Studio's `frame-src`, `connect-src`, and `style-src` directives, extending the existing policy automatically.
+
+Manual `contentSecurityPolicy.header` configuration for Next.XP is no longer needed. When no front-end URL is configured, the app allows `http://localhost:3000` as a fallback in dev mode only.
 
 === CORS headers
 
@@ -35,75 +76,24 @@ The starter's `next.config.js` sets CORS headers allowing the XP admin origin, t
 
 === Guillotine 9
 
-* Queries pass `siteKey`, `project`, and `branch` to the `guillotine()` field instead of relying on the endpoint URL. The adapter supplies these variables to every registered query.
-* `imageUrl`, `mediaUrl`, `attachmentUrl`, and `pageUrl` return objects and require a subselection. The `type: absolute` argument and the `type` field of the `processHtml` input are removed.
+Queries pass `scopeKey`, `project`, and `branch` to the `guillotine()` field instead of relying on the endpoint URL. The adapter supplies these variables to every registered query. The `scopeKey` selects the site used as the base for site-relative page paths.
+
+The adapter also exposes the project, site, and branch in its rendering metadata, making the content context available to custom views.
+
+=== Front-end URL handling
+
+Guillotine 9 returns URL components from `pageUrl`, `imageUrl`, `mediaUrl`, and `attachmentUrl`, including `path` and `queryString`, instead of complete URL strings. The front-end now constructs the final URLs using its own routing and deployment configuration. This gives it control over public page paths, locale prefixes, and media or CDN hosts.
+
+The Next.js adapter provides helpers for this:
+
+* *Page links*: `pageUrlQuery()` selects the URL components; `pageUrl(data, meta)` builds a relative Next.js URL, adds a prefix for non-default locales, and preserves query parameters.
+* *Images and attachments*: `imageUrlQuery()`, `mediaUrlQuery()`, and `attachmentUrlQuery()` select the components. Their matching URL helpers combine them with `+ENONIC_MEDIA_CDN+`, which defaults to `+ENONIC_API+`. XP no longer needs `media.defaultBaseUrl` configuration.
+* *Rich text*: `richTextQuery()` retrieves structured link and image data alongside the HTML. `RichTextView` uses it to replace URL placeholders with front-end URLs.
+
+Custom queries and views must adopt this model. See <<nextjs/rich-text#,Rich text, links, and media>> for Next.XP usage and https://developer.enonic.com/docs/guillotine/stable/usage/images-and-urls[Guillotine URL components] for the underlying fields.
 
 === New API URL format
 
-`ENONIC_API` points to the XP API root (for example `http://localhost:8080/api`) instead of the `/site` endpoint. The Guillotine endpoint is `ENONIC_API` + `/` + `GUILLOTINE_API` (default `com.enonic.app.guillotine:graphql`). Media URLs are built from the new optional `ENONIC_MEDIA_CDN`, defaulting to `ENONIC_API`; no `media.defaultBaseUrl` configuration is needed in XP.
+`+ENONIC_API+` points to the XP API root (for example `http://localhost:8080/api`) instead of the `/site` endpoint. The Guillotine endpoint is `+ENONIC_API+` + `/` + `+GUILLOTINE_API+` (default `com.enonic.app.guillotine:graphql`).
 
-=== Adapter v6
-
-* Added `imageUrlQuery()`/`imageUrl()`, `mediaUrlQuery()`/`mediaUrl()`, `attachmentUrlQuery()`/`attachmentUrl()`, and `pageUrlQuery()`/`pageUrl()`.
-* Added `localizeMappings()`, `encryptParams()`, `decryptParams()`, `getContentBranch()`, `richTextFragments()`, `withRichTextFragments()`, and the `FROM_XP_PARAM` constant.
-* Added the `DraftModeIndicator` view.
-* `richTextQuery()` selects the full `imageUrl`, `mediaUrl`, and `pageUrl` objects for images and links, and `RichTextView` rewrites them to absolute media URLs and locale-prefixed routes.
-* Removed `getContentApiUrl()`, `getUrl()`, `getAsset()`, and `UrlProcessor`.
-* `MetaData.apiUrl` is replaced by `branch`, `project`, and `site`.
-* Query and variables functions receive a `GlobalVariables` object instead of the content path.
-* `BaseMacro` no longer accepts `renderInEditMode`, and `RichTextView` no longer accepts `renderMacroInEditMode`; macros render in Content Studio as on the public site.
-* `IS_DEV_MODE` follows `NODE_ENV` instead of the `MODE` variable.
-
-== Next.XP 5
-
-This is an XP8 compatibility release, allowing you to upgrade to XP8 with minimal changes to your Next.XP 4 project.
-
-=== Enonic XP 8 support
-
-Next.XP is now based on Enonic XP 8:
-
-* Application schemas use the new YAML format in `src/main/resources/cms/` (previously XML in `src/main/resources/site/`)
-* Guillotine 8 is now used — existing GraphQL queries work unchanged
-
-=== Adapter v5
-
-`@enonic/nextjs-adapter` v5 is now used, requiring Node.js 24.15.0+ and npm 10.9.2+.
-Media links in rich text now use the `+/_/media:image/+` and `+/_/media:attachment/+` URL format served by XP 8.
-
-== Next.XP 4
-
-=== Framework upgrades
-
-* Next.js 16 and React 19
-* ESLint 9 with flat config (`eslint.config.mjs`)
-* `@enonic/nextjs-adapter` v4
-
-=== Proxy replaces middleware
-
-The `src/middleware.ts` file has been replaced by `src/proxy.ts`, following the Next.js 16 convention.
-Route params are now asynchronous (`Promise`) and must be awaited.
-
-=== Default port
-
-The production server (`npm run prod`) now starts on the default port 3000 instead of 4242, so Content Studio preview works in both dev and prod modes without extra configuration.
-
-== Next.XP 3
-
-=== App router structure
-
-Next.js' app router is now default folder structure for Next.XP projects.
-This includes support for pages and layouts, route groups, parallel and intercepting routes.
-
-=== Improved Next.js localization
-
-In addition to localization of content, Next.XP now supports localization of static texts both in client and server components.
-Use `useLocaleContext` hook in client-side components and `I18n` in server-side ones.
-
-=== Major nextjs-adapter refactoring
-
-In order to support the new app router, `@enonic/nextjs-adapter` has been substantially refactored.
-
-=== Other improvements
-
-* `next/Link` component is now used for all internal links
-* `getAsset` method for static assets
+See the <<upgrade#,upgrade notes>> for migration steps, removed APIs, and changed function signatures.

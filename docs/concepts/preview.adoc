@@ -65,4 +65,4 @@ Content Studio can request one component instead of refreshing the complete page
 
 The value of `+ENONIC_API_TOKEN+` env var in Next.js must match the secret configured for the selected front end in `com.enonic.app.nextxp.cfg` Enonic XP config file. Do not expose it through a `+NEXT_PUBLIC_+` variable. Restrict the preview endpoints to HTTPS in production.
 
-See <<../app/preview#,Preview widget>> for the XP-side implementation, <<../app/configuration#,App configuration>>, and <<../starter/configuration#,Starter configuration>>.
+See <<../app/preview#,Preview live view extension>> for the XP-side implementation, <<../app/configuration#,App configuration>>, and <<../starter/configuration#,Starter configuration>>.

@@ -1,10 +1,10 @@
-= Preview widget
+= Preview live view extension
 :toc: right
 include::../.variables.adoc[]
 
-The Next.XP app provides the XP side of Content Studio preview. Its "Next.js Preview" widget resolves each content item to a Next.js URL, and Content Studio loads that URL directly from the Next.js front end.
+The Next.XP app implements a custom Next.js preview in Content Studio through its "Next.js Preview" live view extension. The extension resolves each content item to a Next.js URL, and Content Studio loads that URL directly from the Next.js front end.
 
-Public visitors do not use this widget. They access the Next.js deployment directly, allowing its normal hosting and caching behavior to remain in control.
+Public visitors access the Next.js deployment directly, allowing its normal hosting and caching behavior to remain in control.
 
 == Request flow
 
@@ -42,13 +42,13 @@ Public visitors do not use this widget. They access the Next.js deployment direc
 | Optional. When `true`, one matching source is enough; otherwise all sources must match.
 |===
 
-The starter returns a single catch-all rule and prefixes its target with the project's locale, unless it is the default locale, using `localizeMappings()`. It answers `404` when the project in the blob is not listed in `+ENONIC_MAPPINGS+`; the widget then finds no mapping.
+The starter returns a single catch-all rule and prefixes its target with the project's locale, unless it is the default locale, using `localizeMappings()`. It answers `404` when the project in the blob is not listed in `+ENONIC_MAPPINGS+`; the live view extension then finds no mapping.
 
 The app caches the rules per project, for up to 24 hours. A failed request is not cached.
 
 == Content Security Policy
 
-Content Studio ships with a strict Content Security Policy that would block frames from third-party origins. The app extends it with `'self'` and the origin of every URL in `com.enonic.app.nextxp.cfg`, in the `frame-src`, `connect-src`, and `style-src` directives. No `contentSecurityPolicy.header` configuration of Content Studio is needed.
+Content Studio's Content Security Policy must allow the Next.js origin to load the preview. The app uses XP 8.1's CSP API through an https://developer.enonic.com/docs/code/stable/web/extensions/processors[extension response processor] to add the origin of every URL in `com.enonic.app.nextxp.cfg` to the `frame-src`, `connect-src`, and `style-src` directives. These contributions extend the existing policy; no manual `contentSecurityPolicy.header` configuration for Next.XP is needed.
 
 When no URL is configured, the default `http://localhost:3000` origin is added only when XP runs in dev mode.
 

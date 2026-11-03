@@ -36,7 +36,7 @@ Before deployment, verify that:
 * `+ENONIC_MAPPINGS+` names existing XP projects and sites.
 * `+ENONIC_API+` points to the API root of the correct XP installation.
 * The same secret is used for `+ENONIC_API_TOKEN+` and the selected XP front-end configuration.
-* The Next.XP app is installed with the front-end URL configured explicitly, and added to every site that needs revalidation.
+* The Next.XP app is installed with the front-end URL configured explicitly, and added to every XP site rendered through Next.XP with its front-end configuration selected.
 * The front-end response policy allows Content Studio to embed the site.
 * Preview, mappings, and revalidation API routes are deployed with a server runtime.
 

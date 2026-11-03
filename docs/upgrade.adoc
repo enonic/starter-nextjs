@@ -73,7 +73,7 @@ ${pageUrlQuery()}
 +
 Reference files in `public/` by their plain path, for example `/images/logo.svg`. Remove any `media.defaultBaseUrl` configuration in XP.
 
-. *Proxy*: Replace `src/proxy.ts` with the starter's version. It validates the `xp` parameter, enables draft mode through `/api/preview`, rewrites prefix-less URLs to the internal default-locale route, and redirects `/<default locale>/...` to `/...`. Public default-locale URLs lose their prefix.
+. *Proxy*: Replace `src/proxy.ts` with the starter's version. It validates the `xp` parameter, enables draft mode through `/api/preview`, rewrites prefix-less URLs to the internal default-locale route, and redirects `/<default locale>/...` to `/...`. URLs without the default-locale prefix were already supported in v5; redirecting explicitly prefixed URLs is new in v6. For example, with `en` as the default, `/about` continues to work and `/en/about` now redirects to `/about`.
 
 . *Encrypted API routes*: Replace the token check with blob validation in `/api/preview` and `/api/revalidate`, and copy `src/utils.ts` from the starter:
 +
@@ -116,7 +116,7 @@ const config = {
 - `BaseMacro` no longer accepts `renderInEditMode`; `RichTextView` no longer accepts `renderMacroInEditMode`, and its `customReplacer` receives `(domNode, data, meta)`
 - `IS_DEV_MODE` follows `NODE_ENV`; the `MODE` variable is no longer read
 
-. *XP configuration*: Remove any `contentSecurityPolicy.header` entries added for Next.XP to `com.enonic.app.contentstudio.cfg`. The Next.XP app now allows its configured origins automatically, but only explicitly configured URLs in production mode. `com.enonic.app.nextxp.cfg` keeps the same property format. Adding the app to sites is now optional for preview, and still required for revalidation.
+. *XP configuration*: Remove any `contentSecurityPolicy.header` entries added for Next.XP to `com.enonic.app.contentstudio.cfg`. The Next.XP app now allows its configured origins automatically, but only explicitly configured URLs in production mode. `com.enonic.app.nextxp.cfg` keeps the same property format. Site setup is unchanged: the Next.XP app must be added to the XP site with its front-end configuration selected.
 
 == Upgrading from v4.x
 

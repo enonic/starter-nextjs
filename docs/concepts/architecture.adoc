@@ -19,7 +19,7 @@ Preview starts with URL resolution in XP, followed by a direct browser request t
 . The adapter queries the project's `draft` branch through Guillotine, forwarding the editor's XP session when available.
 . In visual editing mode, the adapter adds component and region annotations to the HTML. The browser-side Page Editor library communicates with Content Studio and requests updated component markup from Next.js.
 
-The Next.XP app resolves the URL; it does not proxy the rendered page or component refreshes. See <<../app/preview#,Preview widget>> for URL resolution and <<preview#,Editing and preview>> for session handling, render modes, and component refreshes.
+The Next.XP app resolves the URL; it does not proxy the rendered page or component refreshes. See <<../app/preview#,Preview live view extension>> for URL resolution and <<preview#,Editing and preview>> for session handling, render modes, and component refreshes.
 
 == Publication and revalidation
 

@@ -23,7 +23,7 @@ The application that owns the site's content types and page components remains a
 
 === Authenticated preview
 
-The app adds a "Next.js Preview" widget that resolves the Next.js URL of the content selected in Content Studio. Content Studio then loads the page directly from Next.js, which renders draft content in Draft Mode.
+The app implements a custom Next.js preview in Content Studio through its "Next.js Preview" live view extension. It resolves the Next.js URL of the selected content, which Content Studio loads directly from Next.js using Draft Mode.
 
 See <<app/preview#,Preview>> for the request flow, protected front-end endpoints, and component refresh behavior.
 

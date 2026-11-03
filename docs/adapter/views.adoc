@@ -362,9 +362,10 @@ Example
 </StaticContent>
 ----
 
+[#draft-mode-indicator]
 === DraftModeIndicator
 
-Renders a button that disables Next.js draft mode when the page is opened in draft mode outside Content Studio.
+Renders a button when the page is opened in draft mode outside Content Studio. Clicking it disables Next.js draft mode and reloads the current URL without the `xp` preview parameter, returning to published content. The starter includes this view in its page layout.
 
 [.lead]
 Parameters
