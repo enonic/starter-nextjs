@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - "master"
+      - "5.x"
     paths:
       - 'docs/**'
+      - '.github/workflows/enonic-docgen.yml'
   workflow_dispatch:
 
 jobs:
