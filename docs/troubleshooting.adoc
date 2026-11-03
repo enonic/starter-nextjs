@@ -60,4 +60,4 @@ Start with the request path that is failing: direct Next.js rendering, Next.js-t
 
 Log the resolved locale, project, site, branch, render mode, content path, and front-end URL without logging the shared token. In a cluster, also confirm which XP node is master because only that node sends revalidation events.
 
-For framework errors, use link:{next-docs}[Next.js diagnostics]. For GraphQL schema and query problems, use link:{guillotine-docs}[Guillotine documentation].
+For framework errors, use https://nextjs.org/docs[Next.js diagnostics]. For GraphQL schema and query problems, use link:{guillotine-docs}[Guillotine documentation].

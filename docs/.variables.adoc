@@ -9,13 +9,17 @@
 // Enonic stack
 :xp-version: 8.1
 :guillotine-version: 9
+:content-studio-minimum: 6.1
 
 // Next.XP components
 :adapter-version: 6
 :app-version: 6
 
+// Supporting library (versioned independently of Next.XP)
+:page-editor-version: 2
+
 // Front-end stack
-:next-version: 16
+:next-version: 16.4
 :react-version: 19
 
 // Minimum tooling requirements (from @enonic/nextjs-adapter engines)
@@ -26,4 +30,3 @@
 :tutorial-docs: https://developer.enonic.com/learn/next.xp
 :xp-docs: https://developer.enonic.com/docs/xp/stable
 :guillotine-docs: https://developer.enonic.com/docs/guillotine/stable
-:next-docs: https://nextjs.org/docs

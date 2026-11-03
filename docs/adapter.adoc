@@ -6,8 +6,6 @@ include::.variables.adoc[]
 
 NOTE: This page documents `@enonic/nextjs-adapter` {adapter-version}, the adapter major that defines Next.XP {nextxp-version}.
 
-The adapter depends on `@enonic/react-components`, which provides reusable XP-aware React components and types. Adapter {adapter-version} uses its `RichText` renderer for links, images, and macros, while the adapter's own views handle the standard Next.XP page tree and its editing annotations.
-
 == Installation
 
 [source,bash]
@@ -15,7 +13,16 @@ The adapter depends on `@enonic/react-components`, which provides reusable XP-aw
 npm install @enonic/nextjs-adapter
 ----
 
-Adapter {adapter-version} requires Node.js {node-minimum} +, npm {npm-minimum} +, Next.js {next-version}, and React {react-version}.
+Adapter {adapter-version} requires Node.js {node-minimum} or later, npm {npm-minimum} or later, and React and React DOM {react-version}. The documented Next.XP stack targets Next.js {next-version}; see <<starter#front-end-dependencies,Starter dependencies>> for the complete front-end stack.
+
+[#supporting-libraries]
+== Supporting libraries
+
+The adapter installs https://www.npmjs.com/package/@enonic/react-components[@enonic/react-components] as a dependency and selects its compatible version. This separately versioned library provides React renderers and types for XP page structures and rich text.
+
+Adapter {adapter-version} uses the library's `RichText` renderer for links, images, and macros. The adapter's own views render the standard Next.XP page tree and add its Content Studio annotations. The library's generic page renderers also provide annotations when used directly.
+
+For browser-side visual editing, the <<starter#,starter>> installs and initializes `@enonic/page-editor` separately. See <<concepts/preview#,Editing and preview>> for how it works with the annotated HTML.
 
 == Entry points
 

@@ -47,9 +47,19 @@ Content Studio recognizes rendered page structures through `data-portal-componen
 
 The supporting `@enonic/react-components` package also implements these annotations in its generic component wrapper and region renderers. Next.XP currently uses that package directly for rich-text rendering, while the adapter supplies the page-tree annotations in the standard integration.
 
+== Page editor integration
+
+`@enonic/page-editor` {page-editor-version} runs in the browser and connects the rendered Next.js page to Content Studio's visual editor. The <<../starter#,starter>> installs this package directly, while `@enonic/react-components` is installed through <<../adapter#,`@enonic/nextjs-adapter`>>. Both supporting libraries version independently of Next.XP.
+
+The starter's `PageEditorScript` client component initializes the library with `init({editMode: renderMode === RENDER_MODE.EDIT})`. In edit mode, the library communicates with Content Studio and requests component markup through editor events. In inline preview mode, it reports link clicks to Content Studio.
+
+The adapter supplies component and region annotations in the rendered HTML; the page editor supplies the browser-side editing behavior. See the https://github.com/enonic/npm-page-editor[Page Editor reference] for its API and communication protocol.
+
 == Component refresh
 
 Content Studio can request one component instead of refreshing the complete page. The adapter restricts the page tree to that component, and `MainView` delegates to `SingleComponent`. The starter wraps the response in a marker that can be extracted safely.
+
+`PageEditorScript` subscribes to the page editor's `component-load-request` event, fetches the component response from Next.js, extracts the marked HTML, and passes it to `renderComponent()`. It also uses the library's loading and error states while handling the request.
 
 == Security
 

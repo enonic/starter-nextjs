@@ -6,7 +6,7 @@ A production Next.XP deployment consists of an XP service, a reachable Guillotin
 
 == Requirements
 
-For Next.XP {nextxp-version}, the front end requires Node.js {node-minimum}+ and npm {npm-minimum}+. The supported framework stack is listed on the <<../index#,Next.XP overview>>.
+For Next.XP {nextxp-version}, the front end requires Node.js {node-minimum}+ and npm {npm-minimum}+. The supported framework stack is listed under <<../starter#front-end-dependencies,Starter dependencies>>.
 
 == Connectivity
 
@@ -44,4 +44,4 @@ Before deployment, verify that:
 
 Next.XP does not prescribe a hosting provider. Standard Next.js deployment, CDN, cache, observability, and scaling guidance applies. Preserve query parameters and cookies on the Content Studio preview path when a proxy or platform sits in front of Next.js.
 
-See link:{next-docs}[Next.js documentation] for framework deployment options and link:{xp-docs}[XP documentation] for platform operations.
+See https://nextjs.org/docs[Next.js documentation] for framework deployment options and link:{xp-docs}[XP documentation] for platform operations.
