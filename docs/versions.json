@@ -2,8 +2,7 @@
   "versions": [
     {
       "label": "next",
-      "checkout": "master",
-      "displayName": "6.x"
+      "checkout": "master"
     },
     {
       "label": "stable",
