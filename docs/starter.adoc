@@ -111,7 +111,16 @@ The starter follows the Next.js App Router layout. Next.XP-specific files are co
 
 === Components and data
 
-`+src/components/_mappings.ts+` imports the adapter's base mappings, registers the shared query, and maps application descriptors. Keep queries close to their consuming views; shared data belongs under `src/components/queries/`.
+The component registry connects XP content types and page components to their GraphQL queries and React views. These mappings are application code, defined in `+src/components/_mappings.ts+`. Import the adapter's built-in mappings before registering your own:
+
+[source,TypeScript]
+----
+import '@enonic/nextjs-adapter/baseMappings';
+----
+
+Add explicit mappings for your application's content types and page components before using the site in production. See <<concepts/components#,Components and views>> for registration examples and the development fallback behavior.
+
+Keep queries close to their consuming views. Use a shared query only when multiple views need the same data; its result is available as `props.common`. The starter keeps shared queries in `src/components/queries/`.
 
 Static front-end dictionaries for server and client phrase localization live in `src/phrases/<locale>.json`. The `@phrases` alias is configured in `next.config.js` for webpack and Turbopack.
 
@@ -129,4 +138,4 @@ Replace the example application name, project mappings, common query, phrases, a
 
 The starter is not the tutorial's completed example. The finished reference implementation lives in https://github.com/enonic/demo-nextjs[`demo-nextjs`].
 
-See <<starter/configuration#,Starter configuration>> for environment variables, the shared secret, component mappings, and rendering choices.
+See <<starter/configuration#,Starter configuration>> for environment variables, the shared secret, and rendering choices.

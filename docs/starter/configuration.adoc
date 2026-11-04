@@ -14,13 +14,9 @@ ENONIC_API=http://localhost:8080/api
 ENONIC_APP_NAME=com.example.site
 ENONIC_MAPPINGS=en:website/site
 ENONIC_API_TOKEN=replace-this-secret
-
-NEXT_PUBLIC_ENONIC_API=$ENONIC_API
-NEXT_PUBLIC_ENONIC_APP_NAME=$ENONIC_APP_NAME
-NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS
 ----
 
-The browser-visible variables contain routing and API location information, not credentials. Do not create `+NEXT_PUBLIC_ENONIC_API_TOKEN+`.
+These settings are read on the server. The v6 starter does not require `+NEXT_PUBLIC_+` copies. Keep `+ENONIC_API_TOKEN+` server-side.
 
 See <<../nextjs/configuration#,Configuration>> for the complete variable reference and <<../concepts/localization#,Projects and localization>> for mapping syntax.
 
@@ -28,19 +24,10 @@ See <<../nextjs/configuration#,Configuration>> for the complete variable referen
 
 `+ENONIC_API_TOKEN+` protects the proxy and all three integration routes. Set the same value as `nextjs.<name>.secret` in `com.enonic.app.nextxp.cfg`. Rotate both sides together.
 
-== Component registry
-
-Replace the catch-all development mapping with explicit application mappings. Keep this import before custom registrations:
-
-[source,TypeScript]
-----
-import '@enonic/nextjs-adapter/baseMappings';
-----
-
-Set a shared query only when multiple views need the same data. Its result is added to `props.common` throughout the page tree.
-
 == Rendering and caching
 
 The starter demonstrates an hourly `revalidate` value and static-path generation. These are examples, not requirements. Choose static, revalidated, or dynamic rendering according to the site's freshness and scale requirements.
 
 Keep `transpilePackages`, the `@phrases` aliases, `env.BUILD_ID`, the CORS headers, and the Content Studio-compatible response policy when modifying `next.config.js`.
+
+For application code that connects XP content types and page components to React views, see <<../concepts/components#,Components and views>>.

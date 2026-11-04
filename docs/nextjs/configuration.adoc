@@ -53,17 +53,11 @@ ENONIC_API_TOKEN=replace-with-a-long-random-value
 
 Development-only diagnostics and catch-all behavior are enabled when `NODE_ENV` is `development`, as under `next dev`.
 
-== Browser-visible variables
+== Server and client configuration
 
-When common adapter exports are used in client bundles, publish the non-secret equivalents explicitly:
+The v6 starter uses the server variables above and does not require `+NEXT_PUBLIC_+` copies. Importing a common adapter export in a client component does not by itself require exposing the environment configuration.
 
-[source,text]
-----
-NEXT_PUBLIC_ENONIC_API=$ENONIC_API
-NEXT_PUBLIC_ENONIC_APP_NAME=$ENONIC_APP_NAME
-NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS
-NEXT_PUBLIC_ENONIC_MEDIA_CDN=$ENONIC_MEDIA_CDN
-----
+For custom client components, pass the required non-secret data or resolved URLs from the server. The adapter still supports optional public values for client-side helpers that read configuration, but these are not part of the standard starter setup.
 
 Never publish `+ENONIC_API_TOKEN+`. Values prefixed with `+NEXT_PUBLIC_+` are embedded in browser JavaScript.
 
