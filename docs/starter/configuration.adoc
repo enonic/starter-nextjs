@@ -4,19 +4,38 @@ include::../.variables.adoc[]
 
 Configure the starter through Next.js environment files and `next.config.js`. Use deployment secrets or `.env.local` for values that must not be committed.
 
+[#environment]
 == Environment
 
-A minimal local configuration is:
+The starter's `.env` file contains committed defaults. The example below uses the starter's application name and project mapping; optional overrides are commented out:
 
 [source,text]
 ----
+# Do not commit secrets. Put non-publishable values in .env.local.
+
+# Provide a unique value used to secure preview mode
+ENONIC_API_TOKEN=mySecretKey
+
+# Enonic app name, must match the name of your app
+ENONIC_APP_NAME=tutorial.nxp
+
+# Enonic XP projects configuration for different locales
+ENONIC_MAPPINGS=en:intro/hmdb
+
+# Absolute URL to the Enonic XP API root
 ENONIC_API=http://localhost:8080/api
-ENONIC_APP_NAME=com.example.site
-ENONIC_MAPPINGS=en:website/site
-ENONIC_API_TOKEN=replace-this-secret
+
+# Absolute media API URL; only needed for another media host, such as a CDN
+# ENONIC_MEDIA_CDN=http://localhost:8080/api
+
+# Sets CORS headers to let Content Studio access the preview.
+# Defaults to the origin of ENONIC_API.
+# ENONIC_ADMIN=http://localhost:8080
 ----
 
-These settings are read on the server. The v6 starter does not require `+NEXT_PUBLIC_+` copies. Keep `+ENONIC_API_TOKEN+` server-side.
+Replace the example application name and project mappings with your own. `mySecretKey` is a placeholder; set the actual shared secret in `.env.local` or deployment secrets.
+
+These settings are read on the server. Do not create `+NEXT_PUBLIC_+` copies. Keep `+ENONIC_API_TOKEN+` server-side.
 
 See <<../nextjs/configuration#,Configuration>> for the complete variable reference and <<../concepts/localization#,Projects and localization>> for mapping syntax.
 

@@ -266,7 +266,7 @@ Returns
 
 === imageUrl
 
-Builds an absolute image URL from the result of `imageUrlQuery()`: the media base URL (`+ENONIC_MEDIA_CDN+`, default `+ENONIC_API+`) followed by the media part of `path` and the `queryString`. In client code without a `+NEXT_PUBLIC_+` copy of these variables, the path is returned unchanged.
+Builds an absolute image URL from the result of `imageUrlQuery()`: the media base URL (`+ENONIC_MEDIA_CDN+`, default `+ENONIC_API+`) followed by the media part of `path` and the `queryString`. Resolve the URL on the server and pass it to client components so the environment configuration stays server-side.
 
 [.lead]
 Parameters

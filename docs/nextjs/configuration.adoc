@@ -2,7 +2,7 @@
 :toc: right
 include::../.variables.adoc[]
 
-The adapter reads its connection and mapping settings from Next.js environment variables. Keep environment-specific values outside committed files when they contain secrets.
+The adapter reads its connection and mapping settings from Next.js environment variables. Use `.env` for committed defaults and `.env.local` or deployment secrets for non-publishable values. See <<../starter/configuration#environment,Starter environment>> for an example.
 
 == Server variables
 
@@ -16,7 +16,7 @@ The adapter reads its connection and mapping settings from Next.js environment v
 
 | `+ENONIC_APP_NAME+`
 | Yes
-| XP application key that owns the content types and component descriptors used by the project.
+| Enonic application name, used in queries and component mappings. Must match the name of your XP application.
 
 | `+ENONIC_MAPPINGS+`
 | Yes
@@ -26,38 +26,26 @@ The adapter reads its connection and mapping settings from Next.js environment v
 | Yes, for preview and revalidation
 | Shared secret used by the starter's proxy and protected API routes. It must match the Next.XP app configuration.
 
-| `+GUILLOTINE_API+`
-| No
-| Guillotine API appended to `+ENONIC_API+`. Default: `com.enonic.app.guillotine:graphql`.
-
 | `+ENONIC_MEDIA_CDN+`
 | No
-| Base URL for images and attachments. Default: `+ENONIC_API+`.
+| Absolute media API base URL. Defaults to `+ENONIC_API+`; override when media is served from another host, such as a CDN.
 
 | `+ENONIC_ADMIN+`
 | No
-| Enonic admin URL, used for CORS when the admin is served from a different domain than the API. Default: the origin of `+ENONIC_API+`.
+| Content Studio URL used to set CORS headers that let Content Studio access the preview. Defaults to the origin of `+ENONIC_API+`.
 
 | `+ENONIC_LOGGING+`
 | No
 | Enables adapter diagnostic logging when configured by the application.
 |===
 
-[source,text]
-----
-ENONIC_API=https://xp.example.com/api
-ENONIC_APP_NAME=com.example.site
-ENONIC_MAPPINGS=en:website/site,no:website-no/site
-ENONIC_API_TOKEN=replace-with-a-long-random-value
-----
-
 Development-only diagnostics and catch-all behavior are enabled when `NODE_ENV` is `development`, as under `next dev`.
 
 == Server and client configuration
 
-The v6 starter uses the server variables above and does not require `+NEXT_PUBLIC_+` copies. Importing a common adapter export in a client component does not by itself require exposing the environment configuration.
+Keep the variables above server-side; do not create `+NEXT_PUBLIC_+` copies. Importing a common adapter export in a client component does not require exposing the environment configuration.
 
-For custom client components, pass the required non-secret data or resolved URLs from the server. The adapter still supports optional public values for client-side helpers that read configuration, but these are not part of the standard starter setup.
+For custom client components, pass only the required non-secret data or resolved URLs from the server.
 
 Never publish `+ENONIC_API_TOKEN+`. Values prefixed with `+NEXT_PUBLIC_+` are embedded in browser JavaScript.
 

@@ -94,6 +94,6 @@ Custom queries and views must adopt this model. See <<nextjs/rich-text#,Rich tex
 
 === New API URL format
 
-`+ENONIC_API+` points to the XP API root (for example `http://localhost:8080/api`) instead of the `/site` endpoint. The Guillotine endpoint is `+ENONIC_API+` + `/` + `+GUILLOTINE_API+` (default `com.enonic.app.guillotine:graphql`).
+`+ENONIC_API+` points to the XP API root (for example `http://localhost:8080/api`) instead of the `/site` endpoint. The Guillotine endpoint is `+ENONIC_API+` + `/com.enonic.app.guillotine:graphql`.
 
 See the <<upgrade#,upgrade notes>> for migration steps, removed APIs, and changed function signatures.
