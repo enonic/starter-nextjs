@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import type { LocaleMapping } from '@enonic/nextjs-adapter';
 import { decryptParams, getLocaleMappingByProjectId } from '@enonic/nextjs-adapter';
 
-export type XpParams = Record<string, string> & { xpProject?: string };
+export interface XpParams {
+    [key: string]: unknown;
+    xpProject?: string;
+    JSESSIONID?: string;
+    issuedAt?: number;
+}
 
 // Next's draft mode cookie, plus our cookie naming the build that issued it (BUILD_ID comes from next.config.js)
 export const DRAFT_COOKIE = '__prerender_bypass';

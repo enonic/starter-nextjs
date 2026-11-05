@@ -71,7 +71,7 @@ function decryptXpParams(xpBlob: string): Record<string, string> | null {
 }
 
 function addCookiesToHeaders(request: NextRequest) {
-    const jsessionid = request.cookies.get('JSESSIONID')?.value;
+    const jsessionid = request.cookies.get(JSESSIONID_HEADER)?.value;
     if (jsessionid) {
         request.headers.set(JSESSIONID_HEADER, jsessionid);
     }
@@ -99,5 +99,5 @@ function addLocalePrefix(url: Url, { locale, locales }: LocaleInfo): void {
 
 export const config = {
     // NB: should contain all files and folders in the /public folder
-    matcher: ["/((?!robots.txt|sitemap.xml|manifest.json|api/|images/|fonts/|_next/webpack-hmr|_next/static|_next/image|assets|favicon.ico|sw.js).*)",],
+    matcher: ["/((?!robots.txt|sitemap.xml|manifest.json|api/|images/|fonts/|_next/|static/immutable/|assets|favicon.ico|sw.js).*)",],
 };
