@@ -54,7 +54,7 @@ const result = await fetchContent({
 
 === fetchGuillotine
 
-Sends a GraphQL request to Guillotine, minifies the query, and normalizes GraphQL and transport errors into a `GuillotineResult`. The query must pass `project` and `branch`, and `siteKey` where needed, to the `guillotine()` field.
+Sends a GraphQL request to Guillotine, minifies the query, and normalizes GraphQL and transport errors into a `GuillotineResult`. The query must pass `project` and `branch`, and `scopeKey` where needed, to the `guillotine()` field.
 
 [.lead]
 Parameters
@@ -136,6 +136,58 @@ Parameters
 Returns
 
 `Promise<ContentPathItem[]>`.
+
+[#proxy-media]
+=== proxyMedia
+
+Streams authenticated media through Next.js while Draft Mode is active. The starter mounts this handler at `/api/media`; see <<../nextjs/rich-text#media-proxy,Draft media proxy>> for URL composition and published-media behavior.
+
+The handler accepts `GET` and `HEAD` requests for XP image and attachment endpoints, forwards range headers, and streams the upstream response. It requires the editor's XP session in the `jsessionid` request header or cookie. Draft Mode alone does not authenticate the request.
+
+Upstream fetches use `cache: 'no-store'`, and streamed responses have `Cache-Control: private, no-store`. Disable caching for the entire route in your delivery infrastructure, including error responses.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `request` | `Request` | Incoming media request, including its path, query string, and session credentials.
+| `options` | `object` | *Optional.* Handler options described below.
+|===
+
+The `options` object has these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `proxyPath` | `string` | *Optional.* Route prefix to strip. Defaults to `/api/media`. Changing it requires matching custom URL generation; the standard media URL helpers use `/api/media`.
+|===
+
+[.lead]
+Returns
+
+`Promise<Response>`. Returns `404` when Draft Mode is disabled and `401` when no XP session is supplied. Otherwise, the upstream response determines access and status.
+
+[.lead]
+Example
+
+The starter's `src/app/api/media/[...path]/route.ts` delegates requests to the adapter:
+
+[source,TypeScript]
+----
+import {proxyMedia} from '@enonic/nextjs-adapter/server';
+
+export function GET(request: Request) {
+    return proxyMedia(request);
+}
+
+export const HEAD = GET;
+----
 
 == Classes
 

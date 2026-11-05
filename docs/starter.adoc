@@ -78,7 +78,7 @@ The starter follows the Next.js App Router layout. Next.XP-specific files are co
 | Calls `fetchContent()` to fetch XP content, validates the result, renders `MainView`, supplies metadata, and optionally generates static paths.
 
 | `src/app/[locale]/[[...contentPath]]/layout.tsx`
-| Handles complete-page and single-component responses and preserves editor HTML during hydration.
+| Handles complete-page and single-component responses, preserves editor HTML during hydration, and includes the exit Draft Mode button.
 
 | `src/app/[locale]/layout.tsx`
 | Loads server-side phrases and establishes the locale-level document layout.
@@ -104,6 +104,9 @@ The starter follows the Next.js App Router layout. Next.XP-specific files are co
 
 | `src/app/api/revalidate/route.ts`
 | Accepts secured publication notifications and calls `revalidatePath()`.
+
+| `src/app/api/media/[...path]/route.ts`
+| Streams authenticated draft media through `/api/media`. Published media uses the API or CDN directly. See <<nextjs/rich-text#media-proxy,Draft media proxy>>.
 
 | `src/proxy.ts`
 | Resolves locale mappings, rewrites paths without a locale segment, and enables Draft Mode for Content Studio requests.
@@ -138,4 +141,4 @@ Replace the example application name, project mappings, common query, phrases, a
 
 The starter is not the tutorial's completed example. The finished reference implementation lives in https://github.com/enonic/demo-nextjs[`demo-nextjs`].
 
-See <<starter/configuration#,Starter configuration>> for environment variables, the shared secret, and rendering choices.
+See <<starter/configuration#,Starter configuration>> for environment variables, the shared secret, and rendering choices, including how to <<starter/configuration#exit-draft-mode,enable or remove the exit Draft Mode button>>.

@@ -17,7 +17,7 @@ import Hero from './views/Hero';
 
 ComponentRegistry.addPart('com.example.app:hero', {
     query: `query {
-      guillotine(siteKey: $siteKey, project: $project, branch: $branch) {
+      guillotine(scopeKey: $scopeKey, project: $project, branch: $branch) {
         get(key: $path) { displayName }
       }
     }`,
@@ -44,7 +44,7 @@ A mapping may define:
 | React component used to render the mapping.
 |===
 
-Queries must pass `siteKey`, `project`, and `branch` to the `guillotine()` field. The adapter supplies these variables, together with `path`.
+Queries must pass `scopeKey`, `project`, and `branch` to the `guillotine()` field. The adapter supplies these variables, together with `path`.
 
 Content types, pages, layouts, parts, macros, and generic component kinds have separate registration methods, but all mappings share the same query, processor, and view properties. See <<../adapter/common#component-definition-params, Adapter type definitions>> for more details.
 

@@ -18,13 +18,21 @@ For Next.XP {nextxp-version}, the front end requires Node.js {node-minimum}+ and
 | Guillotine endpoint
 | Content and page queries
 
+| Next.js server
+| XP media API
+| Authenticated draft media requests
+
 | XP server
 | Next.js server
 | URL mappings and revalidation
 
 | Browser
 | Next.js server
-| Public site traffic and Content Studio preview
+| Public site traffic, Content Studio preview, and draft media through `/api/media`
+
+| Browser
+| XP media API or CDN
+| Published media
 |===
 
 The Next.js URL configured in XP must be reachable from the XP nodes and from editors' browsers; `localhost` is only appropriate when all of them share a host. Use HTTPS and a private network where possible.
@@ -38,7 +46,8 @@ Before deployment, verify that:
 * The same secret is used for `+ENONIC_API_TOKEN+` and the selected XP front-end configuration.
 * The Next.XP app is installed with the front-end URL configured explicitly, and added to every XP site rendered through Next.XP with its front-end configuration selected.
 * The front-end response policy allows Content Studio to embed the site.
-* Preview, mappings, and revalidation API routes are deployed with a server runtime.
+* Preview, mappings, revalidation, and media API routes are deployed with a server runtime.
+* Caching is bypassed for `/api/media`, including error responses.
 
 == Public delivery
 

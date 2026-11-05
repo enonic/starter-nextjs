@@ -14,7 +14,7 @@ Content models and page composition are managed in XP; rendering and cache polic
 
 Preview starts with URL resolution in XP, followed by a direct browser request to Next.js:
 
-. Content Studio asks the Next.XP app for a preview URL. The app uses the site's front-end configuration and the mapping rules exposed by Next.js to resolve it.
+. Content Studio asks the Next.XP app for a preview URL. The Next.XP app uses the site's front-end configuration and the mapping rules exposed by Next.js to resolve it.
 . Content Studio loads that URL directly from Next.js in the editor's browser. The front-end validates the preview parameters and enables Draft Mode.
 . The adapter queries the project's `draft` branch through Guillotine, forwarding the editor's XP session when available.
 . In visual editing mode, the adapter adds component and region annotations to the HTML. The browser-side Page Editor library communicates with Content Studio and requests updated component markup from Next.js.
@@ -37,4 +37,4 @@ See <<content-and-rendering#,Content and rendering>> for the query and rendering
 
 The Next.js server must be able to reach Guillotine. XP must be able to reach the Next.js mapping and revalidation endpoints, and editors' browsers must be able to load the Next.js preview.
 
-The shared secret protects integration requests between XP and Next.js. Access to draft content depends on the editor's XP session and content permissions; neither the shared secret nor Next.js Draft Mode grants that access. Keep the secret server-side and use HTTPS between separately hosted services. See <<preview#,Editing and preview>> for the session and host-name requirements.
+The shared secret protects integration requests between XP and Next.js. Access to draft content depends on the editor's XP session and content permissions; neither the shared secret nor Next.js Draft Mode grants that access. Keep the secret server-side and use HTTPS between separately hosted services. See <<preview#,Editing and preview>> for authentication and browser media requests.

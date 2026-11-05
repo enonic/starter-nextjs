@@ -24,6 +24,8 @@ The Next.js application exposes three protected route handlers that the Next.XP 
 | Invalidates cached routes after published content changes.
 |===
 
+The starter also exposes `/api/media` for browser requests for authenticated draft media. Published media uses the API or CDN directly. See <<nextjs/rich-text#media-proxy,Draft media proxy>>.
+
 The locale-aware catch-all route and proxy complete the standard setup. They convert public Next.js paths into the project and site context required by Guillotine.
 
 == Choose the implementation

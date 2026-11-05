@@ -32,7 +32,7 @@ NOTE: Use `default` name to override the default values.
 
 == Defaults
 
-Without a matching configuration, the app falls back to:
+Without a matching configuration, the Next.XP app falls back to:
 
 [source,properties]
 ----
@@ -40,10 +40,10 @@ nextjs.default.url=http://localhost:3000
 nextjs.default.secret=mySecretKey
 ----
 
-These values are suitable only for local development. In production mode, the default URL is not allowed in Content Studio's Content Security Policy. Configure a unique secret in every shared or production environment.
+These fallback values are suitable only for local development. In production mode, only explicitly configured front-end URLs are added to Content Studio's Content Security Policy. Configure a unique secret in every shared or production environment.
 
 == Network considerations
 
 The URL is used by the XP server and by the editor's browser, which loads the preview directly. Use a hostname reachable from every XP cluster node and from editors' browsers. Avoid a trailing slash, use HTTPS outside a trusted local network, and ensure any intermediary forwards cookies and query parameters.
 
-Configuration changes are read by the app without rebuilding it. Reopen or refresh the Content Studio preview after changing a target URL or secret. URL mappings fetched from the front end are cached per project for up to 24 hours.
+Configuration changes are read by the Next.XP app without rebuilding it. Reopen or refresh the Content Studio preview after changing a target URL or secret. URL mappings fetched from the front end are cached per project for up to 24 hours.

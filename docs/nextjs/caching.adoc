@@ -29,7 +29,7 @@ Requests are sent only from the XP cluster master to avoid duplicates. Bulk publ
 
 == Draft content
 
-Next.js Draft Mode bypasses normal public rendering assumptions for Content Studio. The adapter reads the `draft` branch in edit and preview modes and the `master` branch for direct Next.js requests. Do not cache editor responses in a shared public cache.
+When Next.js Draft Mode is active, the adapter reads the `draft` branch, including when the page is opened outside Content Studio. Ordinary requests without Draft Mode read the `master` branch. Do not cache draft responses. See <<../starter/configuration#exit-draft-mode,Exit Draft Mode button>> for returning to the published site.
 
 == Static generation
 

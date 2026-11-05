@@ -186,19 +186,18 @@ Returns the Guillotine selection for an image URL: `imageUrl(<args>)` with every
 [.lead]
 Parameters
 
-`imageUrlQuery()` takes a single `args` object with these properties:
+`imageUrlQuery()` takes an optional `args` object with these properties:
 
 [%header,cols="1%,1%,98%a"]
 [frame="none"]
 [grid="none"]
 |===
 | Name | Type | Description
-| `scale` | `string` | Image scale, for example `width(500)` or `block(100,100)`.
+| `scale` | `string` | *Optional.* Image scale, for example `width(500)` or `block(100,100)`. Omit to use Guillotine's default.
 | `quality` | `number` | *Optional.* JPEG quality.
 | `background` | `string` | *Optional.* Background color for transparent images.
 | `format` | `string` | *Optional.* Output format, for example `webp`.
 | `filter` | `string` | *Optional.* Image filter.
-| `params` | `Record<string, unknown>` | *Optional.* Extra query parameters added to the URL.
 |===
 
 [.lead]
@@ -244,7 +243,7 @@ Returns
 
 === pageUrlQuery
 
-Returns the Guillotine selection `pageUrl(<args>) { url path queryString }`.
+Returns the Guillotine selection `pageUrl(<args>) { baseUrl path queryString }`.
 
 [.lead]
 Parameters
@@ -266,12 +265,19 @@ Returns
 
 === imageUrl
 
-Builds an absolute image URL from the result of `imageUrlQuery()`: the media base URL (`+ENONIC_MEDIA_CDN+`, default `+ENONIC_API+`) followed by the media part of `path` and the `queryString`. Resolve the URL on the server and pass it to client components so the environment configuration stays server-side.
+Builds an image URL from the result of `imageUrlQuery()`. For `meta.branch === 'draft'`, it appends the media endpoint path and query string to `/api/media`. For published content, it uses the media base URL (`+ENONIC_MEDIA_CDN+`, default `+ENONIC_API+`). See <<../nextjs/rich-text#media-proxy,Draft media proxy>>. Resolve the URL on the server and pass it to client components so the environment configuration stays server-side.
 
 [.lead]
 Parameters
 
-`data` (<<image-url,ImageUrl>>, or any object with `path` and an optional `queryString`) — URL object from Guillotine. May be `null` or `undefined`.
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `data` | <<image-url,ImageUrl>> | URL object from Guillotine. Only `path` is required; `queryString` is optional. May be `null` or `undefined`.
+| `meta` | <<media-url-meta,MediaUrlMeta>> | Branch context, usually the page's <<meta-data,MetaData>>.
+|===
 
 [.lead]
 Returns
@@ -280,12 +286,19 @@ Returns
 
 === mediaUrl
 
-Builds an absolute media URL from the result of `mediaUrlQuery()`, in the same way as `imageUrl()`.
+Builds a draft-proxy or published media URL from the result of `mediaUrlQuery()`, in the same way as `imageUrl()`.
 
 [.lead]
 Parameters
 
-`data` (<<attachment-url,AttachmentUrl>>, or any object with `path` and an optional `queryString`) — URL object from Guillotine. May be `null` or `undefined`.
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `data` | <<attachment-url,AttachmentUrl>> | URL object from Guillotine. Only `path` is required; `queryString` is optional. May be `null` or `undefined`.
+| `meta` | <<media-url-meta,MediaUrlMeta>> | Branch context, usually the page's <<meta-data,MetaData>>.
+|===
 
 [.lead]
 Returns
@@ -294,12 +307,19 @@ Returns
 
 === attachmentUrl
 
-Builds an absolute attachment URL from the result of `attachmentUrlQuery()`, in the same way as `imageUrl()`.
+Builds a draft-proxy or published attachment URL from the result of `attachmentUrlQuery()`, in the same way as `imageUrl()`.
 
 [.lead]
 Parameters
 
-`data` (<<attachment-url,AttachmentUrl>>, or any object with `path` and an optional `queryString`) — URL object from Guillotine. May be `null` or `undefined`.
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `data` | <<attachment-url,AttachmentUrl>> | URL object from Guillotine. Only `path` is required; `queryString` is optional. May be `null` or `undefined`.
+| `meta` | <<media-url-meta,MediaUrlMeta>> | Branch context, usually the page's <<meta-data,MetaData>>.
+|===
 
 [.lead]
 Returns
@@ -334,6 +354,47 @@ Example
 ----
 <Link href={pageUrl(parent.pageUrl, meta)}>Back</Link>
 <Link href={pageUrl({path: '/'}, meta)}>Home</Link>
+----
+
+=== richTextQuery
+
+Returns the selection for a rich-text field, including processed HTML and structured references for images, links, and registered macros. `fetchGuillotine()` appends the required fragment definitions automatically.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `fieldName` | `string` | Name of the rich-text field in the content or component schema.
+| `options` | `object` | *Optional.* Image settings listed below.
+|===
+
+The optional `options` object has these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `imageWidths` | `number[]` | *Optional.* Responsive image widths. Default: `[400, 800, 1200]`.
+| `imageSizes` | `string` | *Optional.* HTML sizes expression. Default: `(max-width: 400px) 400px, (max-width: 800px) 800px, 1200px`.
+| `imageSrcWidth` | `number` | *Optional.* Primary image width. Omitted by default, leaving Guillotine's default in effect.
+|===
+
+[.lead]
+Returns
+
+`string`.
+
+[.lead]
+Example
+
+[source,TypeScript]
+----
+const bodySelection = richTextQuery('body', {imageWidths: [640, 1280]});
 ----
 
 === richTextFragments
@@ -553,7 +614,7 @@ Variables the adapter supplies to every registered query. A variables function m
 |===
 | Name | Type | Description
 | `path` | `string` | Full XP content path, including the site.
-| `siteKey` | `string` | Site path from the locale mapping.
+| `scopeKey` | `string` | Site path from the locale mapping.
 | `project` | `string` | XP project from the locale mapping.
 | `branch` | `string` | `draft` in draft mode, otherwise `master`.
 |===
@@ -583,7 +644,6 @@ Result of `imageUrlQuery()`.
 [grid="none"]
 |===
 | Name | Type | Description
-| `url` | `string` | Ready-made URL, with the base URL resolved by XP.
 | `path` | `string` | Full media API path with a leading slash.
 | `queryString` | `string` | URL-escaped query string with a `?` prefix.
 | `context` | `string` | Project context segment.
@@ -596,7 +656,7 @@ Result of `imageUrlQuery()`.
 [#attachment-url]
 === AttachmentUrl
 
-Result of `mediaUrlQuery()` and `attachmentUrlQuery()`. It has the `url`, `path`, `queryString`, `context`, `id`, `fingerprint`, and `name` fields of <<image-url,ImageUrl>>, plus:
+Result of `mediaUrlQuery()` and `attachmentUrlQuery()`. It has the `path`, `queryString`, `context`, `id`, `fingerprint`, and `name` fields of <<image-url,ImageUrl>>, plus:
 
 [%header,cols="1%,1%,98%a"]
 [frame="none"]
@@ -616,9 +676,22 @@ Result of `pageUrlQuery()`.
 [grid="none"]
 |===
 | Name | Type | Description
-| `url` | `string` | URL as XP resolves it.
+| `baseUrl` | `string` | Base URL resolved by XP. The adapter's `pageUrl()` uses the path and locale to construct the Next.js URL instead.
 | `path` | `string` | Site-relative content path.
 | `queryString` | `string` | URL-escaped query string.
+|===
+
+[#media-url-meta]
+=== MediaUrlMeta
+
+Branch context shared by `imageUrl()`, `mediaUrl()`, and `attachmentUrl()`.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `branch` | `string` | `draft` selects the `/api/media` proxy. Published content uses `master` and the configured API or CDN media base URL.
 |===
 
 [#media-url-args]
@@ -630,7 +703,6 @@ Result of `pageUrlQuery()`.
 |===
 | Name | Type | Description
 | `download` | `boolean` | *Optional.* Serve the file as a download.
-| `params` | `Record<string, unknown>` | *Optional.* Extra query parameters added to the URL.
 |===
 
 [#meta-data]
@@ -663,13 +735,11 @@ Runtime information returned by `fetchContent()`: content identity and path, pro
 | Name of the query parameter carrying the encrypted blob from XP: `xp`.
 
 | `+RENDER_MODE_HEADER+`, `+PROJECT_ID_HEADER+`, `+XP_BASE_URL_HEADER+`, `+JSESSIONID_HEADER+`
-| Header names shared with the XP preview proxy.
+| Header names used to pass rendering, project, and session context through the integration.
 
 | `+PORTAL_COMPONENT_ATTRIBUTE+`, `+PORTAL_REGION_ATTRIBUTE+`
 | DOM attributes used by Content Studio editing.
 
-| `richTextQuery`
-| Guillotine selection required for processed rich-text references.
 |===
 
 Prefer these exports to duplicated string values in application code.

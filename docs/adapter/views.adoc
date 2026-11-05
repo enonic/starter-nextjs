@@ -365,7 +365,9 @@ Example
 [#draft-mode-indicator]
 === DraftModeIndicator
 
-Renders a button when the page is opened in draft mode outside Content Studio. Clicking it disables Next.js draft mode and reloads the current URL without the `xp` preview parameter, returning to published content. The starter includes this view in its page layout.
+Server component that renders an exit button when Draft Mode is active. The client-side button is visible only in a top-level browser window; it is hidden in all iframes, including Content Studio. Clicking it disables Next.js Draft Mode and reloads the current URL without the `xp` preview parameter, returning to published content.
+
+The starter includes this view in its page layout. See <<../starter/configuration#exit-draft-mode,Starter configuration>> to enable or remove the button and change its label. Removing the component hides the control without disabling Draft Mode itself.
 
 [.lead]
 Parameters
@@ -383,7 +385,7 @@ Parameters
 [.lead]
 Returns
 
-`Promise<JSX.Element>`, or `null` when draft mode is disabled.
+`Promise<JSX.Element | null>`. Resolves to `null` when Draft Mode is disabled.
 
 [.lead]
 Example

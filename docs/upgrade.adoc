@@ -125,10 +125,10 @@ Replace `getUrl(photo.imageUrl, meta)` in the view with:
 ----
 import {imageUrl} from '@enonic/nextjs-adapter';
 
-<img src={imageUrl(photo.imageUrl)} alt=""/>
+<img src={imageUrl(photo.imageUrl, meta)} alt=""/>
 ----
 
-Use `mediaUrlQuery()`/`mediaUrl()` and `attachmentUrlQuery()`/`attachmentUrl()` for other media and attachments. For content links, select `pageUrlQuery()` and render the result with `pageUrl(data, meta)`.
+Use `mediaUrlQuery()`/`mediaUrl(data, meta)` and `attachmentUrlQuery()`/`attachmentUrl(data, meta)` for other media and attachments. The metadata selects the starter's `/api/media` proxy for draft media and the API or CDN URL for published media. The new starter already includes the proxy route; preserve it when moving your custom code. For content links, select `pageUrlQuery()` and render the result with `pageUrl(data, meta)`.
 
 Use the adapter's `richTextQuery` and `RichTextView` for rich-text links and images. Review any custom rich-text rendering that assumes URL fields are strings. Reference files in `public/` directly, for example `/images/logo.svg`, instead of using the removed `getAsset()` helper.
 

@@ -28,7 +28,7 @@ The adapter reads its connection and mapping settings from Next.js environment v
 
 | `+ENONIC_MEDIA_CDN+`
 | No
-| Absolute media API base URL. Defaults to `+ENONIC_API+`; override when media is served from another host, such as a CDN.
+| Absolute media API base URL. Defaults to `+ENONIC_API+`; override when media is served from another host, such as a CDN. Published pages reference this location directly. Draft media is requested through the front end's <<rich-text#media-proxy,/api/media proxy>>.
 
 | `+ENONIC_ADMIN+`
 | No

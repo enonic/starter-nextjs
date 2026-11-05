@@ -8,19 +8,19 @@ Revalidation is independent of the Content Studio preview: preview reads current
 
 == Content events
 
-The app subscribes to XP repository and node events for projects containing a site configured with Next.XP. Published changes are sent to the front end selected by that site's configuration.
+The Next.XP app subscribes to XP repository and node events for projects containing a site configured with Next.XP. Published changes are sent to the front end selected by that site's configuration.
 
 The subscriber runs on the XP cluster master so a clustered installation does not send the same notification from every node. Bulk events are debounced before the front end is called.
 
 == Paths and projects
 
-Normal publish events invalidates the affected site. Move and rename events also retain the previous path, allowing both the old and new public routes to be invalidated.
+Normal publish events request revalidation without a content path, which makes the starter invalidate its complete layout tree. Move and rename events also retain the previous path, allowing old public routes to be invalidated explicitly.
 
 The active XP project is sent in the encrypted `xp` parameter and in the `Content-Studio-Project` header. The front end uses it to resolve the correct locale and project mapping before invalidating paths.
 
 == Front-end endpoint
 
-The app calls the protected `/api/revalidate` route on the selected Next.js front end. The starter provides the canonical route handler; a custom front end must implement the same integration contract.
+The Next.XP app calls the protected `/api/revalidate` route on the selected Next.js front end. The starter provides the canonical route handler; a custom front end must implement the same integration contract.
 
 The handler decrypts the `xp` parameter with the shared secret and applies Next.js path revalidation to the affected routes or the entire site, depending on the presence of the `path` parameter. The front end remains responsible for its caching policy and for any additional tags or application-specific caches.
 

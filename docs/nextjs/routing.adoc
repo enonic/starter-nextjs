@@ -33,11 +33,14 @@ For the non-default mapping `no:website-no/site`:
 
 This is a convention implemented by the catch-all route in `starter-nextjs`, not a restriction imposed by the adapter. `fetchContent()` uses the `contentPath` supplied by the application and does not inspect the public URL. A custom Next.js route may therefore translate aliases, slugs, or other route parameters into a different XP content path before calling the adapter.
 
+[#locale-rewrite]
 == Locale rewrite
 
-`src/proxy.ts` resolves locale information before the route runs. If the URL already begins with a non-default configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route. A URL beginning with the default locale is redirected to the same path without it. When the URL carries Content Studio's `xp` parameter, the proxy first enables draft mode through `/api/preview` and removes the parameter.
+The starter's `src/proxy.ts` handles incoming requests inside Next.js, before page routing. It resolves locale information: if the URL already begins with a non-default configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route. A URL beginning with the default locale is redirected to the same path without it.
 
-Excluded are API routes, Next.js assets, and everything under `public/` from the proxy matcher. Remember to add new public directories to the matcher exclusion when the project structure changes.
+When a request carries a valid Content Studio `xp` parameter and needs a Draft Mode cookie for the current build, this handler redirects the browser to `/api/preview`. That route enables Draft Mode and redirects back to the content URL without the parameter. If the draft cookie is already valid, the handler removes the parameter without repeating setup.
+
+The proxy matcher excludes API routes, Next.js assets, and the starter's known public asset paths. Add new public directories to the matcher exclusion when the project structure changes.
 
 == XP and public paths
 

@@ -6,21 +6,49 @@ Next.XP lets Content Studio display the Next.js front end while editors work wit
 
 == Preview handshake
 
-. Content Studio requests preview of content inside a site.
-. The app selects a named front-end URL and shared secret.
-. The app fetches URL mappings from the front end's `/api/mappings`, resolves the Next.js URL of the content, and adds an `xp` parameter with the XP project, encrypted with the secret.
-. Content Studio loads the URL. The Next.js proxy sends the request through `/api/preview`, which validates the `xp` parameter, enables Next.js Draft Mode, and redirects to the content path without it.
-. The adapter detects Draft Mode, forwards the XP session to Guillotine, and queries the `draft` branch.
+=== Initialization
 
-NOTE: `/api/preview` also records the Next.js build in a cookie, so the proxy enables Draft Mode again after the build changes.
+. *Allow the front end.* When Content Studio loads, the Next.XP app uses XP's CSP API to contribute the configured front-end origins to Content Studio's Content Security Policy. This allows Content Studio to embed and connect to the Next.js front end. See <<../app/preview#content-security-policy,Content Security Policy>> for the configuration.
+. *Find the page URL.* Content Studio asks the Next.XP app where to preview the selected content. Next.XP uses its configuration to locate the front-end baseUrl. The Next.XP app calls `/api/mappings` on that Next.js server for rules that translate XP content paths into front-end paths, then appends the matching path to the configured URL. See <<../app/configuration#,App configuration>>.
+. *Open an authenticated preview.* The Next.XP app adds an `xp` query parameter containing the XP project, the editor's XP session ID, and a timestamp, encrypted with the shared secret. Content Studio opens this URL in its preview pane so Next.js can identify the project and editor's session.
+. *Enable Draft Mode.* Next.js redirects the browser to its `/api/preview` route. That route validates the `xp` parameter, sets the Draft Mode cookie, and redirects back to the content URL without the parameter.
+
+=== For each preview request
+
+Once setup is complete, page loads and refreshes use the existing draft cookie:
+
+. *Request the page.* The browser requests the content URL directly from Next.js, including its Draft Mode cookie.
+. *Fetch and render draft content.* The Next.js server uses the adapter to query Guillotine's `draft` branch with the editor's XP session. XP applies that user's content permissions, and Next.js returns the rendered page to the browser.
+. *Fetch draft media.* Images and attachments referenced by the page trigger separate browser requests to Next.js `/api/media`. That route forwards the editor's XP session to the XP media API and streams each response back without caching. See <<../nextjs/rich-text#media-proxy,Draft media proxy>>.
+
+Selecting another content item in Content Studio resolves a new preview URL through the Next.XP app, reusing the cached mapping rules. It does not repeat Draft Mode setup while the cookie remains valid. Navigation within the front end requests Next.js directly.
+
+[.lead]
+Implementation details
+
+The starter's `next.config.js` configures CORS headers that let Content Studio read front-end responses, such as the preview availability check. The allowed Content Studio origin comes from `+ENONIC_ADMIN+`, falling back to the origin of `+ENONIC_API+`.
+
+Draft Mode setup is reused while the cookie remains valid for the current Next.js build. It runs again when preview is opened after the cookie expires, Draft Mode is disabled, or a new build is deployed. The CSP contribution applies whenever Content Studio itself loads; URL mapping rules are cached per project.
+
+The starter handles the Draft Mode redirect in `src/proxy.ts`, which runs inside Next.js before page routing. See <<../nextjs/routing#locale-rewrite,Routing>> for implementation details.
+
+== Leaving Draft Mode
+
+Draft Mode persists while its browser cookie remains valid. Opening the front end in another tab can therefore continue to request draft content outside Content Studio.
+
+The starter includes an exit button through the adapter's `DraftModeIndicator`. It appears in Draft Mode when the page is opened directly, and is hidden inside Content Studio and other iframes. Clicking it disables Draft Mode and reloads the page without the `xp` parameter to show published content.
+
+See <<../starter/configuration#exit-draft-mode,Starter configuration>> to enable or remove the button in your front end and customize its label.
 
 == Authentication and permissions
 
-Preview is available only through an authenticated Enonic Content Studio session. The editor's browser loads the preview from Next.js, and the starter's proxy passes XP's `JSESSIONID` cookie, when the browser sends it, to the adapter. The adapter then forwards that session as the `JSESSIONID` cookie on its Guillotine request. Browsers send the cookie only when Next.js and XP share a host name.
+Preview starts from an authenticated Enonic Content Studio session. The front end must supply the editor's XP session when querying protected draft content. The adapter forwards a session supplied through its `+JSESSIONID_HEADER+` as a cookie on the Guillotine request.
 
-When the session is forwarded, Guillotine evaluates the draft query as the same Enonic user who opened the preview. XP's normal content permissions remain in effect: the rendered result contains only content that user is allowed to access. The front end does not query draft content through a privileged service account or bypass XP access controls.
+When the session is forwarded, Guillotine evaluates the draft query as the same Enonic user who opened the preview. XP's normal content permissions remain in effect: the rendered result contains only content that user is allowed to access.
 
 The shared API token and the Next.js Draft Mode cookie have different purposes. The token authenticates calls between the Next.XP app and the protected front-end endpoints, while the Draft Mode cookie selects draft rendering. Neither replaces the editor's XP identity or grants access to content by itself.
+
+Browser requests for protected media need authentication separately from server-side Guillotine requests. The starter's <<../nextjs/rich-text#media-proxy,draft media proxy>> at `/api/media` forwards the editor's XP session server-side. Published media uses the API or CDN directly. CORS headers do not transfer XP cookies between hosts or grant access to draft media.
 
 == Render modes
 
