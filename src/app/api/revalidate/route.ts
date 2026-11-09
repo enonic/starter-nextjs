@@ -1,19 +1,20 @@
 import { revalidatePath } from 'next/cache';
-import { NextRequest } from 'next/server';
-import { pageUrl, PROJECT_ID_HEADER } from '@enonic/nextjs-adapter';
-import { resolveProjectMapping, validateBlob } from '../../../utils';
+import { NextRequest, NextResponse } from 'next/server';
+import { getLocaleMappingByProjectId, pageUrl, PROJECT_ID_HEADER } from '@enonic/nextjs-adapter';
+import { validateXpPayload } from '@enonic/nextjs-adapter/server';
 
 export async function GET(request: NextRequest) {
     // Check for secret to confirm this is a valid request
     const {searchParams} = request.nextUrl;
-    const blob = validateBlob(searchParams.get('xp'));
+    const blob = validateXpPayload({ blob: searchParams.get('xp'), secret: process.env.ENONIC_API_TOKEN });
     if (!blob.ok) {
-        return blob.response;
+        const message = blob.reason === 'invalid-payload' ? 'Invalid secret' : 'Invalid request';
+        return NextResponse.json({ message }, { status: 401 });
     }
 
     const path = searchParams.get('path');
-    const project = blob.params.xpProject ?? request.headers.get(PROJECT_ID_HEADER);
-    const locale = resolveProjectMapping(project)?.locale;
+    const project = blob.payload.xpProject ?? request.headers.get(PROJECT_ID_HEADER);
+    const locale = getLocaleMappingByProjectId(project ?? undefined, false)?.locale;
     try {
         if (path && locale) {
             // Without defaultLocale, pageUrl always prefixes: the cache is keyed by the /[locale] rewrite destination, not the public URL
