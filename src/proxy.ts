@@ -29,14 +29,14 @@ export function proxy(request: NextRequest): NextResponse {
         addLocalePrefix(url, { ...localeInfo, locale: projectLocale });
     }
 
-    if (xpBlob && params && !hasDraftCookieForThisBuild(request)) {
-        // First Content Studio request: /api/preview validates the blob, enables draft mode and lands on the canonical URL
+    if (xpBlob && params && (!hasDraftCookieForThisBuild(request) || !hasSessionCookieForXpSession(request, params.JSESSIONID))) {
+        // New build or XP session: /api/preview validates the blob, synchronizes cookies and lands on the canonical URL
         const draftUrl = request.nextUrl.clone();
         draftUrl.pathname = '/api/preview';
         draftUrl.search = '';
         draftUrl.searchParams.set(FROM_XP_PARAM, xpBlob);
         draftUrl.searchParams.set('path', url.pathname + url.search);
-        console.debug(`Proxy at '${pathname}': no draft cookie for this build, redirecting to '${draftUrl.pathname}'`);
+        console.debug(`Proxy at '${pathname}': draft or XP session cookie needs updating, redirecting to '${draftUrl.pathname}'`);
         return NextResponse.redirect(draftUrl);
     }
 
@@ -59,6 +59,10 @@ export function proxy(request: NextRequest): NextResponse {
 // Next ignores a draft cookie issued by another build (dev vs prod, redeploy), so /api/preview must run again for it
 function hasDraftCookieForThisBuild(request: NextRequest): boolean {
     return request.cookies.has(DRAFT_COOKIE) && request.cookies.get(BUILD_COOKIE)?.value === BUILD_ID;
+}
+
+function hasSessionCookieForXpSession(request: NextRequest, jsessionid: string | undefined): boolean {
+    return Boolean(jsessionid) && request.cookies.get(JSESSIONID_HEADER)?.value === jsessionid;
 }
 
 function decryptXpParams(xpBlob: string): Record<string, string> | null {
