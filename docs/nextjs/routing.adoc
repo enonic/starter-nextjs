@@ -1,0 +1,56 @@
+= Routing
+:toc: right
+include::../.variables.adoc[]
+
+The starter uses the Next.js App Router with a locale segment followed by an optional catch-all content path:
+
+[source,text]
+----
+src/app/[locale]/[[...contentPath]]/page.tsx
+----
+
+This maps `/en/about/team` to locale `en` and content path `about/team`.
+
+== Default path mapping
+
+The standard route maps the public URL path one-to-one to the content path below the configured XP site. It removes the locale segment before lookup, then the adapter adds the configured site path when querying Guillotine.
+
+For the mapping `en:website/site`:
+
+[%header,cols="1,2"]
+|===
+| Value | Path
+
+| Public URL
+| `/en/about/team`
+
+| Route `contentPath`
+| `about/team`
+
+| XP content
+| `/site/about/team`
+|===
+
+This is a convention implemented by the catch-all route in `starter-nextjs`, not a restriction imposed by the adapter. `fetchContent()` uses the `contentPath` supplied by the application and does not inspect the public URL. A custom Next.js route may therefore translate aliases, slugs, or other route parameters into a different XP content path before calling the adapter.
+
+== Locale rewrite
+
+`src/proxy.ts` resolves locale information before the route runs. If the URL already begins with a configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route.
+
+Excluded are API routes, Next.js assets, and everything under `public/` from the proxy matcher. Remember to add new public directories to the matcher exclusion when the project structure changes.
+
+== XP and public paths
+
+XP stores content below a site, but public URLs are site-relative. For a mapping such as `en:website/site`, XP content `/site/news/item` becomes `/en/news/item` in Next.js. `UrlProcessor` applies the same rule to links returned in content.
+
+Non-default locales are included in processed internal URLs. External absolute URLs and fragment-only links are left unchanged; absolute XP URLs may be normalized into site-relative links.
+
+== Missing content and shortcuts
+
+Call `validateData()` after `fetchContent()`. It converts adapter results into Next.js `notFound()` or redirect behavior where appropriate. Keep `not-found.tsx` and `error.tsx` at the locale route level so failures retain the active language context.
+
+== Static routes
+
+`fetchContentPathsForAllLocales()` can supply `generateStaticParams()`. Its default query excludes media, shortcuts, fragments, and page-template content. Projects with large repositories should provide a narrower query or choose dynamic rendering instead.
+
+See <<../concepts/localization#,Projects and localization>> and <<caching#,Caching and revalidation>>.

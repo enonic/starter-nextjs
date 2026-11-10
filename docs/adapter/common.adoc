@@ -1,0 +1,390 @@
+= Common API
+:toc: right
+include::../.variables.adoc[]
+
+Exports from `@enonic/nextjs-adapter` may be used in shared code unless their behavior requires a server-only Next.js API.
+
+== Usage
+
+[source,TypeScript]
+----
+import {
+    ComponentRegistry,
+    getLocaleMapping,
+    getUrl,
+    I18n,
+    validateData
+} from '@enonic/nextjs-adapter';
+----
+
+== Functions
+
+=== getContentApiUrl
+
+Returns the Guillotine URL for the context's project and branch. Direct and live requests use `master`; editing contexts use `draft`.
+
+[.lead]
+Parameters
+
+`getContentApiUrl()` takes a single `context` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `contentPath` | `string` or `string[]` | Site-relative content path.
+| `headers` | `Headers` | *Optional.* Request headers carrying Content Studio context.
+| `locale` | `string` | *Optional.* Route locale.
+|===
+
+[.lead]
+Returns
+
+`string` — absolute Guillotine project and branch URL.
+
+=== getLocaleMapping
+
+Resolves the locale, project, and site mapping for a request. The Content Studio project header takes precedence over the route locale.
+
+[.lead]
+Parameters
+
+`getLocaleMapping()` takes the same single `context` object as `getContentApiUrl()`.
+
+[.lead]
+Returns
+
+`LocaleMapping`.
+
+=== getLocaleMappingByLocale
+
+Returns the mapping for `locale`. The optional `useDefault` boolean defaults to `true` and controls fallback to the default mapping.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `locale` | `string` | *Optional.* Locale to find.
+| `useDefault` | `boolean` | *Optional.* Fall back to the default mapping. Default: `true`.
+|===
+
+[.lead]
+Returns
+
+`LocaleMapping` or `undefined`.
+
+=== getLocaleMappingByProjectId
+
+Returns the mapping for an XP project ID. Matching is case-insensitive; `useDefault` defaults to `true`.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `projectId` | `string` | *Optional.* XP project ID to find.
+| `useDefault` | `boolean` | *Optional.* Fall back to the default mapping. Default: `true`.
+|===
+
+[.lead]
+Returns
+
+`LocaleMapping` or `undefined`.
+
+=== getRequestLocaleInfo
+
+Returns `{locale, locales, defaultLocale}` for a request context. The project header is used in Content Studio; otherwise the route locale or default locale is used.
+
+[.lead]
+Parameters
+
+`getRequestLocaleInfo()` takes the same single `context` object as `getContentApiUrl()`.
+
+[.lead]
+Returns
+
+An object containing the selected `locale`, all configured `locales`, and `defaultLocale`.
+
+=== getUrl
+
+Processes an internal content or media URL for the supplied `MetaData`. It removes the XP site prefix and applies the public locale or Content Studio base URL.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `url` | `string` | URL to process.
+| `meta` | <<meta-data,MetaData>> | Runtime context returned by `fetchContent()`.
+|===
+
+[.lead]
+Returns
+
+`string`.
+
+=== getAsset
+
+Processes a resource URL without adding a locale segment. Use it for assets rather than navigable content links.
+
+[.lead]
+Parameters
+
+The same `url` and `meta` parameters as `getUrl()`.
+
+[.lead]
+Returns
+
+`string`.
+
+=== sanitizeGraphqlName
+
+Converts text into a valid GraphQL name by replacing unsupported characters and prefixing names that begin with a number.
+
+[.lead]
+Parameters
+
+`text` (`string`) — value to sanitize.
+
+[.lead]
+Returns
+
+`string`.
+
+=== validateData
+
+Validates a `FetchContentResult`. Missing content invokes Next.js not-found handling; XP shortcuts invoke redirect handling.
+
+[.lead]
+Parameters
+
+`props` (`FetchContentResult`) — result returned by `fetchContent()`.
+
+[.lead]
+Returns
+
+`void`. The function may invoke Next.js navigation handling.
+
+== Classes
+
+=== ComponentRegistry
+
+Static registry connecting XP descriptors to queries, processors, and React views.
+
+==== addContentType
+
+Registers a content-type mapping by application-qualified name.
+
+==== addPage
+
+Registers an XP page descriptor.
+
+==== addLayout
+
+Registers an XP layout descriptor.
+
+==== addPart
+
+Registers an XP part descriptor.
+
+==== addMacro
+
+Registers an XP macro descriptor.
+
+==== addComponent
+
+Registers a generic component kind such as the built-in `part`, `layout`, or `text` handling.
+
+Each registration method accepts a name and a `ComponentDefinitionParams` object. Repeated registration merges properties for the same name.
+
+==== setCommonQuery
+
+Sets the query whose processed result is returned as `common` for every render.
+
+==== getCommonQuery
+
+Returns the registered shared query.
+
+==== getByComponent
+
+Resolves the definition for a normalized `PageComponent` from its type and descriptor.
+
+==== getContentType
+
+Returns a content-type definition by name, falling back to `+CATCH_ALL+` when registered.
+
+==== getPage
+
+Returns a page definition by descriptor, with catch-all fallback.
+
+==== getLayout
+
+Returns a layout definition by descriptor, with catch-all fallback.
+
+==== getPart
+
+Returns a part definition by descriptor, with catch-all fallback.
+
+==== getMacro
+
+Returns a macro definition by descriptor, with catch-all fallback.
+
+==== getComponent
+
+Returns a generic component-kind definition, with catch-all fallback.
+
+==== getContentTypes
+
+Returns all explicitly registered content-type definitions as name-definition pairs.
+
+==== getPages
+
+Returns all explicitly registered page definitions.
+
+==== getLayouts
+
+Returns all explicitly registered layout definitions.
+
+==== getParts
+
+Returns all explicitly registered part definitions.
+
+==== getMacros
+
+Returns all explicitly registered macro definitions.
+
+==== getComponents
+
+Returns all explicitly registered generic component definitions.
+
+=== I18n
+
+Static localization helper for server-rendered front-end phrases.
+
+==== setLocale
+
+Loads `@phrases/<locale>.json` and returns its dictionary.
+
+==== localize
+
+Returns the phrase for a key and substitutes positional `{}` or indexed `{0}` placeholders. A missing phrase is returned as `<key>`.
+
+==== getLocale
+
+Returns the active locale.
+
+==== getDictionary
+
+Returns the loaded phrase dictionary.
+
+=== UrlProcessor
+
+Low-level URL processor used by `getUrl()`, `getAsset()`, and rich-text views.
+
+==== process
+
+Processes a URL using `MetaData`. Optional flags distinguish server-side output and resource URLs.
+
+==== processSrcSet
+
+Processes every URL in an image `srcset`, preserving width and pixel-density descriptors.
+
+==== isMediaLink
+
+Tests whether a rich-text link reference points to media.
+
+==== isContentImage
+
+Tests whether a rich-text image reference resolves to content.
+
+== Type Definitions
+
+[#context]
+=== Context
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `contentPath` | `string` or `string[]` | Site-relative path requested from XP.
+| `headers` | `Headers` | *Optional.* Request headers.
+| `locale` | `string` | *Optional.* Active front-end locale.
+|===
+
+[#locale-mapping]
+=== LocaleMapping
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `default` | `boolean` | Whether this is the fallback mapping.
+| `project` | `string` | XP project ID.
+| `site` | `string` | Site path inside the project.
+| `locale` | `string` | Front-end locale.
+|===
+
+[#component-definition-params]
+=== ComponentDefinitionParams
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `query` | `SelectedQueryMaybeVariablesFunc` | *Optional.* Guillotine query and optional variables function.
+| `configQuery` | `string` | *Optional.* Query selection for component configuration.
+| `processor` | `DataProcessor` | *Optional.* Asynchronous data transformation.
+| `view` | `React.FunctionComponent` | *Optional.* React renderer.
+|===
+
+[#meta-data]
+=== MetaData
+
+Runtime information returned by `fetchContent()`: content identity and path, project, site, branch, API and preview base URLs, locale, render mode, request type, renderability, and requested component.
+
+== Constants
+
+[%header,cols="1,3"]
+|===
+| Export | Purpose
+
+| `+APP_NAME+`, `+APP_NAME_DASHED+`, `+APP_NAME_UNDERSCORED+`
+| Application key from the environment and descriptor-safe variants.
+
+| `+IS_DEV_MODE+`
+| Whether `MODE` is `development`.
+
+| `+CATCH_ALL+`
+| Registry key for a fallback definition.
+
+| `+RENDER_MODE+`
+| Direct, edit, preview, inline, live, and admin rendering modes.
+
+| `+XP_COMPONENT_TYPE+`, `+XP_REQUEST_TYPE+`
+| Normalized page-component kinds and fetch request kinds.
+
+| `+RENDER_MODE_HEADER+`, `+PROJECT_ID_HEADER+`, `+XP_BASE_URL_HEADER+`, `+JSESSIONID_HEADER+`
+| Header names shared with the XP preview proxy.
+
+| `+PORTAL_COMPONENT_ATTRIBUTE+`, `+PORTAL_REGION_ATTRIBUTE+`
+| DOM attributes used by Content Studio editing.
+
+| `richTextQuery`
+| Guillotine selection required for processed rich-text references.
+|===
+
+Prefer these exports to duplicated string values in application code.

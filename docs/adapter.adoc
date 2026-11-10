@@ -1,0 +1,66 @@
+= Next.js adapter
+:toc: right
+include::.variables.adoc[]
+
+`@enonic/nextjs-adapter` is the front-end library at the center of Next.XP. It queries Guillotine, builds renderable page structures, maps XP descriptors to React views, processes URLs and rich text, and supplies Content Studio editing metadata.
+
+NOTE: This page documents `@enonic/nextjs-adapter` {adapter-version}, the adapter major that defines Next.XP {nextxp-version}.
+
+The adapter depends on `@enonic/react-components`, which provides reusable XP-aware React components and types. Adapter {adapter-version} uses its `RichText` renderer for links, images, and macros, while the adapter's own views handle the standard Next.XP page tree and its editing annotations.
+
+== Installation
+
+[source,bash]
+----
+npm install @enonic/nextjs-adapter
+----
+
+Adapter {adapter-version} requires Node.js {node-minimum} +, npm {npm-minimum} +, Next.js {next-version}, and React {react-version}.
+
+== Entry points
+
+[%header,cols="2,3"]
+|===
+| Import | Use
+
+| `@enonic/nextjs-adapter`
+| Types, constants, registry, localization, URL utilities, and other exports safe in shared application code.
+
+| `@enonic/nextjs-adapter/server`
+| Guillotine and content fetching. Import only from server components, route handlers, or other server code.
+
+| `@enonic/nextjs-adapter/client`
+| React locale context for client components.
+
+| `@enonic/nextjs-adapter/views/<ViewName>`
+| One default export per built-in React view.
+|===
+
+== Basic use
+
+[source,tsx]
+----
+import {validateData} from '@enonic/nextjs-adapter';
+import {fetchContent} from '@enonic/nextjs-adapter/server';
+import MainView from '@enonic/nextjs-adapter/views/MainView';
+
+export default async function Page({params}) {
+    const resolved = await params;
+    const result = await fetchContent({
+        locale: resolved.locale,
+        contentPath: resolved.contentPath || []
+    });
+
+    validateData(result);
+    return <MainView {...result}/>;
+}
+----
+
+Register application mappings before the first fetch. See <<concepts/components#,Components and views>>.
+
+== API sections
+
+* <<adapter/common#,Common API>> — registry, localization, URL handling, types, and constants
+* <<adapter/server#,Server API>> — content, Guillotine, and static-path fetching
+* <<adapter/client#,Client API>> — client-side locale context
+* <<adapter/views#,Views>> — built-in renderers and their roles
