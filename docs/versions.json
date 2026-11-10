@@ -1,12 +1,8 @@
 {
   "versions": [
     {
-      "label": "next",
-      "checkout": "master"
-    },
-    {
       "label": "stable",
-      "checkout": "origin/5.x",
+      "checkout": "master",
       "displayName": "5.x",
       "latest": true
     }
