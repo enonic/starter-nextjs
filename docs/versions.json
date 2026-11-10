@@ -1,0 +1,14 @@
+{
+  "versions": [
+    {
+      "label": "stable",
+      "checkout": "master",
+      "displayName": "6.x",
+      "latest": true
+    },
+    {
+      "label": "5.x",
+      "checkout": "origin/5.x"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+= Core concepts
+:toc: right
+include::.variables.adoc[]
+
+Next.XP joins the Enonic XP content model and editing experience to a Next.js rendering application. Understanding where each responsibility lives makes the individual components easier to configure and replace.
+
+== Two request paths
+
+Public visitors access Next.js directly. The front end queries published content from Guillotine and uses the adapter to turn XP content and page components into React output.
+
+Editors use the same Next.js application through Content Studio. The Next.XP app resolves the Next.js URL for this path, Content Studio loads it directly, and the Next.js proxy enables draft mode, which causes the adapter to query draft content and include editing metadata.
+
+This separation keeps public delivery under normal Next.js hosting and caching while preserving Content Studio preview and page editing.
+
+== Content and presentation
+
+Enonic XP owns content schemas, content items, projects, languages, and page composition. Next.js owns routing, React views, front-end behavior, and public delivery. Guillotine is the API boundary between them.
+
+`ComponentRegistry` connects the two presentation models. Each XP descriptor may be associated with a Guillotine query, a data processor, and a React view. The adapter combines the registered queries, builds the XP page tree, and supplies the matching data to each view.
+
+== Explore the concepts
+
+* <<concepts/architecture#,Architecture>> describes the components, runtime paths, and trust boundaries.
+* <<concepts/content-and-rendering#,Content and rendering>> follows a request from Guillotine to React output.
+* <<concepts/components#,Components and views>> explains descriptor mappings and view props.
+* <<concepts/preview#,Editing and preview>> covers the Content Studio request path.
+* <<concepts/localization#,Projects and localization>> explains locale, project, and site mappings.

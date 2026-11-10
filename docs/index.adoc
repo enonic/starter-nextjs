@@ -1,0 +1,88 @@
+= Next.js + Enonic XP = Next.XP
+:toc: right
+include::.variables.adoc[]
+
+An integration between Next.js and https://developer.enonic.com/docs/platform[Enonic XP] for content-driven websites.
+
+TIP: For a step-by-step introduction, follow the link:{tutorial-docs}[Next.js tutorial]. This documentation is the product reference and can be read in any order.
+
+== About
+
+With Next.XP, editors create structured content, assemble pages, and preview changes in Enonic Content Studio. Developers build the front-end using Next.js and React, mapping Enonic page components to React components.
+
+Next.XP is Enonic's recommended starting point for Next.js. Projects may adopt the complete stack, use individual software components, or build a custom integration directly against Enonic APIs.
+
+== What Next.XP provides
+
+The integration provides:
+
+* Content retrieval from the Guillotine GraphQL API
+* Mapping between Enonic page components and React components
+* Content Studio preview and visual page editing of the Next.js front-end
+* Front-end revalidation when content is published
+* Processing of links and rich text from Enonic content
+* Support for localized content and front-end text
+* A starter project with the recommended application structure and configuration
+
+== How it fits together
+
+A Next.XP solution has two running sides. Enonic XP manages content, schemas, and page composition, exposing content through the Guillotine GraphQL API. The Next.js application uses the adapter to fetch and render it, handling routing, caching, and front-end delivery.
+
+Visitors access the Next.js front-end. Editors load the same front-end in Content Studio to work with draft content. The Next.XP app connects Content Studio to the front-end and notifies it when content is published.
+
+== Software stack
+
+Next.XP {nextxp-version} combines three software components—the starter, adapter, and Next.XP app—with the Enonic applications and platform below. The starter is optional when integrating the adapter into an existing Next.js application.
+
+[%header,cols="2,1,3"]
+[frame="none"]
+[grid="none"]
+|===
+| Software component | Version | Role
+
+3+| *Next.js front-end*
+
+| <<starter#,starter-nextjs>>
+| {nextxp-version}
+| Recommended project template showing how to use the adapter in Next.js.
+
+| <<adapter#,@enonic/nextjs-adapter>>
+| {adapter-version}
+| Fetches content from Guillotine, maps Enonic page components to React views, and handles rich text, preview, and localization.
+
+3+| *Enonic back-end*
+
+| https://developer.enonic.com/docs/content-studio/stable[Content Studio]
+| {content-studio-minimum} or later
+| Editorial application for managing content, visually composing pages, and previewing the Next.js front-end.
+
+| <<app#,Next.XP app>>
+| {app-version}
+| XP application for authenticated front-end preview in Content Studio and publication notifications for front-end revalidation.
+
+| link:{guillotine-docs}[Guillotine]
+| {guillotine-version}
+| GraphQL API installed in XP to expose content to the Next.js front-end.
+
+| link:{xp-docs}[Enonic XP]
+| {xp-version} or later
+| Back-end platform managing content, schemas, and page composition.
+|===
+
+See <<starter#front-end-dependencies,Starter dependencies>> for the Next.js and React versions, supporting libraries, and Node.js/npm requirements. For an existing Next.js project, see <<adapter#,Adapter installation>>.
+
+=== Versioning
+
+The Next.XP product version follows the major version of <<adapter#,@enonic/nextjs-adapter>>. The <<starter#,starter>> and the Next.XP app align to that major within the release window; their patch versions may differ. Supporting libraries follow their own release cycles.
+
+See the <<release#,release notes>> for what changed in each version, and the <<upgrade#,upgrade notes>> when moving between majors.
+
+== Using this reference
+
+Start with <<concepts/architecture#,Architecture>> for the request flows, or go directly to the <<adapter#,adapter>>, <<starter#,starter>>, and <<app#,Next.XP app>> references. Use <<nextjs/configuration#,Configuration>> to connect an existing application and <<troubleshooting#,Troubleshooting>> to diagnose common failures.
+
+For broader platform concepts, see:
+
+* link:{guillotine-docs}[Guillotine] for GraphQL schemas, queries, and API configuration
+* link:{xp-docs}[Enonic XP] for content types, page components, and platform administration
+* https://developer.enonic.com/docs/content-studio/stable[Content Studio] for content authoring and visual page editing

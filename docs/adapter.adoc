@@ -1,0 +1,73 @@
+= Next.js adapter
+:toc: right
+include::.variables.adoc[]
+
+`@enonic/nextjs-adapter` is the front-end library at the center of Next.XP. It queries Guillotine, builds renderable page structures, maps XP descriptors to React views, processes URLs and rich text, and supplies Content Studio editing metadata.
+
+NOTE: This page documents `@enonic/nextjs-adapter` {adapter-version}, the adapter major that defines Next.XP {nextxp-version}.
+
+== Installation
+
+[source,bash]
+----
+npm install @enonic/nextjs-adapter
+----
+
+Adapter {adapter-version} requires Node.js {node-minimum} or later, npm {npm-minimum} or later, and React and React DOM {react-version}. The documented Next.XP stack targets Next.js {next-version}; see <<starter#front-end-dependencies,Starter dependencies>> for the complete front-end stack.
+
+[#supporting-libraries]
+== Supporting libraries
+
+The adapter installs https://www.npmjs.com/package/@enonic/react-components[@enonic/react-components] as a dependency and selects its compatible version. This separately versioned library provides React renderers and types for XP page structures and rich text.
+
+Adapter {adapter-version} uses the library's `RichText` renderer for links, images, and macros. The adapter's own views render the standard Next.XP page tree and add its Content Studio annotations. The library's generic page renderers also provide annotations when used directly.
+
+For browser-side visual editing, the <<starter#,starter>> installs and initializes `@enonic/page-editor` separately. See <<concepts/preview#,Editing and preview>> for how it works with the annotated HTML.
+
+== Entry points
+
+[%header,cols="2,3"]
+|===
+| Import | Use
+
+| `@enonic/nextjs-adapter`
+| Types, constants, registry, localization, URL utilities, and other exports safe in shared application code.
+
+| `@enonic/nextjs-adapter/server`
+| Guillotine and content fetching. Import only from server components, route handlers, or other server code.
+
+| `@enonic/nextjs-adapter/client`
+| React locale context for client components.
+
+| `@enonic/nextjs-adapter/views/<ViewName>`
+| One default export per built-in React view.
+|===
+
+== Basic use
+
+[source,tsx]
+----
+import {validateData} from '@enonic/nextjs-adapter';
+import {fetchContent} from '@enonic/nextjs-adapter/server';
+import MainView from '@enonic/nextjs-adapter/views/MainView';
+
+export default async function Page({params}) {
+    const resolved = await params;
+    const result = await fetchContent({
+        locale: resolved.locale,
+        contentPath: resolved.contentPath || []
+    });
+
+    validateData(result);
+    return <MainView {...result}/>;
+}
+----
+
+Register application mappings before the first fetch. See <<concepts/components#,Components and views>>.
+
+== API sections
+
+* <<adapter/common#,Common API>> — registry, localization, URL handling, types, and constants
+* <<adapter/server#,Server API>> — content, Guillotine, and static-path fetching
+* <<adapter/client#,Client API>> — client-side locale context
+* <<adapter/views#,Views>> — built-in renderers and their roles

@@ -1,0 +1,42 @@
+= Caching and revalidation
+:toc: right
+include::../.variables.adoc[]
+
+Next.XP uses standard Next.js caching controls. The adapter passes `cache`, `next.revalidate`, and cache tags from `FetchOptions` to `fetch()`.
+
+== Time-based revalidation
+
+Export a `revalidate` interval from the catch-all route when content may be cached for a fixed period:
+
+[source,TypeScript]
+----
+export const revalidate = 3600;
+----
+
+This option requires the Next.js Node.js runtime. Use standard Next.js dynamic rendering when every request must read current content.
+
+== On-demand revalidation
+
+The Next.XP app subscribes to XP repository and content events. When published content changes, it calls the configured front end's `/api/revalidate` endpoint, encrypting the request with the shared secret.
+
+The endpoint uses `revalidatePath()`:
+
+* A content path revalidates the corresponding page.
+* An empty path revalidates the complete layout tree.
+* Move and rename events also revalidate the previous path.
+
+Requests are sent only from the XP cluster master to avoid duplicates. Bulk publication events are debounced.
+
+== Draft content
+
+When Next.js Draft Mode is active, the adapter reads the `draft` branch, including when the page is opened outside Content Studio. Ordinary requests without Draft Mode read the `master` branch. Do not cache draft responses. See <<../starter/configuration#exit-draft-mode,Exit Draft Mode button>> for returning to the published site.
+
+== Static generation
+
+Use `fetchContentPathsForAllLocales()` with `generateStaticParams()` when the set of content paths is suitable for pre-rendering. Limit or replace its query for large sites. Static generation requires on-demand revalidation to keep static pages up to date when changes occur.
+
+The build queries the `master` branch of every project in `+ENONIC_MAPPINGS+`, so publish the site in each project before building.
+
+The token configured in `+ENONIC_API_TOKEN+` env var must always remain server-side because it authorizes cache invalidation and should not be propagated to the client-side.
+
+See <<../app/revalidation#,Revalidation>> for the XP-side event handling and delivery flow.

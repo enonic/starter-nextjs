@@ -7,3 +7,6 @@ For a detailed instructions on using this template, visit: https://developer.eno
 
 # Demo
 For a live demo of the integration, follow the `TLDR;` instructions in the Tutorial above.
+
+# Documentation
+The Next.XP reference documentation is maintained in `docs/`, written in AsciiDoc, and published to https://developer.enonic.com/docs/next.xp via the `enonic-docgen` GitHub Actions workflow. The `docs/` folder is removed automatically when the template is scaffolded with `npx degit enonic/starter-nextjs`.

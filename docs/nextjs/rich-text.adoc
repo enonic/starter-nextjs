@@ -1,0 +1,58 @@
+= Rich text, links, and media
+:toc: right
+include::../.variables.adoc[]
+
+Rich text from XP contains structured information for internal links, images, and macros in addition to HTML. The adapter's `RichTextView` adapts Next.XP metadata and URL handling, then delegates the underlying React rendering to `@enonic/react-components`.
+
+== Rich text data
+
+Call the adapter's `richTextQuery('body')` helper when selecting a rich-text field named `body`; use your schema's field name for other fields. The result supplies processed HTML and reference data for links, images, and macros. `fetchGuillotine()` adds the required fragment definitions automatically. Pass the complete field value and page metadata to `RichTextView`.
+
+[source,tsx]
+----
+import RichTextView from '@enonic/nextjs-adapter/views/RichTextView';
+
+export function Article({data, meta}) {
+    return <RichTextView data={data.body} meta={meta}/>;
+}
+----
+
+The view supplies `@enonic/react-components` with Next.js-aware link, image, and macro adapters. The supporting library parses the processed HTML and resolves its structured references. A custom replacer may override individual DOM nodes.
+
+== URL processing
+
+In Guillotine {guillotine-version}, `imageUrl`, `mediaUrl`, `attachmentUrl`, and `pageUrl` return objects and require a subselection. For application fields outside rich text, query them with the adapter's helpers and render them with the matching functions:
+
+* `imageUrlQuery()`, `mediaUrlQuery()`, and `attachmentUrlQuery()` select media URL components. Pass the result and page metadata to `imageUrl(data, meta)`, `mediaUrl(data, meta)`, or `attachmentUrl(data, meta)`. Draft media uses `/api/media`; published media uses `+ENONIC_MEDIA_CDN+`, which defaults to `+ENONIC_API+`.
+* `pageUrlQuery()`/`pageUrl(data, meta)` build site-relative content URLs, adding a non-default locale.
+
+[source,TypeScript]
+----
+`... on media_Image { ${imageUrlQuery({scale: 'width(500)'})} }`
+
+<img src={imageUrl(photo.imageUrl, meta)} alt=""/>
+<Link href={pageUrl(parent.pageUrl, meta)}>Back</Link>
+----
+
+`RichTextView` applies the same functions to links and images in rich text.
+
+NOTE: Enonic XP 8 media references use `+/_/media:image/+` and `+/_/media:attachment/+`. Adapter {adapter-version} recognizes these formats.
+
+[#media-proxy]
+== Draft media proxy
+
+The starter includes a media proxy at `/api/media`. In Draft Mode, the browser requests images and attachments from this route on the Next.js host. The proxy forwards the editor's XP session to the media API and streams the response back. This allows draft images to load when Content Studio and the front end use different domains, without relying on the browser to send XP cookies across domains.
+
+The adapter appends the XP media endpoint path and query string to `/api/media`. For example, a media path beginning `/media:image/` becomes `/api/media/media:image/`; attachments use `/api/media/media:attachment/`. Any API or portal prefix before `/media:` is replaced, and the remaining path and query string are preserved.
+
+The URL helpers select this route when `meta.branch` is `draft`. `RichTextView` does the same for rich-text images, responsive image sources, and attachment links. For published content, media URLs point directly to `+ENONIC_API+` or the configured `+ENONIC_MEDIA_CDN+`; they do not pass through the proxy.
+
+The proxy requires Draft Mode and a valid XP session. It supports `GET`, `HEAD`, and ordinary byte-range requests for media such as video. Draft media must not be cached: upstream fetches use `no-store`, and streamed responses carry `Cache-Control: private, no-store`. Configure any reverse proxy or CDN in front of Next.js to bypass caching for `/api/media`, including error responses.
+
+See <<../adapter/server#proxy-media,proxyMedia()>> for the handler reference. The starter already supplies the route.
+
+== Editing behavior
+
+Keep adapter rich-text and macro views in the render path while previewing. They add the component information required for in-place editing and can render disabled or unresolved macros safely.
+
+See the https://developer.enonic.com/docs/guillotine/stable[Guillotine documentation] for the underlying rich-text GraphQL schema.

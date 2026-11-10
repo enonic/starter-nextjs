@@ -1,0 +1,72 @@
+= Starter configuration
+:toc: right
+include::../.variables.adoc[]
+
+Configure the starter through Next.js environment files and `next.config.js`. Use deployment secrets or `.env.local` for values that must not be committed.
+
+[#environment]
+== Environment
+
+The starter's `.env` file contains committed defaults. The example below uses the starter's application name and project mapping; optional overrides are commented out:
+
+[source,text]
+----
+# Do not commit secrets. Put non-publishable values in .env.local.
+
+# Provide a unique value used to secure preview mode
+ENONIC_API_TOKEN=mySecretKey
+
+# Enonic app name, must match the name of your app
+ENONIC_APP_NAME=tutorial.nxp
+
+# Enonic XP projects configuration for different locales
+ENONIC_MAPPINGS=en:intro/hmdb
+
+# Absolute URL to the Enonic XP API root
+ENONIC_API=http://localhost:8080/api
+
+# Absolute media API URL; only needed for another media host, such as a CDN
+# ENONIC_MEDIA_CDN=http://localhost:8080/api
+
+# Sets CORS headers to let Content Studio access the preview.
+# Defaults to the origin of ENONIC_API.
+# ENONIC_ADMIN=http://localhost:8080
+----
+
+Replace the example application name and project mappings with your own. `mySecretKey` is a placeholder; set the actual shared secret in `.env.local` or deployment secrets.
+
+These settings are read on the server. Do not create `+NEXT_PUBLIC_+` copies. Keep `+ENONIC_API_TOKEN+` server-side.
+
+See <<../nextjs/configuration#,Configuration>> for the complete variable reference and <<../concepts/localization#,Projects and localization>> for mapping syntax.
+
+== Shared secret
+
+`+ENONIC_API_TOKEN+` protects the proxy and all three integration routes. Set the same value as `nextjs.<name>.secret` in `com.enonic.app.nextxp.cfg`. Rotate both sides together.
+
+[#exit-draft-mode]
+== Exit Draft Mode button
+
+The starter enables the exit button by rendering `DraftModeIndicator` in `src/app/[locale]/[[...contentPath]]/layout.tsx`:
+
+[source,tsx]
+----
+import {I18n} from '@enonic/nextjs-adapter';
+import DraftModeIndicator from '@enonic/nextjs-adapter/views/DraftModeIndicator';
+
+// In the layout's full-page output:
+<DraftModeIndicator label={I18n.localize('draft-mode')}/>
+----
+
+The button appears only when Draft Mode is active and the page is opened directly in a browser tab. It is hidden inside iframes, including Content Studio. Clicking it disables Draft Mode and reloads the current URL without the `xp` preview parameter, returning to published content.
+
+To disable the button in your front end, remove the `DraftModeIndicator` element and its import from the layout. Restore them to enable it again. There is no environment setting for this control. Removing the button does not disable Draft Mode or clear an existing draft cookie.
+
+Change the `draft-mode` phrase in `src/phrases/<locale>.json` to customize the label, or pass a literal `label`. See <<../adapter/views#draft-mode-indicator,DraftModeIndicator>> for the component reference.
+
+== Rendering and caching
+
+The starter demonstrates an hourly `revalidate` value and static-path generation. These are examples, not requirements. Choose static, revalidated, or dynamic rendering according to the site's freshness and scale requirements.
+
+Keep `transpilePackages`, the `@phrases` aliases, `env.BUILD_ID`, the CORS headers, and the Content Studio-compatible response policy when modifying `next.config.js`.
+
+For application code that connects XP content types and page components to React views, see <<../concepts/components#,Components and views>>.

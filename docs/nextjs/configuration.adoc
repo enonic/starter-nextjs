@@ -1,0 +1,56 @@
+= Configuration
+:toc: right
+include::../.variables.adoc[]
+
+The adapter reads its connection and mapping settings from Next.js environment variables. Use `.env` for committed defaults and `.env.local` or deployment secrets for non-publishable values. See <<../starter/configuration#environment,Starter environment>> for an example.
+
+== Server variables
+
+[%header,cols="1,1,3"]
+|===
+| Name | Required | Purpose
+
+| `+ENONIC_API+`
+| Yes
+| Absolute URL of the Enonic XP API root, for example `http://localhost:8080/api`.
+
+| `+ENONIC_APP_NAME+`
+| Yes
+| Enonic application name, used in queries and component mappings. Must match the name of your XP application.
+
+| `+ENONIC_MAPPINGS+`
+| Yes
+| Comma-separated `locale:project/site-path` mappings. The first is the default.
+
+| `+ENONIC_API_TOKEN+`
+| Yes, for preview and revalidation
+| Shared secret used by the starter's proxy and protected API routes. It must match the Next.XP app configuration.
+
+| `+ENONIC_MEDIA_CDN+`
+| No
+| Absolute media API base URL. Defaults to `+ENONIC_API+`; override when media is served from another host, such as a CDN. Published pages reference this location directly. Draft media is requested through the front end's <<rich-text#media-proxy,/api/media proxy>>.
+
+| `+ENONIC_ADMIN+`
+| No
+| Content Studio URL used to set CORS headers that let Content Studio access the preview. Defaults to the origin of `+ENONIC_API+`.
+
+| `+ENONIC_LOGGING+`
+| No
+| Enables adapter diagnostic logging when configured by the application.
+|===
+
+Development-only diagnostics and catch-all behavior are enabled when `NODE_ENV` is `development`, as under `next dev`.
+
+== Server and client configuration
+
+Keep the variables above server-side; do not create `+NEXT_PUBLIC_+` copies. Importing a common adapter export in a client component does not require exposing the environment configuration.
+
+For custom client components, pass only the required non-secret data or resolved URLs from the server.
+
+Never publish `+ENONIC_API_TOKEN+`. Values prefixed with `+NEXT_PUBLIC_+` are embedded in browser JavaScript.
+
+== Next.js configuration
+
+The starter configures `@phrases` for both webpack and Turbopack, transpiles `@enonic/nextjs-adapter`, supplies a Content Security Policy compatible with Content Studio embedding, sets CORS headers allowing the XP admin origin, and defines `env.BUILD_ID`, used to detect a draft cookie issued by another build. Preserve those settings when merging the integration into an existing Next.js application.
+
+See <<../starter/configuration#,Starter configuration>> for the complete connection between Next.js and the XP app.

@@ -1,0 +1,225 @@
+= Server API
+:toc: right
+include::../.variables.adoc[]
+
+Import these functions from `@enonic/nextjs-adapter/server`. They depend on server-side Next.js and network APIs and must not enter client bundles.
+
+== Usage
+
+[source,TypeScript]
+----
+import {
+    fetchContent,
+    fetchContentPathsForAllLocales,
+    fetchGuillotine
+} from '@enonic/nextjs-adapter/server';
+----
+
+== Functions
+
+=== fetchContent
+
+Fetches content metadata and registered component data, builds the page tree, and calculates runtime metadata.
+
+[.lead]
+Parameters
+
+`fetchContent()` takes a single `context` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `contentPath` | `string` or `string[]` | Site-relative content path.
+| `headers` | `Headers` | *Optional.* Incoming headers. Draft Mode headers are added automatically when enabled.
+| `locale` | `string` | *Optional.* Active route locale; defaults through `+ENONIC_MAPPINGS+`.
+|===
+
+[.lead]
+Returns
+
+`Promise<FetchContentResult>`.
+
+[.lead]
+Example
+
+[source,TypeScript]
+----
+const result = await fetchContent({
+    locale: 'en',
+    contentPath: ['news', 'launch']
+});
+----
+
+=== fetchGuillotine
+
+Sends a GraphQL request to Guillotine, minifies the query, and normalizes GraphQL and transport errors into a `GuillotineResult`. The query must pass `project` and `branch`, and `scopeKey` where needed, to the `guillotine()` field.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `contentApiUrl` | `string` | Guillotine endpoint URL.
+| `options` | <<fetch-options,FetchOptions>> | *Optional.* Request body, headers, cache, and Next.js revalidation options.
+|===
+
+[.lead]
+Returns
+
+`Promise<GuillotineResult>`.
+
+=== fetchFromApi
+
+Low-level JSON request used by `fetchGuillotine()`. It applies JSON headers and throws structured errors for network, HTTP, empty, or non-JSON responses.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `apiUrl` | `string` | Destination URL.
+| `options` | <<fetch-options,FetchOptions>> | *Optional.* Fetch and Next.js caching options.
+|===
+
+[.lead]
+Returns
+
+`Promise<GuillotineResponseJson>`.
+
+=== fetchContentPathsForAllLocales
+
+Returns content paths for every configured locale, normally for `generateStaticParams()`.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `query` | `string` | *Optional.* Guillotine query. Defaults to the adapter's static-path query.
+| `countPerLocale` | `number` | *Optional.* Maximum per locale. Default: `999`.
+|===
+
+[.lead]
+Returns
+
+`Promise<ContentPathItem[]>`.
+
+=== fetchContentPathsForLocale
+
+Returns content paths for one `LocaleMapping`.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `mapping` | <<common#locale-mapping,LocaleMapping>> | Locale, project, and site to query.
+| `query` | `string` | *Optional.* Guillotine query.
+| `count` | `number` | *Optional.* Maximum results. Default: `999`.
+|===
+
+[.lead]
+Returns
+
+`Promise<ContentPathItem[]>`.
+
+[#proxy-media]
+=== proxyMedia
+
+Streams authenticated media through Next.js while Draft Mode is active. The starter mounts this handler at `/api/media`; see <<../nextjs/rich-text#media-proxy,Draft media proxy>> for URL composition and published-media behavior.
+
+The handler accepts `GET` and `HEAD` requests for XP image and attachment endpoints, forwards range headers, and streams the upstream response. It requires the editor's XP session in the `jsessionid` request header or cookie. Draft Mode alone does not authenticate the request.
+
+Upstream fetches use `cache: 'no-store'`, and streamed responses have `Cache-Control: private, no-store`. Disable caching for the entire route in your delivery infrastructure, including error responses.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `request` | `Request` | Incoming media request, including its path, query string, and session credentials.
+| `options` | `object` | *Optional.* Handler options described below.
+|===
+
+The `options` object has these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `proxyPath` | `string` | *Optional.* Route prefix to strip. Defaults to `/api/media`. Changing it requires matching custom URL generation; the standard media URL helpers use `/api/media`.
+|===
+
+[.lead]
+Returns
+
+`Promise<Response>`. Returns `404` when Draft Mode is disabled and `401` when no XP session is supplied. Otherwise, the upstream response determines access and status.
+
+[.lead]
+Example
+
+The starter's `src/app/api/media/[...path]/route.ts` delegates requests to the adapter:
+
+[source,TypeScript]
+----
+import {proxyMedia} from '@enonic/nextjs-adapter/server';
+
+export function GET(request: Request) {
+    return proxyMedia(request);
+}
+
+export const HEAD = GET;
+----
+
+== Classes
+
+This entry point exports no classes.
+
+== Type Definitions
+
+[#fetch-content-result]
+=== FetchContentResult
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `data` | `Record<string, any>` or `null` | Content-type query result.
+| `common` | `Record<string, any>` or `null` | Shared query result.
+| `meta` | <<common#meta-data,MetaData>> | Runtime and editing context.
+| `page` | `PageComponent` or `null` | Normalized page component tree.
+| `error` | `{code, message}` or `null` | *Optional.* Structured failure.
+|===
+
+[#fetch-options]
+=== FetchOptions
+
+Standard `RequestInit` options with a JSON `body` containing `query` and `variables`, plus Next.js `revalidate` and `tags` options.
+
+[#content-path-item]
+=== ContentPathItem
+
+Contains `contentPath: string[]` and `locale: string` for one statically generated route.
+
+== Constants
+
+This entry point exports no constants. Shared constants are available from the package root.
