@@ -1,0 +1,144 @@
+= Next.js starter
+:toc: right
+include::.variables.adoc[]
+
+https://github.com/enonic/starter-nextjs[`starter-nextjs`] is the recommended project template for an Enonic-backed Next.js application. It connects the <<adapter#,Next.js adapter>> to Next.js App Router routes, localization, Content Studio editing, and revalidation.
+
+NOTE: This page documents the starter for Next.XP {nextxp-version}. Individual dependency patch versions may change as the starter is maintained.
+
+The starter is intentionally small. Copy it when beginning a project, or use it as a reference when integrating Next.XP into an existing Next.js application.
+
+[#front-end-dependencies]
+== Front-end dependencies
+
+The starter includes these libraries. The adapter brings in `@enonic/react-components` transitively; the other packages are direct dependencies of the starter.
+
+[%header,cols="2,1,3"]
+[frame="none"]
+[grid="none"]
+|===
+| Software component | Version | Role in the starter
+
+| https://nextjs.org/docs[Next.js]
+| {next-version}
+| Framework providing routing, rendering, and caching.
+
+| React and React DOM
+| {react-version}
+| Libraries for rendering the front-end UI.
+
+| <<adapter#,@enonic/nextjs-adapter>>
+| {adapter-version}
+| Fetches Enonic content and renders it through registered React views.
+
+| https://www.npmjs.com/package/@enonic/react-components[@enonic/react-components]
+| Selected by the <<adapter#,adapter>>
+| Provides rich-text rendering through the adapter. See <<adapter#supporting-libraries,Adapter supporting libraries>> for details.
+
+| https://www.npmjs.com/package/@enonic/page-editor[@enonic/page-editor]
+| {page-editor-version}
+| Browser library connecting the rendered page to Content Studio for visual editing and component refreshes.
+|===
+
+The front-end requires Node.js {node-minimum} or later and npm {npm-minimum} or later. The React Components and Page Editor libraries version independently of Next.XP.
+
+See the <<index#,Next.XP overview>> for the required Enonic applications and platform versions.
+
+== Usage
+
+Create a new project from https://github.com/enonic/starter-nextjs[`enonic/starter-nextjs`] without copying its Git history:
+
+[source,bash]
+----
+npx degit enonic/starter-nextjs my-nextjs-site
+cd my-nextjs-site
+npm install
+----
+
+Configure the Enonic API, application name, project mappings, and shared preview secret as described in <<starter/configuration#,Starter configuration>>, then start the development server:
+
+[source,bash]
+----
+npm run dev
+----
+
+TIP: Follow the https://developer.enonic.com/learn/next.xp[Next.XP tutorial] for a guided implementation that builds a complete site from the starter.
+
+== Project structure
+
+The starter follows the Next.js App Router layout. Next.XP-specific files are concentrated in the catch-all route, component registry, locale proxy, phrase directory, and API routes.
+
+=== Application routes
+
+[%header,cols="2,3"]
+|===
+| Path | Responsibility
+
+| `src/app/[locale]/[[...contentPath]]/page.tsx`
+| Calls `fetchContent()` to fetch XP content, validates the result, renders `MainView`, supplies metadata, and optionally generates static paths.
+
+| `src/app/[locale]/[[...contentPath]]/layout.tsx`
+| Handles complete-page and single-component responses, preserves editor HTML during hydration, and includes the exit Draft Mode button.
+
+| `src/app/[locale]/layout.tsx`
+| Loads server-side phrases and establishes the locale-level document layout.
+
+| `src/app/[locale]/not-found.tsx`
+| Locale-aware missing-content UI.
+
+| `src/app/[locale]/error.tsx`
+| Locale-aware runtime error UI.
+|===
+
+=== Integration routes
+
+[%header,cols="2,3"]
+|===
+| Path | Responsibility
+
+| `src/app/api/preview/route.ts`
+| Validates the `xp` parameter, enables Draft Mode, and redirects Content Studio to the requested path.
+
+| `src/app/api/mappings/route.ts`
+| Returns the rules the Next.XP app uses to resolve content items to Next.js URLs.
+
+| `src/app/api/revalidate/route.ts`
+| Accepts secured publication notifications and calls `revalidatePath()`.
+
+| `src/app/api/media/[...path]/route.ts`
+| Streams authenticated draft media through `/api/media`. Published media uses the API or CDN directly. See <<nextjs/rich-text#media-proxy,Draft media proxy>>.
+
+| `src/proxy.ts`
+| Resolves locale mappings, rewrites paths without a locale segment, and enables Draft Mode for Content Studio requests.
+|===
+
+=== Components and data
+
+The component registry connects XP content types and page components to their GraphQL queries and React views. These mappings are application code, defined in `+src/components/_mappings.ts+`. Import the adapter's built-in mappings before registering your own:
+
+[source,TypeScript]
+----
+import '@enonic/nextjs-adapter/baseMappings';
+----
+
+Add explicit mappings for your application's content types and page components before using the site in production. See <<concepts/components#,Components and views>> for registration examples and the development fallback behavior.
+
+Keep queries close to their consuming views. Use a shared query only when multiple views need the same data; its result is available as `props.common`. The starter keeps shared queries in `src/components/queries/`.
+
+Static front-end dictionaries for server and client phrase localization live in `src/phrases/<locale>.json`. The `@phrases` alias is configured in `next.config.js` for webpack and Turbopack.
+
+`src/components/views/PageEditorScript.tsx` initializes `@enonic/page-editor` in the browser and handles component refresh requests. See <<concepts/preview#,Editing and preview>> for the interaction with Content Studio.
+
+The starter also supplies development views for unmapped content. See <<starter/configuration#,Starter configuration>> for bundler aliases and rendering choices.
+
+== Public files and proxy matching
+
+The locale proxy excludes Next.js internals, API routes, and known public assets. When adding a top-level folder under `public/`, add it to the matcher exclusion so asset requests are not interpreted as content routes.
+
+== What to customize
+
+Replace the example application name, project mappings, common query, phrases, and views. Register each content type and page component used by the site. Preserve the integration routes and editing wrappers unless the replacement implements the same contracts.
+
+The starter is not the tutorial's completed example. The finished reference implementation lives in https://github.com/enonic/demo-nextjs[`demo-nextjs`].
+
+See <<starter/configuration#,Starter configuration>> for environment variables, the shared secret, and rendering choices, including how to <<starter/configuration#exit-draft-mode,enable or remove the exit Draft Mode button>>.

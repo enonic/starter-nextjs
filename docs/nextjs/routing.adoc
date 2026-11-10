@@ -1,0 +1,59 @@
+= Routing
+:toc: right
+include::../.variables.adoc[]
+
+The starter uses the Next.js App Router with a locale segment followed by an optional catch-all content path:
+
+[source,text]
+----
+src/app/[locale]/[[...contentPath]]/page.tsx
+----
+
+This maps `/no/about/team` to locale `no` and content path `about/team`.
+
+== Default path mapping
+
+The standard route maps the public URL path one-to-one to the content path below the configured XP site. It removes the locale segment before lookup, then the adapter adds the configured site path when querying Guillotine.
+
+For the non-default mapping `no:website-no/site`:
+
+[%header,cols="1,2"]
+|===
+| Value | Path
+
+| Public URL
+| `/no/about/team`
+
+| Route `contentPath`
+| `about/team`
+
+| XP content
+| `/site/about/team`
+|===
+
+This is a convention implemented by the catch-all route in `starter-nextjs`, not a restriction imposed by the adapter. `fetchContent()` uses the `contentPath` supplied by the application and does not inspect the public URL. A custom Next.js route may therefore translate aliases, slugs, or other route parameters into a different XP content path before calling the adapter.
+
+[#locale-rewrite]
+== Locale rewrite
+
+The starter's `src/proxy.ts` handles incoming requests inside Next.js, before page routing. It resolves locale information: if the URL already begins with a non-default configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route. A URL beginning with the default locale is redirected to the same path without it.
+
+When a request carries a valid Content Studio `xp` parameter and needs a Draft Mode cookie for the current build, this handler redirects the browser to `/api/preview`. That route enables Draft Mode and redirects back to the content URL without the parameter. If the draft cookie is already valid, the handler removes the parameter without repeating setup.
+
+The proxy matcher excludes API routes, Next.js assets, and the starter's known public asset paths. Add new public directories to the matcher exclusion when the project structure changes.
+
+== XP and public paths
+
+XP stores content below a site, but public URLs are site-relative. For a mapping such as `no:website-no/site`, XP content `/site/news/item` becomes `/no/news/item` in Next.js. `pageUrl()` applies the same rule to links returned in content.
+
+Non-default locales are included in internal URLs. External absolute URLs are left unchanged.
+
+== Missing content and shortcuts
+
+Call `validateData()` after `fetchContent()`. It converts adapter results into Next.js `notFound()` or redirect behavior where appropriate. Keep `not-found.tsx` and `error.tsx` at the locale route level so failures retain the active language context.
+
+== Static routes
+
+`fetchContentPathsForAllLocales()` can supply `generateStaticParams()`. Its default query excludes media, shortcuts, fragments, and page-template content. Projects with large repositories should provide a narrower query or choose dynamic rendering instead.
+
+See <<../concepts/localization#,Projects and localization>> and <<caching#,Caching and revalidation>>.

@@ -1,0 +1,69 @@
+= Troubleshooting
+:toc: right
+include::.variables.adoc[]
+
+Start with the request path that is failing: direct Next.js rendering, Next.js-to-Guillotine fetching, or Content Studio-to-Next.js preview. The distinction usually identifies the responsible configuration.
+
+== Common symptoms
+
+[%header,cols="2,3"]
+|===
+| Symptom | Checks
+
+| Adapter reports a missing environment variable
+| Define `+ENONIC_API+`, `+ENONIC_APP_NAME+`, and `+ENONIC_MAPPINGS+` before the Next.js process starts. Keep these values server-side and restart or redeploy after changing them.
+
+| Every query fails with 404
+| `+ENONIC_API+` must point to the XP API root, for example `http://localhost:8080/api`, not to the `/site` endpoint.
+
+| Content returns 404
+| Check the locale mapping, XP project, site path, publication state, and requested site-relative path. Requests with Draft Mode enabled read `draft`; ordinary requests read `master`.
+
+| Guillotine returns validation errors
+| Verify the query against Guillotine {guillotine-version}, the application schema, variables, and the `scopeKey`, `project`, and `branch` arguments of the `guillotine()` field. URL fields such as `imageUrl` require a subselection. Component queries are combined, so the server log identifies the failing selection.
+
+| Page renders but a component is missing
+| Register the exact application-qualified descriptor and import the mappings before `fetchContent()`. Catch-all mappings do not make components production-renderable.
+
+| Content Studio preview returns 401
+| The `xp` parameter sent by XP cannot be decrypted with `+ENONIC_API_TOKEN+`, or is absent. Compare it with `nextjs.<name>.secret`.
+
+| Content Studio reports that the content cannot be rendered
+| Check that the project is listed in `+ENONIC_MAPPINGS+` and that XP can reach `/api/mappings`. Mappings are cached per project for up to 24 hours.
+
+| Preview is blocked by the browser
+| In production mode, only explicitly configured front-end URLs are added to Content Studio's Content Security Policy by the Next.XP app. For CORS errors, set `+ENONIC_ADMIN+` to Content Studio's browser-facing origin if its scheme, hostname, or port differs from the origin of `+ENONIC_API+`.
+
+| Content Studio cannot contact the front end
+| Test the configured URL from the XP host. `localhost` refers to the XP host or container, not the editor's computer.
+
+| Preview shows published instead of draft content
+| Confirm `/api/preview` enables Draft Mode and the draft cookie is preserved. Check that `env.BUILD_ID` is defined in `next.config.js`.
+
+| Opening the site outside Content Studio still shows drafts
+| Draft Mode persists in the browser. Use the exit button to return to published content. See <<starter/configuration#exit-draft-mode,Exit Draft Mode button>>.
+
+| Exit Draft Mode button is missing
+| Check that `DraftModeIndicator` is rendered by the page layout. It appears only with Draft Mode enabled in a top-level browser window, and is hidden inside all iframes. See <<starter/configuration#exit-draft-mode,Starter configuration>> to enable it.
+
+| Images are missing in preview only
+| Draft media URLs should begin with `/api/media/media:` on the Next.js host. Pass `meta` to the media URL helpers and preserve the starter's media route. Check that Draft Mode is active and the proxy receives a valid XP session; successful Guillotine fetching alone does not authenticate browser media requests. See <<nextjs/rich-text#media-proxy,Draft media proxy>>.
+
+| Internal links contain the XP site name
+| Check that the site segment in `+ENONIC_MAPPINGS+` matches the actual XP site path and render links through `pageUrl()` or `RichTextView`.
+
+| Locale route loops or rewrites assets
+| Ensure `src/proxy.ts` handles configured locale prefixes once and excludes API routes, Next.js internals, and all top-level public asset paths from its matcher.
+
+| Published changes remain cached
+| Confirm the published site uses Next.XP, the XP master node subscribed successfully, `/api/revalidate` is reachable, and the shared token matches.
+
+| Component preview refresh fails but full page works
+| Verify the component has an explicit mapping and that the catch-all layout preserves the single-component marker.
+|===
+
+== Diagnostic context
+
+Log the resolved locale, project, site, branch, render mode, content path, and front-end URL without logging the shared token. In a cluster, also confirm which XP node is master because only that node sends revalidation events.
+
+For framework errors, use https://nextjs.org/docs[Next.js diagnostics]. For GraphQL schema and query problems, use link:{guillotine-docs}[Guillotine documentation].

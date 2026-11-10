@@ -1,0 +1,40 @@
+= Architecture
+:toc: right
+include::../.variables.adoc[]
+
+Next.XP runs across an Enonic XP installation and a Next.js application. Visitors and editors load pages from Next.js; the Next.js server queries XP through Guillotine. This page explains the request flows between them. For software components and versions, see the <<../index#,Next.XP overview>>.
+
+== Public requests
+
+Visitors request pages directly from Next.js. When rendering a page, the <<../adapter#,adapter>> queries Guillotine for published content from the project's `master` branch and renders it through the application's React views. Next.js may serve cached or statically generated pages without querying XP on every visitor request.
+
+Content models and page composition are managed in XP; rendering and cache policy belong to the Next.js application. See <<../nextjs/caching#,Caching and revalidation>> for delivery options.
+
+== Editor preview and visual editing
+
+Preview starts with URL resolution in XP, followed by a direct browser request to Next.js:
+
+. Content Studio asks the Next.XP app for a preview URL. The Next.XP app uses the site's front-end configuration and the mapping rules exposed by Next.js to resolve it.
+. Content Studio loads that URL directly from Next.js in the editor's browser. The front-end validates the preview parameters and enables Draft Mode.
+. The adapter queries the project's `draft` branch through Guillotine, forwarding the editor's XP session when available.
+. In visual editing mode, the adapter adds component and region annotations to the HTML. The browser-side Page Editor library communicates with Content Studio and requests updated component markup from Next.js.
+
+The Next.XP app resolves the URL; it does not proxy the rendered page or component refreshes. See <<../app/preview#,Preview live view extension>> for URL resolution and <<preview#,Editing and preview>> for session handling, render modes, and component refreshes.
+
+== Publication and revalidation
+
+When published content changes, the Next.XP app notifies the Next.js `/api/revalidate` endpoint. The handler validates the request and invalidates the affected paths so Next.js can render them with updated published content.
+
+This flow updates the public cache independently of draft preview. See <<../app/revalidation#,Revalidation>> for event handling and the endpoint contract.
+
+== Data flow
+
+For a page request, the adapter first retrieves content metadata and the XP component structure. It then combines the registered queries for the content type and page components into a data request. The result contains content data, shared data, page structure, and runtime metadata used by the adapter views.
+
+See <<content-and-rendering#,Content and rendering>> for the query and rendering model.
+
+== Trust boundaries
+
+The Next.js server must be able to reach Guillotine. XP must be able to reach the Next.js mapping and revalidation endpoints, and editors' browsers must be able to load the Next.js preview.
+
+The shared secret protects integration requests between XP and Next.js. Access to draft content depends on the editor's XP session and content permissions; neither the shared secret nor Next.js Draft Mode grants that access. Keep the secret server-side and use HTTPS between separately hosted services. See <<preview#,Editing and preview>> for authentication and browser media requests.

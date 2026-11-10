@@ -1,0 +1,45 @@
+= Next.XP app
+:toc: right
+include::.variables.adoc[]
+
+The Next.XP app is the Enonic XP companion to a Next.js front end. Install it from https://market.enonic.com/vendors/enonic/next.xp[Enonic Market] and add it to each XP site rendered through Next.XP.
+
+NOTE: This page documents Next.XP app {app-version}, released with Next.XP {nextxp-version}. The Next.XP app follows the major version of `@enonic/nextjs-adapter`.
+
+The Next.XP app connects Content Studio to the external front end. It makes the Next.js site available to editors for authenticated preview and notifies the front end when published content must be revalidated. Public visitors still access Next.js directly.
+
+== Install and connect
+
+. Install **Next.XP** from https://market.enonic.com/vendors/enonic/next.xp[Enonic Market] into Enonic XP {xp-version}.
+. Ensure Guillotine is installed and configured for every project the front end will query.
+. Add the Next.XP app to the XP site.
+. Define at least one front-end URL and shared secret as described in <<app/configuration#,Configuration>>.
+. Select that front-end configuration in the site's Next.XP config form, then save the site.
+. Open the site in Content Studio and verify that preview loads the Next.js front end.
+
+The application that owns the site's content types and page components remains a separate XP application.
+
+== What the Next.XP app provides
+
+=== Authenticated preview
+
+The Next.XP app implements a custom Next.js preview in Content Studio through its "Next.js Preview" live view extension. It resolves the Next.js URL of the selected content, which Content Studio loads directly from Next.js using Draft Mode.
+
+See <<app/preview#,Preview>> for the request flow, protected front-end endpoints, and component refresh behavior.
+
+=== Published-content revalidation
+
+The Next.XP app listens for published XP content changes and calls the selected front end's protected revalidation endpoint. This lets Next.js refresh affected routes while continuing to serve the public site through its normal hosting and cache infrastructure.
+
+See <<app/revalidation#,Revalidation>> for event and path handling.
+
+== Division of responsibility
+
+The Next.XP app does not render the public website or replace Guillotine:
+
+* Enonic XP and Content Studio manage content and page composition.
+* Guillotine exposes that content to the front end.
+* The Next.js application and adapter fetch and render the website.
+* The Next.XP app supplies the bridge required for editor preview and cache revalidation.
+
+After installation, use <<app/configuration#,Configuration>> to define the reachable Next.js deployments and secure their protected endpoints.

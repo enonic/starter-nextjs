@@ -1,0 +1,20 @@
+name: Generate Documentation
+
+on:
+  push:
+    branches:
+      - "master"
+      - "5.x"
+    paths:
+      - 'docs/**'
+      - '.github/workflows/enonic-docgen.yml'
+  workflow_dispatch:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: enonic/release-tools/generate-docs@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          webhook-secret: ${{ secrets.DEVELOPER_PORTAL_WEBHOOK_SECRET }}
