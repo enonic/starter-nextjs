@@ -1,0 +1,56 @@
+= Release Notes
+:toc: right
+
+== Next.XP 5
+
+This is an XP8 compatibility release, allowing you to upgrade to XP8 with minimal changes to your Next.XP 4 project.
+
+=== Enonic XP 8 support
+
+Next.XP is now based on Enonic XP 8:
+
+* Application schemas use the new YAML format in `src/main/resources/cms/` (previously XML in `src/main/resources/site/`)
+* Guillotine 8 is now used — existing GraphQL queries work unchanged
+
+=== Adapter v5
+
+`@enonic/nextjs-adapter` v5 is now used, requiring Node.js 24.15.0+ and npm 10.9.2+.
+Media links in rich text now use the `+/_/media:image/+` and `+/_/media:attachment/+` URL format served by XP 8.
+
+== Next.XP 4
+
+=== Framework upgrades
+
+* Next.js 16 and React 19
+* ESLint 9 with flat config (`eslint.config.mjs`)
+* `@enonic/nextjs-adapter` v4
+
+=== Proxy replaces middleware
+
+The `src/middleware.ts` file has been replaced by `src/proxy.ts`, following the Next.js 16 convention.
+Route params are now asynchronous (`Promise`) and must be awaited.
+
+=== Default port
+
+The production server (`npm run prod`) now starts on the default port 3000 instead of 4242, so Content Studio preview works in both dev and prod modes without extra configuration.
+
+== Next.XP 3
+
+=== App router structure
+
+Next.js' app router is now default folder structure for Next.XP projects.
+This includes support for pages and layouts, route groups, parallel and intercepting routes.
+
+=== Improved Next.js localization
+
+In addition to localization of content, Next.XP now supports localization of static texts both in client and server components.
+Use `useLocaleContext` hook in client-side components and `I18n` in server-side ones.
+
+=== Major nextjs-adapter refactoring
+
+In order to support the new app router, `@enonic/nextjs-adapter` has been substantially refactored.
+
+=== Other improvements
+
+* `next/Link` component is now used for all internal links
+* `getAsset` method for static assets

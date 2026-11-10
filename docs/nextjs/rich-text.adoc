@@ -1,0 +1,38 @@
+= Rich text, links, and media
+:toc: right
+include::../.variables.adoc[]
+
+Rich text from XP contains structured information for internal links, images, and macros in addition to HTML. The adapter's `RichTextView` adapts Next.XP metadata and URL handling, then delegates the underlying React rendering to `@enonic/react-components`.
+
+== Rich text data
+
+Include the adapter's `richTextQuery` selection when querying a rich-text field. The result supplies processed HTML and reference data for links, images, and macros. Pass the complete value and page metadata to `RichTextView`.
+
+[source,tsx]
+----
+import RichTextView from '@enonic/nextjs-adapter/views/RichTextView';
+
+export function Article({data, meta}) {
+    return <RichTextView data={data.body} meta={meta}/>;
+}
+----
+
+The view supplies `@enonic/react-components` with Next.js-aware link, image, and macro adapters. The supporting library parses the processed HTML and resolves its structured references. A custom replacer may override individual DOM nodes.
+
+== URL processing
+
+Use `getUrl()` for application fields that contain XP-generated URLs outside rich text. `UrlProcessor`:
+
+* Removes the configured XP site prefix from content URLs.
+* Adds a non-default locale to internal front-end URLs.
+* Preserves external absolute and fragment-only URLs.
+* Preserves XP media endpoints for direct rendering and adapts them to the Content Studio preview context.
+* Processes each candidate in an image `srcset`.
+
+NOTE: Enonic XP 8 media references use `+/_/media:image/+` and `+/_/media:attachment/+`. Adapter {adapter-version} recognizes these formats.
+
+== Editing behavior
+
+Keep adapter rich-text and macro views in the render path while previewing. They add the component information required for in-place editing and can render disabled or unresolved macros safely.
+
+See the https://developer.enonic.com/docs/guillotine/stable[Guillotine documentation] for the underlying rich-text GraphQL schema.

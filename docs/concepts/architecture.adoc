@@ -1,0 +1,59 @@
+= Architecture
+:toc: right
+include::../.variables.adoc[]
+
+Next.XP connects an Enonic XP content back end to a Next.js front end. It is the standard Enonic integration, not a requirement: projects may use the components selectively or implement their own integration.
+
+== Runtime paths
+
+Visitors and editors reach the same Next.js application through different paths:
+
+[%header,cols="1,2,2"]
+|===
+| Context | Request path | Content
+
+| Public site
+| Browser → Next.js → Guillotine
+| Published content from the `master` branch
+
+| Content Studio
+| Content Studio → Next.XP app → Next.js → Guillotine
+| Draft content, with editing metadata and preview context
+|===
+
+The public site is served by Next.js. The Next.XP app is only in the Content Studio preview path; it is not a production reverse proxy.
+
+== Responsibilities
+
+[%header,cols="1,3"]
+|===
+| Component | Responsibility
+
+| Enonic XP
+| Stores content, schemas, page components, projects, languages, and publication state.
+
+| Guillotine
+| Exposes XP content and page structures through GraphQL.
+
+| `@enonic/nextjs-adapter`
+| Selects projects, queries Guillotine, builds the page tree, maps XP descriptors to React views, and adapts URLs and editing metadata.
+
+| `@enonic/react-components`
+| Supplies reusable React renderers and types for XP page structures and rich text, including edit-mode component and region annotations. Adapter {adapter-version} uses its rich-text layer directly while retaining its own page-tree wrappers.
+
+| `starter-nextjs`
+| Shows the canonical Next.js routes, component registry, localization, preview endpoints, and revalidation endpoint.
+
+| Next.XP app
+| Connects Content Studio to the front-end server, proxies preview responses, and notifies Next.js after publication.
+|===
+
+== Data flow
+
+For a page request, the adapter first retrieves content metadata and the XP component structure. It then combines the registered queries for the content type and page components into a data request. The result contains content data, shared data, page structure, and runtime metadata used by the adapter views.
+
+See <<content-and-rendering#,Content and rendering>> for the request model and <<preview#,Editing and preview>> for the editor path.
+
+== Trust boundaries
+
+The Next.js server must be able to reach Guillotine, and XP must be able to reach the Next.js preview endpoints. A shared token protects preview, renderability, and revalidation requests. Keep this token server-side and use HTTPS between separately hosted services.

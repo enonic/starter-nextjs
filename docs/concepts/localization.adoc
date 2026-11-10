@@ -1,0 +1,49 @@
+= Projects and localization
+:toc: right
+include::../.variables.adoc[]
+
+Next.XP maps each front-end locale to an XP project and a site within that project. The mapping controls both the Guillotine query context and the site-relative URL space.
+
+== Mapping format
+
+Set `+ENONIC_MAPPINGS+` env var to a comma-separated list:
+
+[source,text]
+----
+en:corporate/site,no:corporate-no/site,de:corporate-de/website
+----
+
+Each entry has the form `locale:project/site`, where the `/site` segment is optional. The first entry is the default mapping.
+
+[%header,cols="1,3"]
+|===
+| Value | Meaning
+
+| `en`
+| Locale used in the Next.js route and phrase dictionary.
+
+| `corporate`
+| XP project queried through Guillotine.
+
+| `/site`
+| Site root path added when resolving content in XP and removed from public URLs.
+|===
+
+== Mapping selection
+
+For direct Next.js requests, the locale route selects the mapping. For Content Studio requests, the `Content-Studio-Project` header takes precedence so preview follows the editor's active project. If neither identifies a mapping, the default entry is used.
+
+The starter's `src/proxy.ts` rewrites URLs without a locale segment to the resolved locale route. Public content paths remain site-relative: an XP path such as `/site/about` is presented as `/en/about` when `en` is the active locale.
+
+Default locale (first one in the `ENONIC_MAPPINGS` list) is not explicitly required in the URL. For example, `/en/about` and `/about` both resolve to the same content when `en` is default.
+
+== Static phrases
+
+Next.XP content localization and front-end phrase localization are separate:
+
+* XP projects and content languages provide localized content.
+* JSON files under `src/phrases/` provide static front-end text.
+
+Use `I18n` in server components and `LocaleContextProvider` with `useLocaleContext()` in client components. The `@phrases` alias in the starter resolves locale dictionaries.
+
+See <<../nextjs/routing#,Routing>> and <<../adapter/client#,Client API>>.

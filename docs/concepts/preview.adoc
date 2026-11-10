@@ -1,0 +1,61 @@
+= Editing and preview
+:toc: right
+include::../.variables.adoc[]
+
+Next.XP lets Content Studio display the Next.js front end while editors work with draft content. The Next.XP app proxies preview requests to Next.js and returns the rendered response to Content Studio.
+
+== Preview handshake
+
+. Content Studio requests preview of a site that has the Next.XP app configured.
+. The app selects a named front-end URL and shared secret.
+. The app forwards the request with the render mode, XP project, XP base URL, and the current editor's XP session.
+. The Next.js `/api/preview` route validates the token, enables Next.js Draft Mode, and redirects to the content path.
+. The adapter detects edit mode, forwards the XP session to Guillotine, and queries the `draft` branch.
+
+
+NOTE: The app caches the resulting Next.js preview cookie and reuses it for later preview and component requests.
+
+== Authentication and permissions
+
+Preview is available only through an authenticated Enonic Content Studio session. For every preview request, the Next.XP app passes the current editor's XP session to the Next.js front end over the protected server-to-server integration. The adapter then forwards that session as the `JSESSIONID` cookie on its Guillotine request.
+
+Guillotine therefore evaluates the draft query as the same Enonic user who opened the preview. XP's normal content permissions remain in effect: the rendered result contains only content that user is allowed to access. The front end does not query draft content through a privileged service account or bypass XP access controls.
+
+The shared API token and the Next.js Draft Mode cookie have different purposes. The token authenticates calls between the Next.XP app and the protected front-end endpoints, while the Draft Mode cookie selects draft rendering. Neither replaces the editor's XP identity or grants access to content by itself.
+
+== Render modes
+
+[%header,cols="1,3"]
+|===
+| Mode | Behavior
+
+| `next`
+| Direct Next.js access. Uses published content and omits editing markup.
+
+| `edit`
+| Content Studio page editing. Uses draft content and adds component and region attributes.
+
+| `preview` or `inline`
+| Content Studio preview contexts. Uses draft content in Next.js draft mode.
+
+| `live`
+| Published XP context. The preview proxy itself rejects live-mode proxying.
+|===
+
+== Editing annotations
+
+Content Studio recognizes rendered page structures through `data-portal-component-type` and `data-portal-region` attributes. Adapter adds these attributes through its base component and region views when the render mode is `edit`.
+
+The supporting `@enonic/react-components` package also implements these annotations in its generic component wrapper and region renderers. Next.XP currently uses that package directly for rich-text rendering, while the adapter supplies the page-tree annotations in the standard integration.
+
+== Component refresh
+
+Content Studio can request one component instead of refreshing the complete page. The adapter restricts the page tree to that component, and `MainView` delegates to `SingleComponent`. The starter wraps the response in a marker the XP proxy can extract safely.
+
+The `/api/renderable` endpoint tells Content Studio whether a descriptor has an explicit mapping. Catch-all views do not make a component selectable in edit mode.
+
+== Security
+
+The value of `+ENONIC_API_TOKEN+` env var in Next.js must match the secret configured for the selected front end in `com.enonic.app.nextxp.cfg` Enonic XP config file. Do not expose it through a `+NEXT_PUBLIC_+` variable. Restrict the preview endpoints to HTTPS in production.
+
+See <<../app/preview#,Preview proxy>> for the XP-side implementation, <<../app/configuration#,App configuration>>, and <<../starter/configuration#,Starter configuration>>.

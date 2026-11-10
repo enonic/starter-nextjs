@@ -1,0 +1,103 @@
+= Next.js starter
+:toc: right
+include::.variables.adoc[]
+
+https://github.com/enonic/starter-nextjs[`starter-nextjs`] is the canonical starting point for an Enonic-backed Next.js application. It is a normal Next.js App Router project with the adapter wiring required for content rendering, localization, Content Studio preview, and revalidation.
+
+NOTE: This page documents the starter as released for Next.XP {nextxp-version}, targeting Next.js {next-version}, React {react-version}, and `@enonic/nextjs-adapter` {adapter-version}. These are majors; individual dependency patch versions may change as the starter is maintained.
+
+The starter is intentionally small. Copy it when beginning a project, or use it as a reference when integrating Next.XP into an existing Next.js application.
+
+== Usage
+
+Create a new project from https://github.com/enonic/starter-nextjs[`enonic/starter-nextjs`] without copying its Git history:
+
+[source,bash]
+----
+npx degit enonic/starter-nextjs my-nextjs-site
+cd my-nextjs-site
+npm install
+----
+
+Configure the Enonic API, application name, project mappings, and shared preview secret as described in <<starter/configuration#,Starter configuration>>, then start the development server:
+
+[source,bash]
+----
+npm run dev
+----
+
+TIP: Follow the https://developer.enonic.com/learn/next.xp[Next.XP tutorial] for a guided implementation that builds a complete site from the starter.
+
+== Included integration
+
+The starter follows the Next.js App Router layout. Next.XP-specific files are concentrated in the catch-all route, component registry, locale proxy, phrase directory, and API routes.
+
+The project provides:
+
+* A locale-aware catch-all route for XP content paths
+* `fetchContent()` and `MainView` as the default rendering pipeline
+* Central registration of content and component mappings
+* Server and client phrase localization
+* Preview, renderability, and revalidation API routes
+* A Next.js proxy for locale routing
+* Webpack and Turbopack aliases required by the adapter
+* Development views for unmapped content
+
+== Application routes
+
+[%header,cols="2,3"]
+|===
+| Path | Responsibility
+
+| `src/app/[locale]/[[...contentPath]]/page.tsx`
+| Fetches XP content, validates the result, renders `MainView`, supplies metadata, and optionally generates static paths.
+
+| `src/app/[locale]/[[...contentPath]]/layout.tsx`
+| Handles complete-page and single-component responses and preserves editor HTML during hydration.
+
+| `src/app/[locale]/layout.tsx`
+| Loads server-side phrases and establishes the locale-level document layout.
+
+| `src/app/[locale]/not-found.tsx`
+| Locale-aware missing-content UI.
+
+| `src/app/[locale]/error.tsx`
+| Locale-aware runtime error UI.
+|===
+
+== Integration routes
+
+[%header,cols="2,3"]
+|===
+| Path | Responsibility
+
+| `src/app/api/preview/route.ts`
+| Validates the shared token, enables Draft Mode, and redirects Content Studio to the requested path.
+
+| `src/app/api/renderable/route.ts`
+| Reports whether content and component descriptors have explicit render mappings.
+
+| `src/app/api/revalidate/route.ts`
+| Accepts secured publication notifications and calls `revalidatePath()`.
+
+| `src/proxy.ts`
+| Resolves locale mappings and rewrites paths without a locale segment.
+|===
+
+== Components and data
+
+`+src/components/_mappings.ts+` imports the adapter's base mappings, registers the shared query, and maps application descriptors. Keep queries close to their consuming views; shared data belongs under `src/components/queries/`.
+
+Static front-end dictionaries live in `src/phrases/<locale>.json`. The `@phrases` alias is configured in `next.config.js` for webpack and Turbopack.
+
+== Public files and proxy matching
+
+The locale proxy excludes Next.js internals, API routes, and known public assets. When adding a top-level folder under `public/`, add it to the matcher exclusion so asset requests are not interpreted as content routes.
+
+== What to customize
+
+Replace the example application name, project mappings, common query, phrases, and views. Register each content type and page component used by the site. Preserve the integration routes and editing wrappers unless the replacement implements the same contracts.
+
+The starter is not the tutorial's completed example. The finished reference implementation lives in https://github.com/enonic/demo-nextjs[`demo-nextjs`].
+
+See <<starter/configuration#,Starter configuration>> for environment variables, the shared secret, component mappings, and rendering choices.

@@ -1,0 +1,738 @@
+= Views
+:toc: right
+include::../.variables.adoc[]
+
+The adapter's built-in React views turn a normalized XP page tree into React elements. Each file below is a separate entry point under `@enonic/nextjs-adapter/views/`; import the default or named export from the file that defines it.
+
+Most applications call only `MainView`. The remaining views form its rendering pipeline and are useful when replacing or composing the default behavior.
+
+== Usage
+
+[source,tsx]
+----
+import MainView from '@enonic/nextjs-adapter/views/MainView';
+import Regions, {RegionView} from '@enonic/nextjs-adapter/views/Region';
+import RichTextView from '@enonic/nextjs-adapter/views/RichTextView';
+----
+
+`MainView` accepts the complete result from `fetchContent()`:
+
+[source,tsx]
+----
+const result = await fetchContent({contentPath, locale});
+
+return <MainView {...result}/>;
+----
+
+Mapped page, layout, part, and macro views do not receive the built-in views' input objects. The adapter resolves each component first and passes the mapping-specific props documented under <<view-type-definitions,Type Definitions>>.
+
+== Functions
+
+=== MainView
+
+Main rendering entry point. It renders `SingleComponent` for a Content Studio component request and otherwise delegates to `BaseContent`.
+
+[.lead]
+Parameters
+
+`MainView()` takes a single `props` object with the <<fetch-content-result,FetchContentResult>> properties.
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== BaseContent
+
+Chooses the registered content-type view for `meta.type`. If no explicit content-type view takes precedence, it delegates to the page descriptor through `BasePage`; a catch-all content-type view is the final fallback.
+
+[.lead]
+Parameters
+
+`BaseContent()` takes a single `props` object with the <<fetch-content-result,FetchContentResult>> properties.
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== BasePage
+
+Resolves an XP page descriptor in `ComponentRegistry` and renders the registered view with <<page-props,PageProps>>. In development or Content Studio it can render a missing-component or error view instead.
+
+[.lead]
+Parameters
+
+`BasePage()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `component` | <<page-data,PageData>> | *Optional.* Normalized page descriptor, configuration, template, and regions.
+| `path` | `string` | *Optional.* Path of the page component in the XP page tree.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+| `data` | `any` | *Optional.* Processed result of the page mapping's query.
+| `error` | `string` | *Optional.* Error produced while resolving the page.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== BaseLayout
+
+Resolves an XP layout descriptor in `ComponentRegistry`, normalizes its regions, and renders the registered layout view with <<layout-props,LayoutProps>>.
+
+[.lead]
+Parameters
+
+`BaseLayout()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `component` | <<layout-data,LayoutData>> | *Optional.* Normalized layout descriptor and configuration.
+| `path` | `string` | Path of the layout component in the XP page tree.
+| `regions` | <<region-tree,RegionTree>> | *Optional.* Regions belonging to the layout.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== BasePart
+
+Resolves an XP part descriptor in `ComponentRegistry` and renders the registered part view with <<part-props,PartProps>>.
+
+[.lead]
+Parameters
+
+`BasePart()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `component` | <<part-data,PartData>> | *Optional.* Normalized part descriptor, configuration, and queried fields.
+| `path` | `string` | Path of the part component in the XP page tree.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+| `data` | `any` | *Optional.* Processed result of the part mapping's query.
+| `error` | `string` | *Optional.* Error produced while resolving the part.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== BaseComponent
+
+Dispatches one normalized component to the registered component-kind view, such as `BasePage`, `BaseLayout`, `BasePart`, or `Text`. In edit mode it also adds the `data-portal-component-type` annotation expected by Content Studio.
+
+[.lead]
+Parameters
+
+`BaseComponent()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `component` | <<page-component,PageComponent>> | Normalized component containing its type, tree path, component data, and optional processed data.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== BaseMacro
+
+Resolves a rich-text macro in `ComponentRegistry`. In edit mode it preserves macro syntax unless `renderInEditMode` is enabled; macro configuration values are normalized before reaching the mapped view.
+
+[.lead]
+Parameters
+
+`BaseMacro()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `children` | `ReactNode` | Content enclosed by the macro.
+| `data` | `Omit<`<<macro-data,`MacroData`>>`, 'ref'>` | Macro name, descriptor, and Guillotine configuration.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+| `renderInEditMode` | `boolean` | *Optional.* Render the mapped macro inside Content Studio instead of preserving its source syntax. Default: `false`.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== Region
+
+The default export from `views/Region`, imported under any local name such as `Regions`. It renders every region on a page, or one region selected by `name`.
+
+[.lead]
+Parameters
+
+`Region()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `page` | <<page-data,PageData>> or `null` | Page containing the regions to render.
+| `name` | `string` | *Optional.* Render only the region with this name.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== RegionView
+
+Named export from `views/Region`. It renders one region, orders its components by their numeric component-path index, and adds the `data-portal-region` annotation in edit mode.
+
+[.lead]
+Parameters
+
+`RegionView()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `name` | `string` | XP region name.
+| `components` | <<page-component,PageComponent>>`[]` | *Optional.* Components in the region.
+| `className` | `string` | *Optional.* CSS class applied to the region's `div`.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+[.lead]
+Example
+
+[source,tsx]
+----
+<RegionView
+    name="main"
+    components={layout.regions?.main?.components}
+    common={common}
+    meta={meta}
+/>
+----
+
+=== RichTextView
+
+Renders processed Guillotine rich text through `@enonic/react-components`. It adapts internal links, images, and macros to Next.XP URL processing and editing behavior.
+
+[.lead]
+Parameters
+
+`RichTextView()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `data` | <<rich-text-data,RichTextData>> | Processed HTML plus referenced links, images, and macros returned by the adapter's rich-text query.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context used for URLs and annotations.
+| `className` | `string` | *Optional.* CSS class applied to the rich-text wrapper.
+| `tag` | `string` | *Optional.* HTML element used as the wrapper.
+| `renderMacroInEditMode` | `boolean` | *Optional.* Render mapped macros in edit mode. Default: `true`.
+| `customReplacer` | `(domNode, data, meta, renderMacroInEditMode) => ReactElement \| DOMNode` | *Optional.* Replaces an HTML parser node. Returning the original node leaves it unchanged.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+[.lead]
+Example
+
+[source,tsx]
+----
+<RichTextView
+    data={part.config.body}
+    meta={meta}
+    className="article-body"
+/>
+----
+
+See <<../nextjs/rich-text#,Rich text>> for the query and URL-processing requirements.
+
+=== Fragment
+
+Renders the component tree stored by an XP fragment. A full-page fragment reads the `fragment` region from `page`; an embedded fragment reads `component.fragment.components`.
+
+[.lead]
+Parameters
+
+`Fragment()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `page` | <<page-data,PageData>> | *Optional.* Fragment page used when rendering the fragment as complete content.
+| `component` | <<fragment-data,FragmentData>> | *Optional.* Embedded fragment component.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== SingleComponent
+
+Renders `meta.requestedComponent` for an incremental Content Studio component refresh. It returns no visible output when the requested component is absent.
+
+[.lead]
+Parameters
+
+`SingleComponent()` takes a single `props` object with the <<fetch-content-result,FetchContentResult>> properties. It consumes `meta` and `common`.
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== StaticContent
+
+Preserves server-rendered HTML during hydration. When the existing element contains HTML and `condition` is true, the client keeps that HTML instead of rendering `children` again.
+
+[.lead]
+Parameters
+
+`StaticContent()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `condition` | `boolean` | Enable preservation of existing server-rendered HTML. The runtime default is `true`, although the TypeScript property is required.
+| `children` | `ReactNode` | *Optional.* Content rendered on the server, during SPA navigation, or when `condition` is false.
+| `element` | `string` | *Optional.* Wrapper element name. Default: `div`.
+| _additional properties_ | `Record<string, any>` | *Optional.* HTML properties forwarded to the wrapper element.
+|===
+
+[.lead]
+Returns
+
+`ReactNode`.
+
+[.lead]
+Example
+
+[source,tsx]
+----
+<StaticContent condition={meta.renderMode === RENDER_MODE.EDIT}>
+    {children}
+</StaticContent>
+----
+
+=== PropsView
+
+Development view that prints JSON representations of known mapping props. Its declaration accepts any props object; these are the properties it displays:
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `page` | `any` | *Optional.* Page props to display.
+| `part` | `any` | *Optional.* Part props to display.
+| `layout` | `any` | *Optional.* Layout props to display.
+| `data` | `any` | *Optional.* Processed mapping data to display.
+| `common` | `any` | *Optional.* Shared data to display.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== Empty
+
+Base mapping for deliberately empty output.
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== Text
+
+Base mapping for XP text components. It delegates the text value to `RichTextView` and disables mapped macro rendering in edit mode.
+
+[.lead]
+Parameters
+
+`Text()` takes a single `props` object with these properties:
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `component` | <<text-data,TextData>> | Text component containing a `value: RichTextData` property.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+| `path` | `string` | Path of the text component in the XP page tree.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== DefaultMacro
+
+Fallback macro renderer from `views/macros/DefaultMacro`. It parses and renders `config.body` as HTML.
+
+[.lead]
+Parameters
+
+`DefaultMacro()` takes a single `props` object with the <<macro-props,MacroProps>> properties.
+
+[.lead]
+Returns
+
+`ReactElement`.
+
+=== DisableMacro
+
+Renderer from `views/macros/DisableMacro` for disabled macros. It returns `config.body` without parsing the body as HTML.
+
+[.lead]
+Parameters
+
+`DisableMacro()` takes a single `props` object with the <<macro-props,MacroProps>> properties.
+
+[.lead]
+Returns
+
+`any`, matching the type of `config.body` in the adapter declaration.
+
+=== MissingComponent
+
+Named export from `views/BaseComponent` that renders a visible diagnostic for an unregistered component.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `descriptor` | `string` | *Optional.* Missing XP descriptor.
+| `type` | `string` | Component kind.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== ErrorComponent
+
+Named export from `views/BaseComponent` that renders a visible component error.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `type` | `string` | *Optional.* Component kind.
+| `descriptor` | `string` | *Optional.* XP descriptor.
+| `reason` | `string` | Error message.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+=== PlaceholderComponent
+
+Named export from `views/BaseComponent` that renders a diagnostic when an initialized component produces empty output.
+
+[.lead]
+Parameters
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `type` | `string` | *Optional.* Component kind.
+| `descriptor` | `string` | *Optional.* XP descriptor.
+|===
+
+[.lead]
+Returns
+
+`JSX.Element`.
+
+== Classes
+
+The view entry points export no classes.
+
+[#view-type-definitions]
+== Type Definitions
+
+[#page-component]
+=== PageComponent
+
+One normalized component in the XP page tree. The property matching `type` contains the kind-specific data.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `type` | `XP_COMPONENT_TYPE` | Component kind: `page`, `layout`, `part`, `text`, or `fragment`.
+| `path` | `string` | Component path within the page tree.
+| `page` | <<page-data,PageData>> | *Optional.* Present for a page component.
+| `layout` | <<layout-data,LayoutData>> | *Optional.* Present for a layout component.
+| `part` | <<part-data,PartData>> | *Optional.* Present for a part component.
+| `text` | <<text-data,TextData>> | *Optional.* Present for a text component.
+| `fragment` | <<fragment-data,FragmentData>> | *Optional.* Present for a fragment component.
+| `image` | `any` | *Optional.* Present for an image component.
+| `regions` | <<region-tree,RegionTree>> | *Optional.* Regions attached to the component.
+| `data` | `any` | *Optional.* Processed result of the component mapping's query.
+| `error` | `any` | *Optional.* Component query or processing error.
+| _additional properties_ | `any` | *Optional.* Fields selected by custom component queries.
+|===
+
+[#page-data]
+=== PageData
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `descriptor` | `string` | Application-qualified XP page descriptor.
+| `config` | `any` | *Optional.* Page configuration.
+| `template` | `string` or `null` | *Optional.* Page-template reference.
+| `regions` | <<region-tree,RegionTree>> | *Optional.* Regions owned by the page.
+|===
+
+[#layout-data]
+=== LayoutData
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `descriptor` | `string` | Application-qualified XP layout descriptor.
+| `config` | `any` | *Optional.* Layout configuration.
+| `regions` | <<region-tree,RegionTree>> | *Optional.* Normalized regions added before a mapped layout view is called.
+| _additional properties_ | `any` | *Optional.* Fields selected by custom layout queries.
+|===
+
+[#part-data]
+=== PartData
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `descriptor` | `string` | Application-qualified XP part descriptor.
+| `config` | `any` | Part configuration.
+| _additional properties_ | `any` | *Optional.* Fields selected by custom part queries.
+|===
+
+[#fragment-data]
+=== FragmentData
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `id` | `string` | Fragment content ID.
+| `fragment` | `{components: PageComponent[]}` | Normalized components stored by the fragment.
+|===
+
+[#text-data]
+=== TextData
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `value` | <<rich-text-data,RichTextData>> | Processed rich-text value.
+|===
+
+[#rich-text-data]
+=== RichTextData
+
+Rich-text result provided by `@enonic/react-components` and re-exported by the adapter.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `processedHtml` | `string` | HTML containing reference markers for links, images, and macros.
+| `links` | `LinkData[]` | *Optional.* Resolved internal content and media links.
+| `images` | `ImageData[]` | *Optional.* Resolved images and image styles.
+| `macros` | <<macro-data,MacroData>>`[]` | *Optional.* Resolved macro descriptors and configurations.
+| _additional properties_ | `unknown` | *Optional.* Additional fields carried by an extended rich-text query.
+|===
+
+[#macro-data]
+=== MacroData
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `ref` | `string` | Reference matching the macro marker in `processedHtml`.
+| `name` | `string` | Macro name.
+| `descriptor` | `string` | Application-qualified macro descriptor.
+| `config` | `Record<string, Record<string, unknown>>` | Macro configuration grouped by sanitized macro name.
+|===
+
+[#region-tree]
+=== RegionTree
+
+A record keyed by region name. Each value contains that region's `name` and ordered `components: PageComponent[]`.
+
+[#fetch-content-result]
+=== FetchContentResult
+
+Shared input to `MainView`, `BaseContent`, and `SingleComponent`. It is returned by `fetchContent()`.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `data` | `Record<string, any>` or `null` | Processed content-type query result.
+| `common` | `Record<string, any>` or `null` | Processed shared-query result.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+| `page` | <<page-component,PageComponent>> or `null` | Normalized page component tree.
+| `error` | `{code: string, message: string}` or `null` | *Optional.* Structured fetch failure inherited from `Result`.
+|===
+
+[#page-props]
+=== PageProps
+
+Props passed by `BasePage` to a registered page view.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `page` | <<page-data,PageData>> | Normalized page descriptor, configuration, template, and regions.
+| `path` | `string` | Page component path.
+| `data` | `any` | *Optional.* Processed result of the page mapping's query.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[#layout-props]
+=== LayoutProps
+
+Props passed by `BaseLayout` to a registered layout view.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `layout` | <<layout-data,LayoutData>> | Normalized layout descriptor, configuration, and regions.
+| `path` | `string` | Layout component path.
+| `common` | `any` | Processed result of the shared query.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[#part-props]
+=== PartProps
+
+Props passed by `BasePart` to a registered part view.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `part` | <<part-data,PartData>> | Normalized part descriptor, configuration, and queried fields.
+| `path` | `string` | Part component path.
+| `data` | `any` | *Optional.* Processed result of the part mapping's query.
+| `common` | `any` | *Optional.* Processed result of the shared query.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+[#macro-props]
+=== MacroProps
+
+Props passed by `BaseMacro` to a registered macro view. `DefaultMacro` and `DisableMacro` use the same shape.
+
+[%header,cols="1%,1%,98%a"]
+[frame="none"]
+[grid="none"]
+|===
+| Name | Type | Description
+| `name` | `string` | Macro name from the rich text.
+| `children` | `string` or `ReactNode` | Content enclosed by the macro.
+| `config` | `Record<string, any>` | Normalized macro configuration.
+| `meta` | <<common#meta-data,MetaData>> | Runtime request and editing context.
+|===
+
+== Constants
+
+=== MACRO_DISABLE
+
+`system:disable` — descriptor used for XP's disabled macro.
+
+=== MACRO_EMBED
+
+`system:embed` — descriptor used for XP's embedded HTML macro.

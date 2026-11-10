@@ -1,0 +1,150 @@
+[[upgrading]]
+= Upgrading
+:toc: right
+
+== Guillotine application
+
+IMPORTANT: Guillotine version 8 is required for Enonic XP 8.
+
+== Upgrading from v4.x
+
+. *Adapter upgrade*: Update `@enonic/nextjs-adapter` to `^5.0.0`.
++
+Requires Node.js 24.15.0+ and npm 10.9.2+. The Guillotine query syntax and `+ENONIC_API+` URL format are unchanged.
+
+. *Enonic XP 8*: The back-end must run Enonic XP 8, with application schemas in the YAML format under `src/main/resources/cms/`. Guillotine 8 is used with XP 8 — existing queries work unchanged. Note that media links in rich text now use the `+/_/media:image/+` and `+/_/media:attachment/+` URL format, which requires adapter v5.
+
+== Upgrading from v3.x
+
+Complete these steps first, then follow the v4.x steps above.
+
+. *Framework upgrades*: Next.js 16 and React 19 are now required.
++
+See https://nextjs.org/docs/app/building-your-application/upgrading[Next.js upgrade guide] and https://react.dev/blog/2024/12/05/react-19[React 19 migration guide].
+
+. *Adapter upgrade*: Update `@enonic/nextjs-adapter` to `^4.0.0`.
++
+The Guillotine query syntax and `+ENONIC_API+` URL format are unchanged.
+
+. *Middleware replaced by proxy*: Rename `src/middleware.ts` to `src/proxy.ts`, following the Next.js 16 convention.
++
+If you have custom middleware logic, migrate it to the new proxy pattern.
+
+. *Next.js 16 async params*: Route params are now `Promise` and must be awaited:
++
+[source,TypeScript]
+----
+// Before (v3.x)
+export type PageProps = {
+    locale: string,
+    contentPath: string[],
+}
+export default async function Page({params}: { params: PageProps }) {
+    const {locale, contentPath} = params;
+
+// After (v4.x)
+export type PageProps = {
+    locale: string,
+    contentPath?: string[],
+}
+export default async function Page({params}: { params: Promise<PageProps> }) {
+    const resolvedParams = await params;
+----
+
+. *ESLint flat config*: Migrate from `.eslintrc` to `eslint.config.mjs`:
++
+[source,javascript]
+----
+import nextVitals from 'eslint-config-next/core-web-vitals'
+import {defineConfig, globalIgnores} from 'eslint/config'
+
+const eslintConfig = defineConfig([
+    ...nextVitals,
+    {
+        rules: {
+            "@next/next/no-img-element": "off",
+            "eol-last": "warn"
+        }
+    },
+    globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts'])
+])
+
+export default eslintConfig
+----
+
+. *Default port change*: `npm run start` no longer forces port 4242 — production now runs on the default port 3000.
++
+If you relied on port 4242, update your `com.enonic.app.nextxp.cfg` and any reverse-proxy configuration accordingly.
+
+== Upgrading from v2.x
+
+. You need to use Next.js app router to be able to use v3.x.
+See https://nextjs.org/docs/pages/building-your-application/upgrading/app-router-migration[upgrade instructions] from pages router here.
+
+. `+_renderable+` page is now an API route at `src/api/renderable/route.ts`.
+
+. `@enonic/nextjs-adapter` methods renamed:
++
+- getLocaleProjectConfig() -> getLocaleMapping()
+- getProjectLocaleConfigById -> getLocaleMappingById()
+
+. `@enonic/nextjs-adapter` method signature changes:
+- `fetchFromApi` method changed to :
++
+ fetchFromApi(
+    apiUrl: string,
+    projectConfig: ProjectLocaleConfig,
+    options?: FetchOptions): Promise<GuillotineResponseJson>
++
+- `fetchGuillotine` method signature changes:
++
+ fetchGuillotine(
+    contentApiUrl: string,
+    projectConfig: ProjectLocaleConfig,
+    options?: FetchOptions): Promise<GuillotineResult>
++
+. `@enonic/nextjs-adapter` exports rearranged:
++
+Exports working both on the server and client sides are now available from `@enonic/nextjs-adapter` package root.
+Client-only exports are available from `@enonic/nextjs-adapter/client` package.
+Server-only exports are available from `@enonic/nextjs-adapter/server` package.
+Views are available at `@enonic/nextjs-adapter/views/<ViewName>`.
+
+. `+ENONIC_PROJECTS+` environmental variable change:
++
+ ENONIC_PROJECTS -> ENONIC_MAPPINGS
++
+.Language is now required for every project config:
+
+    ENONIC_MAPPINGS=<lang>:<repo-name>/site/path[,<lang>:<repo-name>/site/path,...]
++
+TIP: First config in the list is used as default.
++
+. `next.config.js` config changes:
++
+.Remove i18n block from next.js config:
+[source,language="javascript"]
+----
+i18n: {
+    locales: ['en', 'no'],
+    defaultLocale: 'en',
+}
+----
++
+.Add phrases block to webpack config:
+[source,language="javascript"]
+----
+config.resolve.alias = {
+    ...config.resolve.alias,
+    "@phrases": path.resolve(__dirname, "./src/phrases"),
+}
+----
+
+. *Add* `src/phrases` folder to your project root.
+This folder should contain static translations for every language from `+ENONIC_MAPPINGS+` env var in the following format: `src/phrases/<lang>.json`
+
+    src/phrases/en.json
+    src/phrases/no.json
+
+. Middleware file has been updated to support new i18n config.
+If you have custom proxy, you need to update it to support new i18n config.
