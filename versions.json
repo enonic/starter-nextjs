@@ -1,6 +1,10 @@
 {
   "versions": [
     {
+      "label": "next",
+      "checkout": "origin/issue-261"
+    },
+    {
       "label": "stable",
       "checkout": "master",
       "displayName": "5.x",
