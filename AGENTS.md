@@ -34,7 +34,7 @@ When a new Next.XP major is released:
 2. Align and release `app-nextxp` to the same major.
 3. Cut a version branch for the outgoing major (e.g. `5.x`) from `master`, then merge the new major's branch into `master`.
 4. Write release notes (`docs/release.adoc`) and upgrade notes (`docs/upgrade.adoc`).
-5. Update `docs/versions.json`: point `stable` at `master`, pin the outgoing major to its branch, and remove `next`. Add the version branch to the `enonic-docgen` workflow.
+5. Update `docs/versions.json`: point `stable` at `master`, pin the outgoing major to its branch, and remove `next`. In the `enonic-docgen` workflow, add the version branch and remove the merged feature branch.
 6. Update `docs/.variables.adoc` with the new stack versions.
 7. Update the tutorial (`demo-nextjs`) following its own versioning scheme.
 
