@@ -12,10 +12,10 @@
     "lint": "npx eslint"
   },
   "dependencies": {
-    "@enonic/nextjs-adapter": "6.0.0-beta.10",
+    "@enonic/nextjs-adapter": "6.0.0",
     "@enonic/page-editor": "^2.0.1",
     "cross-env": "^10.1.0",
-    "html-react-parser": "^5.2.17",
+    "html-react-parser": "^6.1.9",
     "next": "^16.4.3",
     "react": "^19.2.6",
     "react-dom": "^19.3.0",
