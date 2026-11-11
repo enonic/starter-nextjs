@@ -1,10 +1,10 @@
-# Agent instructions for Next.XP documentation
+# Agent instructions for the Next.XP starter
 
 This repository is the Next.js starter for **Next.XP** — Enonic's integration between Next.js and Enonic XP. It also contains the Next.XP reference documentation in `docs/`, written in AsciiDoc and published to https://developer.enonic.com/docs/next.xp.
 
-Shared conventions for Enonic documentation (publishing pipeline, menu and version files, AsciiDoc rules, library reference tables) are in the `enonic-docs` skill from the `enonic-contrib` plugin of https://github.com/enonic/agent-toolkit. Install it and follow it for every change under `docs/`. The rules below are the ones specific to Next.XP, plus the few shared rules that must hold even without the skill.
+Shared conventions for Enonic documentation (publishing pipeline, menu and version files, AsciiDoc rules, library reference tables) are in the `enonic-docs` skill from the `enonic-contrib` plugin of https://github.com/enonic/agent-toolkit. Having it installed is strongly recommended for anyone working under `docs/`; the toolkit README has the install command for each client. If the skill is not available in your session, say so before changing documentation, so the user can install it first. The rules below are the ones specific to Next.XP, plus the few shared rules that must hold even without the skill.
 
-`docs/`, this file, `CLAUDE.md` and `.github` are listed in `degit.json` so they are removed when the starter is scaffolded with `npx degit enonic/starter-nextjs`. Keep that list current if any of them move.
+`docs/`, this file and `.github` are listed in `degit.json` so they are removed when the starter is scaffolded with `npx degit enonic/starter-nextjs`. Keep that list current if any of them move.
 
 ## Scope and audience
 
@@ -31,7 +31,7 @@ The adapter may run ahead of the product (e.g. adapter v6 betas before Next.XP 6
 When a new Next.XP major is released:
 
 1. Tag and release the adapter major.
-2. Align and release `app-nextxp` to the same major.
+2. Release this starter and `app-nextxp` at the same major, bumping `version` in `package.json`.
 3. Cut a version branch for the outgoing major (e.g. `5.x`) from `master`, then merge the new major's branch into `master`.
 4. Write release notes (`docs/release.adoc`) and upgrade notes (`docs/upgrade.adoc`).
 5. Update `docs/versions.json`: point `stable` at `master`, pin the outgoing major to its branch, and remove `next`. In the `enonic-docgen` workflow, add the version branch and remove the merged feature branch.
