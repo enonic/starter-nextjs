@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "master"
-      - "issue-261"
+      - "5.x"
     paths:
       - 'docs/**'
       - '.github/workflows/enonic-docgen.yml'

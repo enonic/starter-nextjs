@@ -8,7 +8,7 @@
     },
     {
       "label": "5.x",
-      "checkout": "origin/5.x"
+      "checkout": "5.x"
     }
   ]
 }
