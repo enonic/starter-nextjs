@@ -449,6 +449,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#fetchfromapi">fetchFromApi</a></li>
 <li><a href="#fetchcontentpathsforalllocales">fetchContentPathsForAllLocales</a></li>
 <li><a href="#fetchcontentpathsforlocale">fetchContentPathsForLocale</a></li>
+<li><a href="#proxy-media">proxyMedia</a></li>
 </ul>
 </li>
 <li><a href="#classes">Classes</a></li>
@@ -557,7 +558,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="fetchguillotine"><a class="link" href="#fetchguillotine">fetchGuillotine</a></h3>
 <div class="paragraph">
-<p>Sends a GraphQL request to Guillotine, minifies the query, and normalizes GraphQL and transport errors into a <code>GuillotineResult</code>.</p>
+<p>Sends a GraphQL request to Guillotine, minifies the query, and normalizes GraphQL and transport errors into a <code>GuillotineResult</code>. The query must pass <code>project</code> and <code>branch</code>, and <code>scopeKey</code> where needed, to the <code>guillotine()</code> field.</p>
 </div>
 <div class="paragraph lead">
 <p>Parameters</p>
@@ -741,6 +742,100 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>Promise&lt;ContentPathItem[]&gt;</code>.</p>
 </div>
 </div>
+<div class="sect2">
+<h3 id="proxy-media"><a class="link" href="#proxy-media">proxyMedia</a></h3>
+<div class="paragraph">
+<p>Streams authenticated media through Next.js while Draft Mode is active. The starter mounts this handler at <code>/api/media</code>; see <a href="../nextjs/rich-text.ahtml#media-proxy">Draft media proxy</a> for URL composition and published-media behavior.</p>
+</div>
+<div class="paragraph">
+<p>The handler accepts <code>GET</code> and <code>HEAD</code> requests for XP image and attachment endpoints, forwards range headers, and streams the upstream response. It requires the editor&#8217;s XP session in the <code>jsessionid</code> request header or cookie. Draft Mode alone does not authenticate the request.</p>
+</div>
+<div class="paragraph">
+<p>Upstream fetches use <code>cache: 'no-store'</code>, and streamed responses have <code>Cache-Control: private, no-store</code>. Disable caching for the entire route in your delivery infrastructure, including error responses.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>request</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Request</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Incoming media request, including its path, query string, and session credentials.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>options</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>object</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Handler options described below.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The <code>options</code> object has these properties:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>proxyPath</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Route prefix to strip. Defaults to <code>/api/media</code>. Changing it requires matching custom URL generation; the standard media URL helpers use <code>/api/media</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>Promise&lt;Response&gt;</code>. Returns <code>404</code> when Draft Mode is disabled and <code>401</code> when no XP session is supplied. Otherwise, the upstream response determines access and status.</p>
+</div>
+<div class="paragraph lead">
+<p>Example</p>
+</div>
+<div class="paragraph">
+<p>The starter&#8217;s <code>src/app/api/media/[&#8230;&#8203;path]/route.ts</code> delegates requests to the adapter:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">import {proxyMedia} from '@enonic/nextjs-adapter/server';
+
+export function GET(request: Request) {
+    return proxyMedia(request);
+}
+
+export const HEAD = GET;</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -833,7 +928,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

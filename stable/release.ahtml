@@ -441,130 +441,190 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#next_xp_5">Next.XP 5</a>
+<li><a href="#next_xp_6">Next.XP 6</a>
 <ul class="sectlevel2">
-<li><a href="#enonic_xp_8_support">Enonic XP 8 support</a></li>
-<li><a href="#adapter_v5">Adapter v5</a></li>
-</ul>
-</li>
-<li><a href="#next_xp_4">Next.XP 4</a>
-<ul class="sectlevel2">
-<li><a href="#framework_upgrades">Framework upgrades</a></li>
-<li><a href="#proxy_replaces_middleware">Proxy replaces middleware</a></li>
-<li><a href="#default_port">Default port</a></li>
-</ul>
-</li>
-<li><a href="#next_xp_3">Next.XP 3</a>
-<ul class="sectlevel2">
-<li><a href="#app_router_structure">App router structure</a></li>
-<li><a href="#improved_next_js_localization">Improved Next.js localization</a></li>
-<li><a href="#major_nextjs_adapter_refactoring">Major nextjs-adapter refactoring</a></li>
-<li><a href="#other_improvements">Other improvements</a></li>
+<li><a href="#new_content_studio_preview">New Content Studio preview</a></li>
+<li><a href="#visual_page_editing">Visual page editing</a></li>
+<li><a href="#encrypted_token">Encrypted token</a></li>
+<li><a href="#next_js_draft_mode">Next.js draft mode</a></li>
+<li><a href="#default_locale_url_redirects">Default-locale URL redirects</a></li>
+<li><a href="#automatic_content_studio_csp_handling">Automatic Content Studio CSP handling</a></li>
+<li><a href="#cors_headers">CORS headers</a></li>
+<li><a href="#guillotine_9">Guillotine 9</a></li>
+<li><a href="#front_end_url_handling">Front-end URL handling</a></li>
+<li><a href="#draft_media_proxy">Draft media proxy</a></li>
+<li><a href="#new_api_url_format">New API URL format</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="next_xp_5"><a class="link" href="#next_xp_5">Next.XP 5</a></h2>
+<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is an XP8 compatibility release, allowing you to upgrade to XP8 with minimal changes to your Next.XP 4 project.</p>
-</div>
-<div class="sect2">
-<h3 id="enonic_xp_8_support"><a class="link" href="#enonic_xp_8_support">Enonic XP 8 support</a></h3>
-<div class="paragraph">
-<p>Next.XP is now based on Enonic XP 8:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Application schemas use the new YAML format in <code>src/main/resources/cms/</code> (previously XML in <code>src/main/resources/site/</code>)</p>
-</li>
-<li>
-<p>Guillotine 8 is now used — existing GraphQL queries work unchanged</p>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect2">
-<h3 id="adapter_v5"><a class="link" href="#adapter_v5">Adapter v5</a></h3>
-<div class="paragraph">
-<p><code>@enonic/nextjs-adapter</code> v5 is now used, requiring Node.js 24.15.0+ and npm 10.9.2+.
-Media links in rich text now use the <code>/_/media:image/</code> and <code>/_/media:attachment/</code> URL format served by XP 8.</p>
-</div>
+<p>For Next.XP 5 and earlier release notes, select the 5.x documentation version.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="next_xp_4"><a class="link" href="#next_xp_4">Next.XP 4</a></h2>
+<h2 id="next_xp_6"><a class="link" href="#next_xp_6">Next.XP 6</a></h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Next.XP 6 replaces the XP-side preview proxy with a custom Next.js preview in Content Studio. Content Studio loads the front end directly from Next.js. This release also moves to Guillotine 9 and requires Enonic XP 8.1, as well as Content Studio 6.1 or later.</p>
+</div>
 <div class="sect2">
-<h3 id="framework_upgrades"><a class="link" href="#framework_upgrades">Framework upgrades</a></h3>
+<h3 id="new_content_studio_preview"><a class="link" href="#new_content_studio_preview">New Content Studio preview</a></h3>
+<div class="paragraph">
+<p>The Next.XP app 6 provides the "Next.js Preview" live view extension in Content Studio. It fetches URL mapping rules from the front end&#8217;s new <code>/api/mappings</code> endpoint, caches them per project, resolves the selected content item to a Next.js URL, and lets Content Studio load that URL directly from the Next.js server. Site setup is unchanged: add the Next.XP app to the XP site and select its front-end configuration.</p>
+</div>
+<div class="paragraph">
+<p>The <code>/api/renderable</code> endpoint is no longer used.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="visual_page_editing"><a class="link" href="#visual_page_editing">Visual page editing</a></h3>
+<div class="paragraph">
+<p>Next.js-rendered pages now support visual page editing through the <code>@enonic/page-editor</code> npm package, bundled with the front-end. It enables component drag-and-drop and click-to-select, and can also be used with other frameworks.</p>
+</div>
+<div class="paragraph">
+<p>Macros now render in Content Studio as they do on the public site.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="encrypted_token"><a class="link" href="#encrypted_token">Encrypted token</a></h3>
+<div class="paragraph">
+<p>Requests from XP to <code>/api/preview</code>, <code>/api/mappings</code>, and <code>/api/revalidate</code> now carry an <code>xp</code> parameter encrypted with the shared secret, instead of plain text values.</p>
+</div>
+<div class="paragraph">
+<p><code>ENONIC_API_TOKEN</code> is still required and is now the encryption key. The adapter exports <code>encryptParams()</code> and <code>decryptParams()</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="next_js_draft_mode"><a class="link" href="#next_js_draft_mode">Next.js draft mode</a></h3>
+<div class="paragraph">
+<p>Next.XP 6 uses Next.js cookie-based Draft Mode. The starter&#8217;s <code>src/proxy.ts</code> validates the <code>xp</code> parameter, enables draft mode through <code>/api/preview</code> when the draft cookie is missing or belongs to another build (<code>BUILD_ID</code> in <code>next.config.js</code>), and redirects to the same URL without the parameter. Draft mode alone switches the adapter to <code>edit</code> render mode.</p>
+</div>
+<div class="paragraph">
+<p>Draft mode persists while the browser&#8217;s draft cookie remains valid. Opening the same front-end URL directly, including in a new tab outside Content Studio, therefore continues to show draft content.</p>
+</div>
+<div class="paragraph">
+<p>The adapter&#8217;s <a href="adapter/views.ahtml#draft-mode-indicator">DraftModeIndicator</a> provides a button to exit draft mode when the page is opened outside Content Studio. The starter includes it in the page layout. Clicking the button disables draft mode and reloads the page without the preview parameter, returning to the live site with published content.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="starter/configuration.ahtml#exit-draft-mode">Starter configuration</a> to enable or remove the button and customize its label.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="default_locale_url_redirects"><a class="link" href="#default_locale_url_redirects">Default-locale URL redirects</a></h3>
+<div class="paragraph">
+<p>URLs without a default-locale prefix were already supported in Next.XP 5, and the adapter generated public links without that prefix. In v6, the starter also redirects explicitly prefixed URLs to the URL without the default locale.</p>
+</div>
+<div class="paragraph">
+<p>For example, with <code>ENONIC_MAPPINGS=en:website/site,no:website-no/site</code>, <code>en</code> is the default because it is listed first. For ordinary public requests:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Requested URL</th>
+<th class="tableblock halign-left valign-top">v5 starter</th>
+<th class="tableblock halign-left valign-top">v6 starter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/about</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Serves English content; browser URL stays <code>/about</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Same behavior.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/en/about</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Serves English content; browser URL stays <code>/en/about</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Redirects to <code>/about</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/en</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Serves the English home page; browser URL stays <code>/en</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Redirects to <code>/</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/no/about</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Serves Norwegian content; browser URL stays <code>/no/about</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Same behavior: non-default locales keep their prefix.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Internally, <code>/about</code> is still rewritten to <code>/en/about</code> for the Next.js locale route. A rewrite leaves the browser URL unchanged; the new redirect changes it. The v6 <code>pageUrl()</code> helper continues to omit the default locale from generated public links. See <a href="nextjs/routing.ahtml">Routing</a> for details.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="automatic_content_studio_csp_handling"><a class="link" href="#automatic_content_studio_csp_handling">Automatic Content Studio CSP handling</a></h3>
+<div class="paragraph">
+<p>The Next.XP app uses XP 8.1&#8217;s new Content Security Policy API through an <a href="https://developer.enonic.com/docs/code/stable/web/extensions/processors">extension response processor</a>. It adds the configured front-end origins to Content Studio&#8217;s <code>frame-src</code>, <code>connect-src</code>, and <code>style-src</code> directives, extending the existing policy automatically.</p>
+</div>
+<div class="paragraph">
+<p>Manual <code>contentSecurityPolicy.header</code> configuration for Next.XP is no longer needed. When no front-end URL is configured, the Next.XP app allows <code><a href="http://localhost:3000" class="bare">http://localhost:3000</a></code> as a fallback in dev mode only.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="cors_headers"><a class="link" href="#cors_headers">CORS headers</a></h3>
+<div class="paragraph">
+<p>The starter&#8217;s <code>next.config.js</code> sets CORS headers allowing the XP admin origin, taken from the new optional <code>ENONIC_ADMIN</code> variable or the origin of <code>ENONIC_API</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="guillotine_9"><a class="link" href="#guillotine_9">Guillotine 9</a></h3>
+<div class="paragraph">
+<p>Queries pass <code>scopeKey</code>, <code>project</code>, and <code>branch</code> to the <code>guillotine()</code> field instead of relying on the endpoint URL. The adapter supplies these variables to every registered query. The <code>scopeKey</code> selects the site used as the base for site-relative page paths.</p>
+</div>
+<div class="paragraph">
+<p>The adapter also exposes the project, site, and branch in its rendering metadata, making the content context available to custom views.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="front_end_url_handling"><a class="link" href="#front_end_url_handling">Front-end URL handling</a></h3>
+<div class="paragraph">
+<p>Guillotine 9 returns URL components from <code>pageUrl</code>, <code>imageUrl</code>, <code>mediaUrl</code>, and <code>attachmentUrl</code>, including <code>path</code> and <code>queryString</code>, instead of complete URL strings. The front-end now constructs the final URLs using its own routing and deployment configuration. This gives it control over public page paths, locale prefixes, and media or CDN hosts.</p>
+</div>
+<div class="paragraph">
+<p>The Next.js adapter provides helpers for this:</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p>Next.js 16 and React 19</p>
+<p><strong>Page links</strong>: <code>pageUrlQuery()</code> selects the URL components; <code>pageUrl(data, meta)</code> builds a relative Next.js URL, adds a prefix for non-default locales, and preserves query parameters.</p>
 </li>
 <li>
-<p>ESLint 9 with flat config (<code>eslint.config.mjs</code>)</p>
+<p><strong>Images and attachments</strong>: <code>imageUrlQuery()</code>, <code>mediaUrlQuery()</code>, and <code>attachmentUrlQuery()</code> select the components. Their matching URL helpers take <code>(data, meta)</code>, routing draft media through the starter&#8217;s <code>/api/media</code> proxy. Published media uses <code>ENONIC_MEDIA_CDN</code>, which defaults to <code>ENONIC_API</code>.</p>
 </li>
 <li>
-<p><code>@enonic/nextjs-adapter</code> v4</p>
+<p><strong>Rich text</strong>: <code>richTextQuery()</code> retrieves structured link and image data alongside the HTML. <code>RichTextView</code> uses it to replace URL placeholders with front-end URLs.</p>
 </li>
 </ul>
 </div>
-</div>
-<div class="sect2">
-<h3 id="proxy_replaces_middleware"><a class="link" href="#proxy_replaces_middleware">Proxy replaces middleware</a></h3>
 <div class="paragraph">
-<p>The <code>src/middleware.ts</code> file has been replaced by <code>src/proxy.ts</code>, following the Next.js 16 convention.
-Route params are now asynchronous (<code>Promise</code>) and must be awaited.</p>
+<p>Custom queries and views must adopt this model. See <a href="nextjs/rich-text.ahtml">Rich text, links, and media</a> for Next.XP usage and <a href="https://developer.enonic.com/docs/guillotine/stable/usage/images-and-urls">Guillotine URL components</a> for the underlying fields.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="default_port"><a class="link" href="#default_port">Default port</a></h3>
+<h3 id="draft_media_proxy"><a class="link" href="#draft_media_proxy">Draft media proxy</a></h3>
 <div class="paragraph">
-<p>The production server (<code>npm run prod</code>) now starts on the default port 3000 instead of 4242, so Content Studio preview works in both dev and prod modes without extra configuration.</p>
+<p>The starter includes <code>/api/media</code> for authenticated draft images and attachments. It forwards the editor&#8217;s XP session server-side, so preview images work when Content Studio and Next.js use different domains. Draft media is streamed without caching; published media continues to load directly from the API or CDN. See <a href="nextjs/rich-text.ahtml#media-proxy">Draft media proxy</a>.</p>
 </div>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="next_xp_3"><a class="link" href="#next_xp_3">Next.XP 3</a></h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="app_router_structure"><a class="link" href="#app_router_structure">App router structure</a></h3>
+<h3 id="new_api_url_format"><a class="link" href="#new_api_url_format">New API URL format</a></h3>
 <div class="paragraph">
-<p>Next.js' app router is now default folder structure for Next.XP projects.
-This includes support for pages and layouts, route groups, parallel and intercepting routes.</p>
+<p><code>ENONIC_API</code> points to the XP API root (for example <code><a href="http://localhost:8080/api" class="bare">http://localhost:8080/api</a></code>) instead of the <code>/site</code> endpoint. The Guillotine endpoint is <code>ENONIC_API</code> + <code>/com.enonic.app.guillotine:graphql</code>.</p>
 </div>
-</div>
-<div class="sect2">
-<h3 id="improved_next_js_localization"><a class="link" href="#improved_next_js_localization">Improved Next.js localization</a></h3>
 <div class="paragraph">
-<p>In addition to localization of content, Next.XP now supports localization of static texts both in client and server components.
-Use <code>useLocaleContext</code> hook in client-side components and <code>I18n</code> in server-side ones.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="major_nextjs_adapter_refactoring"><a class="link" href="#major_nextjs_adapter_refactoring">Major nextjs-adapter refactoring</a></h3>
-<div class="paragraph">
-<p>In order to support the new app router, <code>@enonic/nextjs-adapter</code> has been substantially refactored.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="other_improvements"><a class="link" href="#other_improvements">Other improvements</a></h3>
-<div class="ulist">
-<ul>
-<li>
-<p><code>next/Link</code> component is now used for all internal links</p>
-</li>
-<li>
-<p><code>getAsset</code> method for static assets</p>
-</li>
-</ul>
+<p>See the <a href="upgrade.ahtml">upgrade notes</a> for migration steps, removed APIs, and changed function signatures.</p>
 </div>
 </div>
 </div>
@@ -572,7 +632,7 @@ Use <code>useLocaleContext</code> hook in client-side components and <code>I18n<
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

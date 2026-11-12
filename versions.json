@@ -1,14 +1,14 @@
 {
   "versions": [
     {
-      "label": "next",
-      "checkout": "origin/issue-261"
-    },
-    {
       "label": "stable",
       "checkout": "master",
-      "displayName": "5.x",
+      "displayName": "6.x",
       "latest": true
+    },
+    {
+      "label": "5.x",
+      "checkout": "5.x"
     }
   ]
 }

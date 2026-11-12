@@ -443,6 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#rich_text_data">Rich text data</a></li>
 <li><a href="#url_processing">URL processing</a></li>
+<li><a href="#media-proxy">Draft media proxy</a></li>
 <li><a href="#editing_behavior">Editing behavior</a></li>
 </ul>
 </div>
@@ -459,7 +460,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="rich_text_data"><a class="link" href="#rich_text_data">Rich text data</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Include the adapter&#8217;s <code>richTextQuery</code> selection when querying a rich-text field. The result supplies processed HTML and reference data for links, images, and macros. Pass the complete value and page metadata to <code>RichTextView</code>.</p>
+<p>Call the adapter&#8217;s <code>richTextQuery('body')</code> helper when selecting a rich-text field named <code>body</code>; use your schema&#8217;s field name for other fields. The result supplies processed HTML and reference data for links, images, and macros. <code>fetchGuillotine()</code> adds the required fragment definitions automatically. Pass the complete field value and page metadata to <code>RichTextView</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -479,26 +480,28 @@ export function Article({data, meta}) {
 <h2 id="url_processing"><a class="link" href="#url_processing">URL processing</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Use <code>getUrl()</code> for application fields that contain XP-generated URLs outside rich text. <code>UrlProcessor</code>:</p>
+<p>In Guillotine 9, <code>imageUrl</code>, <code>mediaUrl</code>, <code>attachmentUrl</code>, and <code>pageUrl</code> return objects and require a subselection. For application fields outside rich text, query them with the adapter&#8217;s helpers and render them with the matching functions:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Removes the configured XP site prefix from content URLs.</p>
+<p><code>imageUrlQuery()</code>, <code>mediaUrlQuery()</code>, and <code>attachmentUrlQuery()</code> select media URL components. Pass the result and page metadata to <code>imageUrl(data, meta)</code>, <code>mediaUrl(data, meta)</code>, or <code>attachmentUrl(data, meta)</code>. Draft media uses <code>/api/media</code>; published media uses <code>ENONIC_MEDIA_CDN</code>, which defaults to <code>ENONIC_API</code>.</p>
 </li>
 <li>
-<p>Adds a non-default locale to internal front-end URLs.</p>
-</li>
-<li>
-<p>Preserves external absolute and fragment-only URLs.</p>
-</li>
-<li>
-<p>Preserves XP media endpoints for direct rendering and adapts them to the Content Studio preview context.</p>
-</li>
-<li>
-<p>Processes each candidate in an image <code>srcset</code>.</p>
+<p><code>pageUrlQuery()</code>/<code>pageUrl(data, meta)</code> build site-relative content URLs, adding a non-default locale.</p>
 </li>
 </ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">`... on media_Image { ${imageUrlQuery({scale: 'width(500)'})} }`
+
+&lt;img src={imageUrl(photo.imageUrl, meta)} alt=""/&gt;
+&lt;Link href={pageUrl(parent.pageUrl, meta)}&gt;Back&lt;/Link&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>RichTextView</code> applies the same functions to links and images in rich text.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -507,10 +510,30 @@ export function Article({data, meta}) {
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Enonic XP 8 media references use <code>/_/media:image/</code> and <code>/_/media:attachment/</code>. Adapter 5 recognizes these formats.
+Enonic XP 8 media references use <code>/_/media:image/</code> and <code>/_/media:attachment/</code>. Adapter 6 recognizes these formats.
 </td>
 </tr>
 </table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="media-proxy"><a class="link" href="#media-proxy">Draft media proxy</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The starter includes a media proxy at <code>/api/media</code>. In Draft Mode, the browser requests images and attachments from this route on the Next.js host. The proxy forwards the editor&#8217;s XP session to the media API and streams the response back. This allows draft images to load when Content Studio and the front end use different domains, without relying on the browser to send XP cookies across domains.</p>
+</div>
+<div class="paragraph">
+<p>The adapter appends the XP media endpoint path and query string to <code>/api/media</code>. For example, a media path beginning <code>/media:image/</code> becomes <code>/api/media/media:image/</code>; attachments use <code>/api/media/media:attachment/</code>. Any API or portal prefix before <code>/media:</code> is replaced, and the remaining path and query string are preserved.</p>
+</div>
+<div class="paragraph">
+<p>The URL helpers select this route when <code>meta.branch</code> is <code>draft</code>. <code>RichTextView</code> does the same for rich-text images, responsive image sources, and attachment links. For published content, media URLs point directly to <code>ENONIC_API</code> or the configured <code>ENONIC_MEDIA_CDN</code>; they do not pass through the proxy.</p>
+</div>
+<div class="paragraph">
+<p>The proxy requires Draft Mode and a valid XP session. It supports <code>GET</code>, <code>HEAD</code>, and ordinary byte-range requests for media such as video. Draft media must not be cached: upstream fetches use <code>no-store</code>, and streamed responses carry <code>Cache-Control: private, no-store</code>. Configure any reverse proxy or CDN in front of Next.js to bypass caching for <code>/api/media</code>, including error responses.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../adapter/server.ahtml#proxy-media">proxyMedia()</a> for the handler reference. The starter already supplies the route.</p>
 </div>
 </div>
 </div>
@@ -528,7 +551,7 @@ Enonic XP 8 media references use <code>/_/media:image/</code> and <code>/_/media
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

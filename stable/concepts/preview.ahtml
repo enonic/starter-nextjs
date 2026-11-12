@@ -441,10 +441,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#preview_handshake">Preview handshake</a></li>
+<li><a href="#preview_handshake">Preview handshake</a>
+<ul class="sectlevel2">
+<li><a href="#initialization">Initialization</a></li>
+<li><a href="#for_each_preview_request">For each preview request</a></li>
+</ul>
+</li>
+<li><a href="#leaving_draft_mode">Leaving Draft Mode</a></li>
 <li><a href="#authentication_and_permissions">Authentication and permissions</a></li>
 <li><a href="#render_modes">Render modes</a></li>
 <li><a href="#editing_annotations">Editing annotations</a></li>
+<li><a href="#page_editor_integration">Page editor integration</a></li>
 <li><a href="#component_refresh">Component refresh</a></li>
 <li><a href="#security">Security</a></li>
 </ul>
@@ -454,43 +461,79 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Next.XP lets Content Studio display the Next.js front end while editors work with draft content. The Next.XP app proxies preview requests to Next.js and returns the rendered response to Content Studio.</p>
+<p>Next.XP lets Content Studio display the Next.js front end while editors work with draft content. The Next.XP app resolves the Next.js URL of the selected content, and Content Studio loads it directly from Next.js.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="preview_handshake"><a class="link" href="#preview_handshake">Preview handshake</a></h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="initialization"><a class="link" href="#initialization">Initialization</a></h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Content Studio requests preview of a site that has the Next.XP app configured.</p>
+<p><strong>Allow the front end.</strong> When Content Studio loads, the Next.XP app uses XP&#8217;s CSP API to contribute the configured front-end origins to Content Studio&#8217;s Content Security Policy. This allows Content Studio to embed and connect to the Next.js front end. See <a href="../app/preview.ahtml#content-security-policy">Content Security Policy</a> for the configuration.</p>
 </li>
 <li>
-<p>The app selects a named front-end URL and shared secret.</p>
+<p><strong>Find the page URL.</strong> Content Studio asks the Next.XP app where to preview the selected content. Next.XP uses its configuration to locate the front-end baseUrl. The Next.XP app calls <code>/api/mappings</code> on that Next.js server for rules that translate XP content paths into front-end paths, then appends the matching path to the configured URL. See <a href="../app/configuration.ahtml">App configuration</a>.</p>
 </li>
 <li>
-<p>The app forwards the request with the render mode, XP project, XP base URL, and the current editor&#8217;s XP session.</p>
+<p><strong>Open an authenticated preview.</strong> The Next.XP app adds an <code>xp</code> query parameter containing the XP project, the editor&#8217;s XP session ID, and a timestamp, encrypted with the shared secret. Content Studio opens this URL in its preview pane so Next.js can identify the project and editor&#8217;s session.</p>
 </li>
 <li>
-<p>The Next.js <code>/api/preview</code> route validates the token, enables Next.js Draft Mode, and redirects to the content path.</p>
-</li>
-<li>
-<p>The adapter detects edit mode, forwards the XP session to Guillotine, and queries the <code>draft</code> branch.</p>
+<p><strong>Enable Draft Mode.</strong> Next.js redirects the browser to its <code>/api/preview</code> route. That route validates the <code>xp</code> parameter, sets the Draft Mode cookie, and redirects back to the content URL without the parameter.</p>
 </li>
 </ol>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-The app caches the resulting Next.js preview cookie and reuses it for later preview and component requests.
-</td>
-</tr>
-</table>
+</div>
+<div class="sect2">
+<h3 id="for_each_preview_request"><a class="link" href="#for_each_preview_request">For each preview request</a></h3>
+<div class="paragraph">
+<p>Once setup is complete, page loads and refreshes use the existing draft cookie:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Request the page.</strong> The browser requests the content URL directly from Next.js, including its Draft Mode cookie.</p>
+</li>
+<li>
+<p><strong>Fetch and render draft content.</strong> The Next.js server uses the adapter to query Guillotine&#8217;s <code>draft</code> branch with the editor&#8217;s XP session. XP applies that user&#8217;s content permissions, and Next.js returns the rendered page to the browser.</p>
+</li>
+<li>
+<p><strong>Fetch draft media.</strong> Images and attachments referenced by the page trigger separate browser requests to Next.js <code>/api/media</code>. That route forwards the editor&#8217;s XP session to the XP media API and streams each response back without caching. See <a href="../nextjs/rich-text.ahtml#media-proxy">Draft media proxy</a>.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Selecting another content item in Content Studio resolves a new preview URL through the Next.XP app, reusing the cached mapping rules. It does not repeat Draft Mode setup while the cookie remains valid. Navigation within the front end requests Next.js directly.</p>
+</div>
+<div class="paragraph lead">
+<p>Implementation details</p>
+</div>
+<div class="paragraph">
+<p>The starter&#8217;s <code>next.config.js</code> configures CORS headers that let Content Studio read front-end responses, such as the preview availability check. The allowed Content Studio origin comes from <code>ENONIC_ADMIN</code>, falling back to the origin of <code>ENONIC_API</code>.</p>
+</div>
+<div class="paragraph">
+<p>Draft Mode setup is reused while the cookie remains valid for the current Next.js build. It runs again when preview is opened after the cookie expires, Draft Mode is disabled, or a new build is deployed. The CSP contribution applies whenever Content Studio itself loads; URL mapping rules are cached per project.</p>
+</div>
+<div class="paragraph">
+<p>The starter handles the Draft Mode redirect in <code>src/proxy.ts</code>, which runs inside Next.js before page routing. See <a href="../nextjs/routing.ahtml#locale-rewrite">Routing</a> for implementation details.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="leaving_draft_mode"><a class="link" href="#leaving_draft_mode">Leaving Draft Mode</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Draft Mode persists while its browser cookie remains valid. Opening the front end in another tab can therefore continue to request draft content outside Content Studio.</p>
+</div>
+<div class="paragraph">
+<p>The starter includes an exit button through the adapter&#8217;s <code>DraftModeIndicator</code>. It appears in Draft Mode when the page is opened directly, and is hidden inside Content Studio and other iframes. Clicking it disables Draft Mode and reloads the page without the <code>xp</code> parameter to show published content.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="../starter/configuration.ahtml#exit-draft-mode">Starter configuration</a> to enable or remove the button in your front end and customize its label.</p>
 </div>
 </div>
 </div>
@@ -498,13 +541,16 @@ The app caches the resulting Next.js preview cookie and reuses it for later prev
 <h2 id="authentication_and_permissions"><a class="link" href="#authentication_and_permissions">Authentication and permissions</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Preview is available only through an authenticated Enonic Content Studio session. For every preview request, the Next.XP app passes the current editor&#8217;s XP session to the Next.js front end over the protected server-to-server integration. The adapter then forwards that session as the <code>JSESSIONID</code> cookie on its Guillotine request.</p>
+<p>Preview starts from an authenticated Enonic Content Studio session. The front end must supply the editor&#8217;s XP session when querying protected draft content. The adapter forwards a session supplied through its <code>JSESSIONID_HEADER</code> as a cookie on the Guillotine request.</p>
 </div>
 <div class="paragraph">
-<p>Guillotine therefore evaluates the draft query as the same Enonic user who opened the preview. XP&#8217;s normal content permissions remain in effect: the rendered result contains only content that user is allowed to access. The front end does not query draft content through a privileged service account or bypass XP access controls.</p>
+<p>When the session is forwarded, Guillotine evaluates the draft query as the same Enonic user who opened the preview. XP&#8217;s normal content permissions remain in effect: the rendered result contains only content that user is allowed to access.</p>
 </div>
 <div class="paragraph">
 <p>The shared API token and the Next.js Draft Mode cookie have different purposes. The token authenticates calls between the Next.XP app and the protected front-end endpoints, while the Draft Mode cookie selects draft rendering. Neither replaces the editor&#8217;s XP identity or grants access to content by itself.</p>
+</div>
+<div class="paragraph">
+<p>Browser requests for protected media need authentication separately from server-side Guillotine requests. The starter&#8217;s <a href="../nextjs/rich-text.ahtml#media-proxy">draft media proxy</a> at <code>/api/media</code> forwards the editor&#8217;s XP session server-side. Published media uses the API or CDN directly. CORS headers do not transfer XP cookies between hosts or grant access to draft media.</p>
 </div>
 </div>
 </div>
@@ -537,7 +583,7 @@ The app caches the resulting Next.js preview cookie and reuses it for later prev
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>live</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Published XP context. The preview proxy itself rejects live-mode proxying.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Published XP context.</p></td>
 </tr>
 </tbody>
 </table>
@@ -555,13 +601,27 @@ The app caches the resulting Next.js preview cookie and reuses it for later prev
 </div>
 </div>
 <div class="sect1">
+<h2 id="page_editor_integration"><a class="link" href="#page_editor_integration">Page editor integration</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><code>@enonic/page-editor</code> 2 runs in the browser and connects the rendered Next.js page to Content Studio&#8217;s visual editor. The <a href="../starter.ahtml">starter</a> installs this package directly, while <code>@enonic/react-components</code> is installed through <a href="../adapter.ahtml"><code>@enonic/nextjs-adapter</code></a>. Both supporting libraries version independently of Next.XP.</p>
+</div>
+<div class="paragraph">
+<p>The starter&#8217;s <code>PageEditorScript</code> client component initializes the library with <code>init({editMode: renderMode === RENDER_MODE.EDIT})</code>. In edit mode, the library communicates with Content Studio and requests component markup through editor events. In inline preview mode, it reports link clicks to Content Studio.</p>
+</div>
+<div class="paragraph">
+<p>The adapter supplies component and region annotations in the rendered HTML; the page editor supplies the browser-side editing behavior. See the <a href="https://github.com/enonic/npm-page-editor">Page Editor reference</a> for its API and communication protocol.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="component_refresh"><a class="link" href="#component_refresh">Component refresh</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio can request one component instead of refreshing the complete page. The adapter restricts the page tree to that component, and <code>MainView</code> delegates to <code>SingleComponent</code>. The starter wraps the response in a marker the XP proxy can extract safely.</p>
+<p>Content Studio can request one component instead of refreshing the complete page. The adapter restricts the page tree to that component, and <code>MainView</code> delegates to <code>SingleComponent</code>. The starter wraps the response in a marker that can be extracted safely.</p>
 </div>
 <div class="paragraph">
-<p>The <code>/api/renderable</code> endpoint tells Content Studio whether a descriptor has an explicit mapping. Catch-all views do not make a component selectable in edit mode.</p>
+<p><code>PageEditorScript</code> subscribes to the page editor&#8217;s <code>component-load-request</code> event, fetches the component response from Next.js, extracts the marked HTML, and passes it to <code>renderComponent()</code>. It also uses the library&#8217;s loading and error states while handling the request.</p>
 </div>
 </div>
 </div>
@@ -572,14 +632,14 @@ The app caches the resulting Next.js preview cookie and reuses it for later prev
 <p>The value of <code>ENONIC_API_TOKEN</code> env var in Next.js must match the secret configured for the selected front end in <code>com.enonic.app.nextxp.cfg</code> Enonic XP config file. Do not expose it through a <code>NEXT_PUBLIC_</code> variable. Restrict the preview endpoints to HTTPS in production.</p>
 </div>
 <div class="paragraph">
-<p>See <a href="../app/preview.ahtml">Preview proxy</a> for the XP-side implementation, <a href="../app/configuration.ahtml">App configuration</a>, and <a href="../starter/configuration.ahtml">Starter configuration</a>.</p>
+<p>See <a href="../app/preview.ahtml">Preview live view extension</a> for the XP-side implementation, <a href="../app/configuration.ahtml">App configuration</a>, and <a href="../starter/configuration.ahtml">Starter configuration</a>.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

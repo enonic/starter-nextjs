@@ -442,6 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#installation">Installation</a></li>
+<li><a href="#supporting-libraries">Supporting libraries</a></li>
 <li><a href="#entry_points">Entry points</a></li>
 <li><a href="#basic_use">Basic use</a></li>
 <li><a href="#api_sections">API sections</a></li>
@@ -461,13 +462,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-This page documents <code>@enonic/nextjs-adapter</code> 5, the adapter major that defines Next.XP 5.
+This page documents <code>@enonic/nextjs-adapter</code> 6, the adapter major that defines Next.XP 6.
 </td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>The adapter depends on <code>@enonic/react-components</code>, which provides reusable XP-aware React components and types. Adapter 5 uses its <code>RichText</code> renderer for links, images, and macros, while the adapter&#8217;s own views handle the standard Next.XP page tree and its editing annotations.</p>
 </div>
 </div>
 </div>
@@ -480,7 +478,21 @@ This page documents <code>@enonic/nextjs-adapter</code> 5, the adapter major tha
 </div>
 </div>
 <div class="paragraph">
-<p>Adapter 5 requires Node.js 24.15.0 +, npm 10.9.2 +, Next.js 16, and React 19.</p>
+<p>Adapter 6 requires Node.js 24.15.0 or later, npm 10.9.2 or later, and React and React DOM 19. The documented Next.XP stack targets Next.js 16.4; see <a href="starter.ahtml#front-end-dependencies">Starter dependencies</a> for the complete front-end stack.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="supporting-libraries"><a class="link" href="#supporting-libraries">Supporting libraries</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The adapter installs <a href="https://www.npmjs.com/package/@enonic/react-components">@enonic/react-components</a> as a dependency and selects its compatible version. This separately versioned library provides React renderers and types for XP page structures and rich text.</p>
+</div>
+<div class="paragraph">
+<p>Adapter 6 uses the library&#8217;s <code>RichText</code> renderer for links, images, and macros. The adapter&#8217;s own views render the standard Next.XP page tree and add its Content Studio annotations. The library&#8217;s generic page renderers also provide annotations when used directly.</p>
+</div>
+<div class="paragraph">
+<p>For browser-side visual editing, the <a href="starter.ahtml">starter</a> installs and initializes <code>@enonic/page-editor</code> separately. See <a href="concepts/preview.ahtml">Editing and preview</a> for how it works with the annotated HTML.</p>
 </div>
 </div>
 </div>
@@ -569,7 +581,7 @@ export default async function Page({params}) {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

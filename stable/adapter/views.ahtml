@@ -457,6 +457,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#fragment">Fragment</a></li>
 <li><a href="#singlecomponent">SingleComponent</a></li>
 <li><a href="#staticcontent">StaticContent</a></li>
+<li><a href="#draft-mode-indicator">DraftModeIndicator</a></li>
 <li><a href="#propsview">PropsView</a></li>
 <li><a href="#empty">Empty</a></li>
 <li><a href="#text">Text</a></li>
@@ -849,7 +850,7 @@ return &lt;MainView {...result}/&gt;;</code></pre>
 <div class="sect2">
 <h3 id="basemacro"><a class="link" href="#basemacro">BaseMacro</a></h3>
 <div class="paragraph">
-<p>Resolves a rich-text macro in <code>ComponentRegistry</code>. In edit mode it preserves macro syntax unless <code>renderInEditMode</code> is enabled; macro configuration values are normalized before reaching the mapped view.</p>
+<p>Resolves a rich-text macro in <code>ComponentRegistry</code>. Macro configuration values are normalized before reaching the mapped view.</p>
 </div>
 <div class="paragraph lead">
 <p>Parameters</p>
@@ -890,13 +891,6 @@ return &lt;MainView {...result}/&gt;;</code></pre>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="common.ahtml#meta-data">MetaData</a></p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>Runtime request and editing context.</p>
-</div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>renderInEditMode</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p><strong>Optional.</strong> Render the mapped macro inside Content Studio instead of preserving its source syntax. Default: <code>false</code>.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -1106,15 +1100,8 @@ return &lt;MainView {...result}/&gt;;</code></pre>
 </div></div></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>renderMacroInEditMode</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>boolean</code></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p><strong>Optional.</strong> Render mapped macros in edit mode. Default: <code>true</code>.</p>
-</div></div></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>customReplacer</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>(domNode, data, meta, renderMacroInEditMode) &#8658; ReactElement | DOMNode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>(domNode, data, meta) &#8658; ReactElement | DOMNode</code></p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p><strong>Optional.</strong> Replaces an HTML parser node. Returning the original node leaves it unchanged.</p>
 </div></div></td>
@@ -1296,6 +1283,58 @@ return &lt;MainView {...result}/&gt;;</code></pre>
 </div>
 </div>
 <div class="sect2">
+<h3 id="draft-mode-indicator"><a class="link" href="#draft-mode-indicator">DraftModeIndicator</a></h3>
+<div class="paragraph">
+<p>Server component that renders an exit button when Draft Mode is active. The client-side button is visible only in a top-level browser window; it is hidden in all iframes, including Content Studio. Clicking it disables Next.js Draft Mode and reloads the current URL without the <code>xp</code> preview parameter, returning to published content.</p>
+</div>
+<div class="paragraph">
+<p>The starter includes this view in its page layout. See <a href="../starter/configuration.ahtml#exit-draft-mode">Starter configuration</a> to enable or remove the button and change its label. Removing the component hides the control without disabling Draft Mode itself.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<div class="paragraph">
+<p><code>DraftModeIndicator()</code> takes a single <code>props</code> object with these properties:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>label</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Button text. Default: <code>Draft Mode</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>Promise&lt;JSX.Element | null&gt;</code>. Resolves to <code>null</code> when Draft Mode is disabled.</p>
+</div>
+<div class="paragraph lead">
+<p>Example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-tsx" data-lang="tsx">&lt;DraftModeIndicator label={I18n.localize('draft-mode')}/&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
 <h3 id="propsview"><a class="link" href="#propsview">PropsView</a></h3>
 <div class="paragraph">
 <p>Development view that prints JSON representations of known mapping props. Its declaration accepts any props object; these are the properties it displays:</p>
@@ -1376,7 +1415,7 @@ return &lt;MainView {...result}/&gt;;</code></pre>
 <div class="sect2">
 <h3 id="text"><a class="link" href="#text">Text</a></h3>
 <div class="paragraph">
-<p>Base mapping for XP text components. It delegates the text value to <code>RichTextView</code> and disables mapped macro rendering in edit mode.</p>
+<p>Base mapping for XP text components. It delegates the text value to <code>RichTextView</code>.</p>
 </div>
 <div class="paragraph lead">
 <p>Parameters</p>
@@ -2321,7 +2360,7 @@ return &lt;MainView {...result}/&gt;;</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

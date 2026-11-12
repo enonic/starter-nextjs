@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#install_and_connect">Install and connect</a></li>
-<li><a href="#what_the_app_provides">What the app provides</a>
+<li><a href="#what_the_next_xp_app_provides">What the Next.XP app provides</a>
 <ul class="sectlevel2">
 <li><a href="#authenticated_preview">Authenticated preview</a></li>
 <li><a href="#published_content_revalidation">Published-content revalidation</a></li>
@@ -465,13 +465,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-This page documents Next.XP app 5, released with Next.XP 5. The app versions independently of <code>@enonic/nextjs-adapter</code>, so its major does not match the product version.
+This page documents Next.XP app 6, released with Next.XP 6. The Next.XP app follows the major version of <code>@enonic/nextjs-adapter</code>.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>The app connects Content Studio to the external front end. It makes the Next.js site available to editors for authenticated preview and notifies the front end when published content must be revalidated. Public visitors still access Next.js directly.</p>
+<p>The Next.XP app connects Content Studio to the external front end. It makes the Next.js site available to editors for authenticated preview and notifies the front end when published content must be revalidated. Public visitors still access Next.js directly.</p>
 </div>
 </div>
 </div>
@@ -481,7 +481,7 @@ This page documents Next.XP app 5, released with Next.XP 5. The app versions ind
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Install <strong>Next.XP</strong> from <a href="https://market.enonic.com/vendors/enonic/next.xp">Enonic Market</a> into Enonic XP 8.</p>
+<p>Install <strong>Next.XP</strong> from <a href="https://market.enonic.com/vendors/enonic/next.xp">Enonic Market</a> into Enonic XP 8.1.</p>
 </li>
 <li>
 <p>Ensure Guillotine is installed and configured for every project the front end will query.</p>
@@ -506,12 +506,12 @@ This page documents Next.XP app 5, released with Next.XP 5. The app versions ind
 </div>
 </div>
 <div class="sect1">
-<h2 id="what_the_app_provides"><a class="link" href="#what_the_app_provides">What the app provides</a></h2>
+<h2 id="what_the_next_xp_app_provides"><a class="link" href="#what_the_next_xp_app_provides">What the Next.XP app provides</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="authenticated_preview"><a class="link" href="#authenticated_preview">Authenticated preview</a></h3>
 <div class="paragraph">
-<p>The app proxies Content Studio page and component requests to Next.js. It carries the current editor&#8217;s XP session, render mode, project, and site context, then adapts the response for Content Studio. Guillotine queries are consequently performed with the authenticated editor&#8217;s permissions.</p>
+<p>The Next.XP app implements a custom Next.js preview in Content Studio through its "Next.js Preview" live view extension. It resolves the Next.js URL of the selected content, which Content Studio loads directly from Next.js using Draft Mode.</p>
 </div>
 <div class="paragraph">
 <p>See <a href="app/preview.ahtml">Preview</a> for the request flow, protected front-end endpoints, and component refresh behavior.</p>
@@ -520,7 +520,7 @@ This page documents Next.XP app 5, released with Next.XP 5. The app versions ind
 <div class="sect2">
 <h3 id="published_content_revalidation"><a class="link" href="#published_content_revalidation">Published-content revalidation</a></h3>
 <div class="paragraph">
-<p>The app listens for published XP content changes and calls the selected front end&#8217;s protected revalidation endpoint. This lets Next.js refresh affected routes while continuing to serve the public site through its normal hosting and cache infrastructure.</p>
+<p>The Next.XP app listens for published XP content changes and calls the selected front end&#8217;s protected revalidation endpoint. This lets Next.js refresh affected routes while continuing to serve the public site through its normal hosting and cache infrastructure.</p>
 </div>
 <div class="paragraph">
 <p>See <a href="app/revalidation.ahtml">Revalidation</a> for event and path handling.</p>
@@ -558,7 +558,7 @@ This page documents Next.XP app 5, released with Next.XP 5. The app versions ind
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

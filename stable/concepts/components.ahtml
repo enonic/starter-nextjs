@@ -454,7 +454,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>An XP page is composed of <code>page</code>, <code>layout</code>, <code>part</code>, <code>text</code>, and <code>fragment</code> components. Next.XP maps their XP descriptors to queries, processors, and React views through <code>ComponentRegistry</code>.</p>
 </div>
 <div class="paragraph">
-<p>The adapter builds on <code>@enonic/react-components</code>, a shared library for rendering XP component trees and rich text in React applications. That library provides base views, regions and rich-text renderer. Adapter 5 uses its rich-text renderer and types directly; the adapter&#8217;s own base views and registry provide the page-tree integration described on this page.</p>
+<p>The adapter builds on <code>@enonic/react-components</code>, a shared library for rendering XP component trees and rich text in React applications. That library provides base views, regions and rich-text renderer. Adapter 6 uses its rich-text renderer and types directly; the adapter&#8217;s own base views and registry provide the page-tree integration described on this page.</p>
 </div>
 </div>
 </div>
@@ -470,8 +470,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 import Hero from './views/Hero';
 
 ComponentRegistry.addPart('com.example.app:hero', {
-    query: `query($path: ID!) {
-      guillotine { get(key: $path) { displayName } }
+    query: `query {
+      guillotine(scopeKey: $scopeKey, project: $project, branch: $branch) {
+        get(key: $path) { displayName }
+      }
     }`,
     view: Hero
 });</code></pre>
@@ -511,6 +513,9 @@ ComponentRegistry.addPart('com.example.app:hero', {
 </tbody>
 </table>
 <div class="paragraph">
+<p>Queries must pass <code>scopeKey</code>, <code>project</code>, and <code>branch</code> to the <code>guillotine()</code> field. The adapter supplies these variables, together with <code>path</code>.</p>
+</div>
+<div class="paragraph">
 <p>Content types, pages, layouts, parts, macros, and generic component kinds have separate registration methods, but all mappings share the same query, processor, and view properties. See <a href="../adapter/common.ahtml#component-definition-params">Adapter type definitions</a> for more details.</p>
 </div>
 </div>
@@ -530,7 +535,7 @@ ComponentRegistry.addPart('com.example.app:hero', {
 <h2 id="fallback_mappings"><a class="link" href="#fallback_mappings">Fallback mappings</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The special <code>CATCH_ALL</code> mapping is useful while developing because it exposes unmapped content through a diagnostic view. A catch-all is ignored for Content Studio renderability checks and for production visitor rendering, so every production component needs an explicit mapping.</p>
+<p>The special <code>CATCH_ALL</code> mapping is useful while developing because it exposes unmapped content through a diagnostic view. A catch-all is ignored for production visitor rendering, so every production component needs an explicit mapping.</p>
 </div>
 <div class="paragraph">
 <p>The adapter&#8217;s <code>baseMappings</code> module registers its built-in handling for page component kinds. Import it before application-specific mappings.</p>
@@ -543,7 +548,7 @@ ComponentRegistry.addPart('com.example.app:hero', {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

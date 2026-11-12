@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#server_variables">Server variables</a></li>
-<li><a href="#browser_visible_variables">Browser-visible variables</a></li>
+<li><a href="#server_and_client_configuration">Server and client configuration</a></li>
 <li><a href="#next_js_configuration">Next.js configuration</a></li>
 </ul>
 </div>
@@ -451,7 +451,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The adapter reads its connection and mapping settings from Next.js environment variables. Keep environment-specific values outside committed files when they contain secrets.</p>
+<p>The adapter reads its connection and mapping settings from Next.js environment variables. Use <code>.env</code> for committed defaults and <code>.env.local</code> or deployment secrets for non-publishable values. See <a href="../starter/configuration.ahtml#environment">Starter environment</a> for an example.</p>
 </div>
 </div>
 </div>
@@ -475,12 +475,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_API</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Absolute Guillotine endpoint URL, normally ending in <code>/site/</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Absolute URL of the Enonic XP API root, for example <code><a href="http://localhost:8080/api" class="bare">http://localhost:8080/api</a></code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_APP_NAME</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">XP application key that owns the content types and component descriptors used by the project.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enonic application name, used in queries and component mappings. Must match the name of your XP application.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_MAPPINGS</code></p></td>
@@ -490,42 +490,38 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_API_TOKEN</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Yes, for preview and revalidation</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Shared secret used by the starter&#8217;s protected API routes. It must match the Next.XP app configuration.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Shared secret used by the starter&#8217;s proxy and protected API routes. It must match the Next.XP app configuration.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_MEDIA_CDN</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Absolute media API base URL. Defaults to <code>ENONIC_API</code>; override when media is served from another host, such as a CDN. Published pages reference this location directly. Draft media is requested through the front end&#8217;s <a href="rich-text.ahtml#media-proxy">/api/media proxy</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_ADMIN</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content Studio URL used to set CORS headers that let Content Studio access the preview. Defaults to the origin of <code>ENONIC_API</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_LOGGING</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enables adapter diagnostic logging when configured by the application.</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MODE</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Set to <code>development</code> to expose development-only diagnostics and catch-all behavior.</p></td>
-</tr>
 </tbody>
 </table>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">ENONIC_API=https://xp.example.com/site/
-ENONIC_APP_NAME=com.example.site
-ENONIC_MAPPINGS=en:website/site,no:website-no/site
-ENONIC_API_TOKEN=replace-with-a-long-random-value</code></pre>
-</div>
+<div class="paragraph">
+<p>Development-only diagnostics and catch-all behavior are enabled when <code>NODE_ENV</code> is <code>development</code>, as under <code>next dev</code>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="browser_visible_variables"><a class="link" href="#browser_visible_variables">Browser-visible variables</a></h2>
+<h2 id="server_and_client_configuration"><a class="link" href="#server_and_client_configuration">Server and client configuration</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>When common adapter exports are used in client bundles, publish the non-secret equivalents explicitly:</p>
+<p>Keep the variables above server-side; do not create <code>NEXT_PUBLIC_</code> copies. Importing a common adapter export in a client component does not require exposing the environment configuration.</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">NEXT_PUBLIC_ENONIC_API=$ENONIC_API
-NEXT_PUBLIC_ENONIC_APP_NAME=$ENONIC_APP_NAME
-NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS</code></pre>
-</div>
+<div class="paragraph">
+<p>For custom client components, pass only the required non-secret data or resolved URLs from the server.</p>
 </div>
 <div class="paragraph">
 <p>Never publish <code>ENONIC_API_TOKEN</code>. Values prefixed with <code>NEXT_PUBLIC_</code> are embedded in browser JavaScript.</p>
@@ -536,7 +532,7 @@ NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS</code></pre>
 <h2 id="next_js_configuration"><a class="link" href="#next_js_configuration">Next.js configuration</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The starter configures <code>@phrases</code> for both webpack and Turbopack, transpiles <code>@enonic/nextjs-adapter</code>, and supplies a Content Security Policy compatible with Content Studio embedding. Preserve those settings when merging the integration into an existing Next.js application.</p>
+<p>The starter configures <code>@phrases</code> for both webpack and Turbopack, transpiles <code>@enonic/nextjs-adapter</code>, supplies a Content Security Policy compatible with Content Studio embedding, sets CORS headers allowing the XP admin origin, and defines <code>env.BUILD_ID</code>, used to detect a draft cookie issued by another build. Preserve those settings when merging the integration into an existing Next.js application.</p>
 </div>
 <div class="paragraph">
 <p>See <a href="../starter/configuration.ahtml">Starter configuration</a> for the complete connection between Next.js and the XP app.</p>
@@ -546,7 +542,7 @@ NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

@@ -460,7 +460,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">nextjs.default.url=http://127.0.0.1:3000
+<pre class="highlight"><code class="language-properties" data-lang="properties">nextjs.default.url=http://localhost:3000
 nextjs.default.secret=replace-this-secret
 
 nextjs.production.url=https://www.example.com
@@ -481,11 +481,11 @@ nextjs.production.secret=replace-this-production-secret</code></pre>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>nextjs.&lt;name&gt;.url</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Base URL XP uses for preview, renderability, and revalidation requests.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Base URL used for preview, URL mappings, and revalidation requests.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>nextjs.&lt;name&gt;.secret</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Token sent to the protected Next.js endpoints. It must equal <code>ENONIC_API_TOKEN</code> in that deployment.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Secret used to encrypt requests to the protected Next.js endpoints. It must equal <code>ENONIC_API_TOKEN</code> in that deployment.</p></td>
 </tr>
 </tbody>
 </table>
@@ -510,16 +510,16 @@ Use <code>default</code> name to override the default values.
 <h2 id="defaults"><a class="link" href="#defaults">Defaults</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Without a matching configuration, the app falls back to:</p>
+<p>Without a matching configuration, the Next.XP app falls back to:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">nextjs.default.url=http://127.0.0.1:3000
+<pre class="highlight"><code class="language-properties" data-lang="properties">nextjs.default.url=http://localhost:3000
 nextjs.default.secret=mySecretKey</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>These values are suitable only for local development. Configure a unique secret in every shared or production environment.</p>
+<p>These fallback values are suitable only for local development. In production mode, only explicitly configured front-end URLs are added to Content Studio&#8217;s Content Security Policy. Configure a unique secret in every shared or production environment.</p>
 </div>
 </div>
 </div>
@@ -527,17 +527,17 @@ nextjs.default.secret=mySecretKey</code></pre>
 <h2 id="network_considerations"><a class="link" href="#network_considerations">Network considerations</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The URL is resolved from the XP server, not the editor&#8217;s browser. Use a hostname reachable from every XP cluster node. Avoid a trailing slash, use HTTPS outside a trusted local network, and ensure any intermediary forwards cookies and Content Studio headers.</p>
+<p>The URL is used by the XP server and by the editor&#8217;s browser, which loads the preview directly. Use a hostname reachable from every XP cluster node and from editors' browsers. Avoid a trailing slash, use HTTPS outside a trusted local network, and ensure any intermediary forwards cookies and query parameters.</p>
 </div>
 <div class="paragraph">
-<p>Configuration changes are read by the app without rebuilding it. Reopen or refresh the Content Studio preview after changing a target URL or secret.</p>
+<p>Configuration changes are read by the Next.XP app without rebuilding it. Reopen or refresh the Content Studio preview after changing a target URL or secret. URL mappings fetched from the front end are cached per project for up to 24 hours.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

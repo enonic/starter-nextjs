@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>Preview proxy</title>
+<title>Preview live view extension</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,12 +437,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-right">
 <div id="header">
-<h1>Preview proxy</h1>
+<h1>Preview live view extension</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#request_flow">Request flow</a></li>
-<li><a href="#site_mappings">Site mappings</a></li>
+<li><a href="#url_mappings">URL mappings</a></li>
+<li><a href="#content-security-policy">Content Security Policy</a></li>
 <li><a href="#front_end_selection">Front-end selection</a></li>
 <li><a href="#front_end_endpoints">Front-end endpoints</a></li>
 <li><a href="#component_refresh">Component refresh</a></li>
@@ -454,10 +455,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Next.XP app provides the XP side of Content Studio preview. It proxies draft content requests to the external Next.js front end, carries the editor context across that boundary, and adapts the response for Content Studio.</p>
+<p>The Next.XP app implements a custom Next.js preview in Content Studio through its "Next.js Preview" live view extension. The extension resolves each content item to a Next.js URL, and Content Studio loads that URL directly from the Next.js front end.</p>
 </div>
 <div class="paragraph">
-<p>Public visitors do not use this proxy. They access the Next.js deployment directly, allowing its normal hosting and caching behavior to remain in control.</p>
+<p>Public visitors access the Next.js deployment directly, allowing its normal hosting and caching behavior to remain in control.</p>
 </div>
 </div>
 </div>
@@ -467,60 +468,84 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Content Studio requests preview of a site that has the Next.XP app configured.</p>
+<p>Content Studio requests preview of content inside a site.</p>
 </li>
 <li>
-<p>The app selects the site&#8217;s named front-end configuration and shared secret.</p>
+<p>The Next.XP app selects the site&#8217;s named front-end configuration and shared secret.</p>
 </li>
 <li>
-<p>The preview proxy converts the XP editing URL into a site-relative Next.js path.</p>
+<p>It encrypts the XP project, the editor&#8217;s XP session ID, and a timestamp with the shared secret into an <code>xp</code> parameter and fetches URL mapping rules from the front end&#8217;s <code>/api/mappings</code>.</p>
 </li>
 <li>
-<p>It forwards the render mode, XP project, XP base URL, editor session, query parameters, and shared token.</p>
+<p>It resolves the content item to a Next.js URL using those rules and returns the URL, with the <code>xp</code> parameter, to Content Studio.</p>
 </li>
 <li>
-<p>The front end validates the token through <code>/api/preview</code>, enables Next.js Draft Mode, and redirects to the requested content path.</p>
+<p>Content Studio loads the URL in the preview pane. If Draft Mode needs enabling, the front end validates the <code>xp</code> parameter through <code>/api/preview</code>, sets the draft cookie, and redirects to the requested content path. Subsequent requests reuse the valid cookie.</p>
 </li>
 <li>
-<p>The adapter detects the editing context and fetches content from the project&#8217;s <code>draft</code> branch.</p>
-</li>
-<li>
-<p>The proxy rewrites the response for display inside Content Studio.</p>
+<p>The adapter detects Draft Mode and fetches content from the project&#8217;s <code>draft</code> branch.</p>
 </li>
 </ol>
-</div>
-<div class="paragraph">
-<p>The resulting Draft Mode cookie is cached and reused for later preview and component requests. Expired preview sessions are re-established automatically.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="site_mappings"><a class="link" href="#site_mappings">Site mappings</a></h2>
+<h2 id="url_mappings"><a class="link" href="#url_mappings">URL mappings</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The app&#8217;s site descriptor maps site requests and Content Studio component-service requests to <code>/lib/nextxp/proxy.js</code>. The proxy runs only for the <code>draft</code> branch and rejects <code>live</code> mode.</p>
+<p><code>/api/mappings</code> returns a JSON object with a <code>mappings</code> array of rules:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-json" data-lang="json">{
+  "mappings": [
+    {"sources": ["/.*"], "target": "/no/${siteRelativePath}"}
+  ]
+}</code></pre>
+</div>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Field</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sources</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Conditions a content item must meet. A <code>field:value</code> entry compares a content field, for example <code>type:portal:site</code>; any other entry is a regular expression matched against the item&#8217;s site-relative path.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>target</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL template relative to the front-end URL. <code>${siteRelativePath}</code> is replaced by the item&#8217;s site-relative path; other <code>${field}</code> placeholders are replaced by content field values.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>matchAny</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional. When <code>true</code>, one matching source is enough; otherwise all sources must match.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The starter returns a single catch-all rule and prefixes its target with the project&#8217;s locale, unless it is the default locale, using <code>localizeMappings()</code>. It answers <code>404</code> when the project in the blob is not listed in <code>ENONIC_MAPPINGS</code>; the live view extension then finds no mapping.</p>
 </div>
 <div class="paragraph">
-<p>For proxied responses, it:</p>
+<p>The Next.XP app caches the rules per project, for up to 24 hours. A failed request is not cached.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Follows controlled redirects from the front end.</p>
-</li>
-<li>
-<p>Rewrites HTML, JavaScript, CSS, asset, and application URLs so they remain reachable through Content Studio.</p>
-</li>
-<li>
-<p>Preserves query parameters and the editor&#8217;s XP session context.</p>
-</li>
-<li>
-<p>Extracts a single component from a component-refresh response.</p>
-</li>
-</ul>
+</div>
+</div>
+<div class="sect1">
+<h2 id="content-security-policy"><a class="link" href="#content-security-policy">Content Security Policy</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Content Studio&#8217;s Content Security Policy must allow the Next.js origin to load the preview. The Next.XP app uses XP 8.1&#8217;s CSP API through an <a href="https://developer.enonic.com/docs/code/stable/web/extensions/processors">extension response processor</a> to add the origin of every URL in <code>com.enonic.app.nextxp.cfg</code> to the <code>frame-src</code>, <code>connect-src</code>, and <code>style-src</code> directives. These contributions extend the existing policy; no manual <code>contentSecurityPolicy.header</code> configuration for Next.XP is needed.</p>
 </div>
 <div class="paragraph">
-<p>These mappings are XP controller mappings. They are unrelated to the adapter&#8217;s component mappings, which associate XP descriptors with React views and Guillotine queries.</p>
+<p>When no URL is configured, the default <code><a href="http://localhost:3000" class="bare">http://localhost:3000</a></code> origin is added only when XP runs in dev mode.</p>
 </div>
 </div>
 </div>
@@ -539,7 +564,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="front_end_endpoints"><a class="link" href="#front_end_endpoints">Front-end endpoints</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The preview flow calls two protected route handlers implemented by the Next.js front end. The starter provides their canonical implementations.</p>
+<p>The preview flow uses two protected route handlers implemented by the Next.js front end. The starter provides their canonical implementations.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -555,24 +580,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>/api/preview</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Validates the shared token, establishes Next.js Draft Mode, and redirects to the requested route.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validates the <code>xp</code> parameter, establishes Next.js Draft Mode, and redirects to the requested route.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/api/renderable</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Reports whether the front end has an explicit mapping for requested content or a component descriptor.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/api/mappings</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the rules the Next.XP app uses to resolve content items to Next.js URLs.</p></td>
 </tr>
 </tbody>
 </table>
-<div class="paragraph">
-<p>The renderability check lets Content Studio distinguish editable components from descriptors the front end cannot render. Catch-all views do not make a descriptor explicitly renderable.</p>
-</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="component_refresh"><a class="link" href="#component_refresh">Component refresh</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Content Studio can request one component without refreshing the complete page. The app proxies the component-service request to Next.js. The adapter restricts the page tree to the requested component, and <code>MainView</code> delegates rendering to <code>SingleComponent</code>. The proxy then extracts the marked component response for Content Studio.</p>
+<p>Content Studio can request one component without refreshing the complete page. The request goes directly to Next.js; the Next.XP app is not involved. The adapter restricts the page tree to the requested component, and <code>MainView</code> delegates rendering to <code>SingleComponent</code>.</p>
 </div>
 </div>
 </div>
@@ -580,7 +602,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="security"><a class="link" href="#security">Security</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Both front-end endpoints must validate the configured shared token. Use HTTPS outside a trusted local network, keep the token out of public environment variables, and ensure the XP server—not only the editor&#8217;s browser—can reach the configured front-end URL.</p>
+<p>Both front-end endpoints must validate the <code>xp</code> parameter encrypted with the configured shared secret. Use HTTPS outside a trusted local network, keep the token out of public environment variables, and ensure both the XP server and the editor&#8217;s browser can reach the configured front-end URL.</p>
 </div>
 <div class="paragraph">
 <p>See <a href="../concepts/preview.ahtml">Editing and preview</a> for the complete editor-facing flow and render modes.</p>
@@ -590,7 +612,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.26">
-<title>Upgrading</title>
+<title>Upgrading from v5</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,265 +437,311 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body id="upgrading" class="article toc2 toc-right">
 <div id="header">
-<h1>Upgrading</h1>
+<h1>Upgrading from v5</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#guillotine_application">Guillotine application</a></li>
-<li><a href="#upgrading_from_v4_x">Upgrading from v4.x</a></li>
-<li><a href="#upgrading_from_v3_x">Upgrading from v3.x</a></li>
-<li><a href="#upgrading_from_v2_x">Upgrading from v2.x</a></li>
+<li><a href="#upgrade-configuration">Prepare the XP environment</a></li>
+<li><a href="#create_the_v6_front_end">Create the v6 front end</a></li>
+<li><a href="#move_your_application_code">Move your application code</a></li>
+<li><a href="#adapt_your_queries_and_views">Adapt your queries and views</a>
+<ul class="sectlevel2">
+<li><a href="#update_custom_graphql_queries">Update custom GraphQL queries</a></li>
+<li><a href="#update_custom_query_callbacks">Update custom query callbacks</a></li>
+<li><a href="#media_and_page_urls">Media and page URLs</a></li>
+<li><a href="#other_adapter_changes">Other adapter changes</a></li>
+</ul>
+</li>
+<li><a href="#verify_the_migrated_site">Verify the migrated site</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="guillotine_application"><a class="link" href="#guillotine_application">Guillotine application</a></h2>
+<div id="preamble">
 <div class="sectionbody">
-<div class="admonitionblock important">
-<table>
+<div class="paragraph">
+<p>Prepare the XP environment for Next.XP 6, then create a front end from the v6 <a href="starter.ahtml">starter</a> and move your application code into it. The starter supplies the new preview and revalidation routes, locale proxy, page editor integration, and Next.js configuration. Keep that integration and adapt your custom code as described below.</p>
+</div>
+<div class="paragraph">
+<p>This approach reuses your XP applications, projects, and content. Keep the existing front end available for comparison while migrating.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrade-configuration"><a class="link" href="#upgrade-configuration">Prepare the XP environment</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Upgrade the XP environment to Enonic XP 8.1 or later, Content Studio 6.1 or later, Guillotine 9, and Next.XP app 6.</p>
+</div>
+<div class="paragraph">
+<p>Update the following XP configuration files in <code>&lt;xp-home&gt;/config/</code>:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">com.enonic.app.nextxp.cfg</dt>
+<dd>
+<p>The property format is unchanged. Set <code>nextjs.&lt;name&gt;.url</code> to the new front-end URL. Generate a new shared secret for <code>nextjs.&lt;name&gt;.secret</code> and use the same value for <code>ENONIC_API_TOKEN</code> in the new front end; do not reuse the v5 secret. For production deployments, explicitly configure the front-end URL. See <a href="app/configuration.ahtml">App configuration</a>.</p>
+<div class="paragraph">
+<p>Site setup is unchanged: add the Next.XP app to each rendered XP site and select its front-end configuration.</p>
+</div>
+</dd>
+<dt class="hdlist1">com.enonic.app.contentstudio.cfg</dt>
+<dd>
+<p>Remove manual Next.XP-specific additions to <code>contentSecurityPolicy.header</code>, retaining any unrelated custom policy. The Next.XP app now adds its configured front-end origins to Content Studio&#8217;s Content Security Policy through XP&#8217;s CSP API.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="create_the_v6_front_end"><a class="link" href="#create_the_v6_front_end">Create the v6 front end</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Use Node.js 24.15.0 or later and npm 10.9.2 or later for the new front end. The starter supplies the compatible Next.js, React, adapter, and page editor dependencies; see <a href="starter.ahtml#front-end-dependencies">Front-end dependencies</a>.</p>
+</div>
+<div class="paragraph">
+<p>Create a separate front-end project from <a href="https://github.com/enonic/starter-nextjs"><code>starter-nextjs</code></a>, following the <a href="starter.ahtml">starter usage instructions</a>.</p>
+</div>
+<div class="paragraph">
+<p>Keep the starter&#8217;s proxy, integration routes, utilities, and <code>next.config.js</code> as the baseline. These already implement the encrypted preview handshake, Draft Mode, URL mappings, revalidation, and CORS configuration.</p>
+</div>
+<div class="paragraph">
+<p>Configure the Next.js environment file:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">.env (Next.js)</dt>
+<dd>
+<p>Carry over <code>ENONIC_APP_NAME</code> and <code>ENONIC_MAPPINGS</code>, keeping the same default locale unless you intend to change your public URLs. Set <code>ENONIC_API_TOKEN</code> to the new secret configured in <code>com.enonic.app.nextxp.cfg</code>, storing it in <code>.env.local</code> or deployment secrets.</p>
+<div class="paragraph">
+<p>Update <code>ENONIC_API</code> to the XP API root:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-properties" data-lang="properties"># v5
+ENONIC_API=http://localhost:8080/site
+
+# v6
+ENONIC_API=http://localhost:8080/api</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Remove all old <code>NEXT_PUBLIC_</code> variables from environment files and deployment settings. Keep the Next.XP configuration server-side, and update custom client components to receive only the required non-secret data or resolved URLs from the server. Rebuild and redeploy the front end so its browser bundles no longer contain the old values.</p>
+</div>
+<div class="paragraph">
+<p>Review <code>ENONIC_MEDIA_CDN</code> and <code>ENONIC_ADMIN</code> against the <a href="nextjs/configuration.ahtml">configuration reference</a> if your deployment needs these overrides.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="starter/configuration.ahtml#environment">Starter environment</a> for an example.</p>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="move_your_application_code"><a class="link" href="#move_your_application_code">Move your application code</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Move the following into the new project, adapting queries and adapter calls as described in the next section:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Custom React views for content types, pages, layouts, parts, and macros.</p>
+</li>
+<li>
+<p>Component registrations and shared queries. Merge registrations into <code>src/components/_mappings.ts</code>, preserving the starter&#8217;s base mappings import.</p>
+</li>
+<li>
+<p>Styles, public assets, and locale dictionaries under <code>src/phrases/</code>.</p>
+</li>
+<li>
+<p>Application-specific routes, metadata, and business logic.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Add your application&#8217;s dependencies to the new <code>package.json</code>, preserving the starter&#8217;s integration dependencies. Register explicit mappings for every content type and page component used by the site; the development fallback is not a production view.</p>
+</div>
+<div class="paragraph">
+<p>Merge custom layout and routing behavior into the starter&#8217;s structure. Preserve its page editor initialization, single-component rendering wrapper, and Draft Mode indicator. These support visual editing, component refreshes, and returning to the published site. See <a href="starter.ahtml">Starter</a> and <a href="concepts/preview.ahtml">Editing and preview</a>.</p>
+</div>
+<div class="paragraph">
+<p>Reapply custom authentication, redirects, bundler settings, and deployment configuration where needed. When adding public asset folders or custom routes, check that the locale proxy does not treat them as content paths.</p>
+</div>
+<div class="paragraph">
+<p>The old <code>/api/renderable</code> route is no longer used and should not be carried over.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="adapt_your_queries_and_views"><a class="link" href="#adapt_your_queries_and_views">Adapt your queries and views</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="update_custom_graphql_queries"><a class="link" href="#update_custom_graphql_queries">Update custom GraphQL queries</a></h3>
+<div class="paragraph">
+<p>This is a required change for custom queries you bring into the new project. The queries supplied by the v6 starter are already updated.</p>
+</div>
+<div class="paragraph">
+<p>Guillotine 9 receives the project, branch, and site context as query arguments instead of deriving them from the endpoint URL. In custom queries that call <code>guillotine()</code>, pass <code>scopeKey</code>, <code>project</code>, and <code>branch</code>. If your queries use the earlier <code>siteKey</code> name, replace the <code>siteKey</code> argument with <code>scopeKey</code> and rename <code>$siteKey</code> to <code>$scopeKey</code> in declarations and references. Update any matching keys in custom variables objects too.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-graphql" data-lang="graphql">query($path: ID!, $scopeKey: String, $project: String, $branch: String) {
+  guillotine(scopeKey: $scopeKey, project: $project, branch: $branch) {
+    get(key: $path) {
+      displayName
+    }
+  }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For queries registered with the adapter, it supplies the values of <code>path</code>, <code>scopeKey</code>, <code>project</code>, and <code>branch</code>; you do not need to add code to determine them. If your code calls Guillotine directly, supply those values in the request variables yourself.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="update_custom_query_callbacks"><a class="link" href="#update_custom_query_callbacks">Update custom query callbacks</a></h3>
+<div class="paragraph">
+<p>If you have custom query or variables callbacks, update their first argument from a content-path string to a <code>GlobalVariables</code> object. Read the path from <code>vars.path</code>. A variables callback must return the supplied variables along with any custom ones:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">import type {GlobalVariables} from '@enonic/nextjs-adapter';
+
+export function commonVariables(vars: GlobalVariables) {
+    return {...vars, count: 10};
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Declare and use any custom variables in the corresponding query. The starter&#8217;s callbacks already use this signature. See <a href="concepts/components.ahtml">Components and views</a> for query registration and <a href="adapter/server.ahtml">Server API</a> for direct requests.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="media_and_page_urls"><a class="link" href="#media_and_page_urls">Media and page URLs</a></h3>
+<div class="paragraph">
+<p>The <code>imageUrl</code>, <code>mediaUrl</code>, <code>attachmentUrl</code>, and <code>pageUrl</code> fields now return URL components rather than strings. Replace old <code>type: absolute</code> selections with the adapter&#8217;s query helpers, then use the matching URL helpers in your views.</p>
+</div>
+<div class="paragraph">
+<p>For example, select an image URL with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">import {imageUrlQuery} from '@enonic/nextjs-adapter';
+
+const imageSelection = `
+  ... on media_Image {
+    ${imageUrlQuery({scale: 'width(500)'})}
+  }
+`;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Replace <code>getUrl(photo.imageUrl, meta)</code> in the view with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-tsx" data-lang="tsx">import {imageUrl} from '@enonic/nextjs-adapter';
+
+&lt;img src={imageUrl(photo.imageUrl, meta)} alt=""/&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Use <code>mediaUrlQuery()</code>/<code>mediaUrl(data, meta)</code> and <code>attachmentUrlQuery()</code>/<code>attachmentUrl(data, meta)</code> for other media and attachments. The metadata selects the starter&#8217;s <code>/api/media</code> proxy for draft media and the API or CDN URL for published media. The new starter already includes the proxy route; preserve it when moving your custom code. For content links, select <code>pageUrlQuery()</code> and render the result with <code>pageUrl(data, meta)</code>.</p>
+</div>
+<div class="paragraph">
+<p>Use the adapter&#8217;s <code>richTextQuery</code> and <code>RichTextView</code> for rich-text links and images. Review any custom rich-text rendering that assumes URL fields are strings. Reference files in <code>public/</code> directly, for example <code>/images/logo.svg</code>, instead of using the removed <code>getAsset()</code> helper.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="nextjs/rich-text.ahtml">Rich text, links, and media</a> and <a href="adapter/common.ahtml">Common API</a> for the URL helpers.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="other_adapter_changes"><a class="link" href="#other_adapter_changes">Other adapter changes</a></h3>
+<div class="paragraph">
+<p>Review custom code for these changes:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 40%;">
+<col style="width: 60%;">
+</colgroup>
+<thead>
 <tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-Guillotine version 8 is required for Enonic XP 8.
-</td>
+<th class="tableblock halign-left valign-top">Previous usage</th>
+<th class="tableblock halign-left valign-top">Migration</th>
 </tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>getContentApiUrl()</code> or <code>UrlProcessor</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">These exports are removed. Use the configured API endpoint for requests and the URL helpers described above for rendered links.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MetaData.apiUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Metadata now exposes <code>project</code>, <code>branch</code>, and <code>site</code> instead. Use these fields for content context and URL helpers for links.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fetchGuillotine()</code> or <code>fetchFromApi()</code> with a locale mapping argument</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Both now take the endpoint URL and an optional <code>FetchOptions</code> argument. Supply query context through the request variables. See <a href="adapter/server.ahtml">Server API</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Custom static-path fetching</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fetchContentPathsForAllLocales()</code> takes an optional query and count per locale; <code>fetchContentPathsForLocale()</code> takes a mapping, optional query, and count. Update custom calls and queries to the <a href="adapter/server.ahtml">current signatures</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>BaseMacro.renderInEditMode</code> or <code>RichTextView.renderMacroInEditMode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">These props are removed. Macros render in editing mode as on the public site.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>RichTextView.customReplacer</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The callback now receives <code>(domNode, data, meta)</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>MODE</code> or custom use of <code>IS_DEV_MODE</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>IS_DEV_MODE</code> now follows <code>NODE_ENV</code>; the <code>MODE</code> variable is no longer read.</p></td>
+</tr>
+</tbody>
 </table>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="upgrading_from_v4_x"><a class="link" href="#upgrading_from_v4_x">Upgrading from v4.x</a></h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>Adapter upgrade</strong>: Update <code>@enonic/nextjs-adapter</code> to <code>^5.0.0</code>.</p>
-<div class="paragraph">
-<p>Requires Node.js 24.15.0+ and npm 10.9.2+. The Guillotine query syntax and <code>ENONIC_API</code> URL format are unchanged.</p>
-</div>
-</li>
-<li>
-<p><strong>Enonic XP 8</strong>: The back-end must run Enonic XP 8, with application schemas in the YAML format under <code>src/main/resources/cms/</code>. Guillotine 8 is used with XP 8 — existing queries work unchanged. Note that media links in rich text now use the <code>/_/media:image/</code> and <code>/_/media:attachment/</code> URL format, which requires adapter v5.</p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="upgrading_from_v3_x"><a class="link" href="#upgrading_from_v3_x">Upgrading from v3.x</a></h2>
+<h2 id="verify_the_migrated_site"><a class="link" href="#verify_the_migrated_site">Verify the migrated site</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Complete these steps first, then follow the v4.x steps above.</p>
+<p>Test the new front end against the upgraded XP stack before switching traffic:</p>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>Framework upgrades</strong>: Next.js 16 and React 19 are now required.</p>
-<div class="paragraph">
-<p>See <a href="https://nextjs.org/docs/app/building-your-application/upgrading">Next.js upgrade guide</a> and <a href="https://react.dev/blog/2024/12/05/react-19">React 19 migration guide</a>.</p>
-</div>
-</li>
-<li>
-<p><strong>Adapter upgrade</strong>: Update <code>@enonic/nextjs-adapter</code> to <code>^4.0.0</code>.</p>
-<div class="paragraph">
-<p>The Guillotine query syntax and <code>ENONIC_API</code> URL format are unchanged.</p>
-</div>
-</li>
-<li>
-<p><strong>Middleware replaced by proxy</strong>: Rename <code>src/middleware.ts</code> to <code>src/proxy.ts</code>, following the Next.js 16 convention.</p>
-<div class="paragraph">
-<p>If you have custom middleware logic, migrate it to the new proxy pattern.</p>
-</div>
-</li>
-<li>
-<p><strong>Next.js 16 async params</strong>: Route params are now <code>Promise</code> and must be awaited:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">// Before (v3.x)
-export type PageProps = {
-    locale: string,
-    contentPath: string[],
-}
-export default async function Page({params}: { params: PageProps }) {
-    const {locale, contentPath} = params;
-
-// After (v4.x)
-export type PageProps = {
-    locale: string,
-    contentPath?: string[],
-}
-export default async function Page({params}: { params: Promise&lt;PageProps&gt; }) {
-    const resolvedParams = await params;</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p><strong>ESLint flat config</strong>: Migrate from <code>.eslintrc</code> to <code>eslint.config.mjs</code>:</p>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">import nextVitals from 'eslint-config-next/core-web-vitals'
-import {defineConfig, globalIgnores} from 'eslint/config'
-
-const eslintConfig = defineConfig([
-    ...nextVitals,
-    {
-        rules: {
-            "@next/next/no-img-element": "off",
-            "eol-last": "warn"
-        }
-    },
-    globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts'])
-])
-
-export default eslintConfig</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p><strong>Default port change</strong>: <code>npm run start</code> no longer forces port 4242 — production now runs on the default port 3000.</p>
-<div class="paragraph">
-<p>If you relied on port 4242, update your <code>com.enonic.app.nextxp.cfg</code> and any reverse-proxy configuration accordingly.</p>
-</div>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="upgrading_from_v2_x"><a class="link" href="#upgrading_from_v2_x">Upgrading from v2.x</a></h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>You need to use Next.js app router to be able to use v3.x.
-See <a href="https://nextjs.org/docs/pages/building-your-application/upgrading/app-router-migration">upgrade instructions</a> from pages router here.</p>
-</li>
-<li>
-<p><code>_renderable</code> page is now an API route at <code>src/api/renderable/route.ts</code>.</p>
-</li>
-<li>
-<p><code>@enonic/nextjs-adapter</code> methods renamed:</p>
 <div class="ulist">
 <ul>
 <li>
-<p>getLocaleProjectConfig() &#8594; getLocaleMapping()</p>
+<p>Check each content type, page component, macro, and locale, including rich-text links, images, and attachments.</p>
 </li>
 <li>
-<p>getProjectLocaleConfigById &#8594; getLocaleMappingById()</p>
+<p>Check default-locale URLs. With <code>en</code> first in the mappings, <code>/about</code> remains the English URL, while <code>/en/about</code> now redirects to <code>/about</code>. Other locale prefixes remain.</p>
+</li>
+<li>
+<p>Open draft content from Content Studio, test visual page editing and component refreshes, and verify that exiting Draft Mode returns to published content.</p>
+</li>
+<li>
+<p>Test preview and draft media on the intended deployment domains as well as localhost. Local cookie behavior does not establish that cross-domain preview works.</p>
+</li>
+<li>
+<p>Publish a change and verify revalidation, then check custom authentication, redirects, and static generation if used.</p>
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p><code>@enonic/nextjs-adapter</code> method signature changes:</p>
-<div class="ulist">
-<ul>
-<li>
-<p><code>fetchFromApi</code> method changed to :</p>
-<div class="literalblock">
-<div class="content">
-<pre>fetchFromApi(
-   apiUrl: string,
-   projectConfig: ProjectLocaleConfig,
-   options?: FetchOptions): Promise&lt;GuillotineResponseJson&gt;</pre>
-</div>
-</div>
-</li>
-<li>
-<p><code>fetchGuillotine</code> method signature changes:</p>
-<div class="literalblock">
-<div class="content">
-<pre>fetchGuillotine(
-   contentApiUrl: string,
-   projectConfig: ProjectLocaleConfig,
-   options?: FetchOptions): Promise&lt;GuillotineResult&gt;</pre>
-</div>
-</div>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p><code>@enonic/nextjs-adapter</code> exports rearranged:</p>
 <div class="paragraph">
-<p>Exports working both on the server and client sides are now available from <code>@enonic/nextjs-adapter</code> package root.
-Client-only exports are available from <code>@enonic/nextjs-adapter/client</code> package.
-Server-only exports are available from <code>@enonic/nextjs-adapter/server</code> package.
-Views are available at <code>@enonic/nextjs-adapter/views/&lt;ViewName&gt;</code>.</p>
-</div>
-</li>
-<li>
-<p><code>ENONIC_PROJECTS</code> environmental variable change:</p>
-<div class="literalblock">
-<div class="content">
-<pre>ENONIC_PROJECTS -&gt; ENONIC_MAPPINGS</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="title">Language is now required for every project config:</div>
-<div class="content">
-<pre>ENONIC_MAPPINGS=&lt;lang&gt;:&lt;repo-name&gt;/site/path[,&lt;lang&gt;:&lt;repo-name&gt;/site/path,...]</pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-First config in the list is used as default.
-</td>
-</tr>
-</table>
-</div>
-</li>
-<li>
-<p><code>next.config.js</code> config changes:</p>
-<div class="listingblock">
-<div class="title">Remove i18n block from next.js config:</div>
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">i18n: {
-    locales: ['en', 'no'],
-    defaultLocale: 'en',
-}</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Add phrases block to webpack config:</div>
-<div class="content">
-<pre class="highlight"><code class="language-javascript" data-lang="javascript">config.resolve.alias = {
-    ...config.resolve.alias,
-    "@phrases": path.resolve(__dirname, "./src/phrases"),
-}</code></pre>
-</div>
-</div>
-</li>
-<li>
-<p><strong>Add</strong> <code>src/phrases</code> folder to your project root.
-This folder should contain static translations for every language from <code>ENONIC_MAPPINGS</code> env var in the following format: <code>src/phrases/&lt;lang&gt;.json</code></p>
-<div class="literalblock">
-<div class="content">
-<pre>src/phrases/en.json
-src/phrases/no.json</pre>
-</div>
-</div>
-</li>
-<li>
-<p>Middleware file has been updated to support new i18n config.
-If you have custom proxy, you need to update it to support new i18n config.</p>
-</li>
-</ol>
+<p>Deploy with the new project&#8217;s environment settings and confirm that XP and editors' browsers can reach its configured URL. See <a href="nextjs/deployment.ahtml">Deployment</a> for connectivity requirements.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

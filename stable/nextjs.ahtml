@@ -462,7 +462,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The Next.js application uses <code>@enonic/nextjs-adapter</code> to resolve an incoming route to an XP project, site, branch, and content path. Registered queries retrieve the required data from Guillotine, and registered views render the resulting content and component tree.</p>
 </div>
 <div class="paragraph">
-<p>The Next.js application exposes three protected route handlers that the Next.XP app calls for preview, renderability checks, and revalidation:</p>
+<p>The Next.js application exposes three protected route handlers that the Next.XP app calls for preview, URL mappings, and revalidation:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -481,8 +481,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Enables Next.js Draft Mode for Content Studio.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/api/renderable</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Reports whether content and component descriptors have explicit mappings.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/api/mappings</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the rules the Next.XP app uses to resolve content items to Next.js URLs.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>/api/revalidate</code></p></td>
@@ -490,6 +490,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>The starter also exposes <code>/api/media</code> for browser requests for authenticated draft media. Published media uses the API or CDN directly. See <a href="nextjs/rich-text.ahtml#media-proxy">Draft media proxy</a>.</p>
+</div>
 <div class="paragraph">
 <p>The locale-aware catch-all route and proxy complete the standard setup. They convert public Next.js paths into the project and site context required by Guillotine.</p>
 </div>
@@ -530,7 +533,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

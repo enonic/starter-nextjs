@@ -442,7 +442,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#default_path_mapping">Default path mapping</a></li>
-<li><a href="#locale_rewrite">Locale rewrite</a></li>
+<li><a href="#locale-rewrite">Locale rewrite</a></li>
 <li><a href="#xp_and_public_paths">XP and public paths</a></li>
 <li><a href="#missing_content_and_shortcuts">Missing content and shortcuts</a></li>
 <li><a href="#static_routes">Static routes</a></li>
@@ -461,7 +461,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="paragraph">
-<p>This maps <code>/en/about/team</code> to locale <code>en</code> and content path <code>about/team</code>.</p>
+<p>This maps <code>/no/about/team</code> to locale <code>no</code> and content path <code>about/team</code>.</p>
 </div>
 </div>
 </div>
@@ -472,7 +472,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The standard route maps the public URL path one-to-one to the content path below the configured XP site. It removes the locale segment before lookup, then the adapter adds the configured site path when querying Guillotine.</p>
 </div>
 <div class="paragraph">
-<p>For the mapping <code>en:website/site</code>:</p>
+<p>For the non-default mapping <code>no:website-no/site</code>:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -488,7 +488,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Public URL</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/en/about/team</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>/no/about/team</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Route <code>contentPath</code></p></td>
@@ -506,13 +506,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="locale_rewrite"><a class="link" href="#locale_rewrite">Locale rewrite</a></h2>
+<h2 id="locale-rewrite"><a class="link" href="#locale-rewrite">Locale rewrite</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><code>src/proxy.ts</code> resolves locale information before the route runs. If the URL already begins with a configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route.</p>
+<p>The starter&#8217;s <code>src/proxy.ts</code> handles incoming requests inside Next.js, before page routing. It resolves locale information: if the URL already begins with a non-default configured locale, it continues unchanged. Otherwise it rewrites the request to the default locale route. A URL beginning with the default locale is redirected to the same path without it.</p>
 </div>
 <div class="paragraph">
-<p>Excluded are API routes, Next.js assets, and everything under <code>public/</code> from the proxy matcher. Remember to add new public directories to the matcher exclusion when the project structure changes.</p>
+<p>When a request carries a valid Content Studio <code>xp</code> parameter and needs a Draft Mode cookie for the current build, this handler redirects the browser to <code>/api/preview</code>. That route enables Draft Mode and redirects back to the content URL without the parameter. If the draft cookie is already valid, the handler removes the parameter without repeating setup.</p>
+</div>
+<div class="paragraph">
+<p>The proxy matcher excludes API routes, Next.js assets, and the starter&#8217;s known public asset paths. Add new public directories to the matcher exclusion when the project structure changes.</p>
 </div>
 </div>
 </div>
@@ -520,10 +523,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="xp_and_public_paths"><a class="link" href="#xp_and_public_paths">XP and public paths</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>XP stores content below a site, but public URLs are site-relative. For a mapping such as <code>en:website/site</code>, XP content <code>/site/news/item</code> becomes <code>/en/news/item</code> in Next.js. <code>UrlProcessor</code> applies the same rule to links returned in content.</p>
+<p>XP stores content below a site, but public URLs are site-relative. For a mapping such as <code>no:website-no/site</code>, XP content <code>/site/news/item</code> becomes <code>/no/news/item</code> in Next.js. <code>pageUrl()</code> applies the same rule to links returned in content.</p>
 </div>
 <div class="paragraph">
-<p>Non-default locales are included in processed internal URLs. External absolute URLs and fragment-only links are left unchanged; absolute XP URLs may be normalized into site-relative links.</p>
+<p>Non-default locales are included in internal URLs. External absolute URLs are left unchanged.</p>
 </div>
 </div>
 </div>
@@ -549,7 +552,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

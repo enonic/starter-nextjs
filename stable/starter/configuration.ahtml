@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#environment">Environment</a></li>
 <li><a href="#shared_secret">Shared secret</a></li>
-<li><a href="#component_registry">Component registry</a></li>
+<li><a href="#exit-draft-mode">Exit Draft Mode button</a></li>
 <li><a href="#rendering_and_caching">Rendering and caching</a></li>
 </ul>
 </div>
@@ -460,22 +460,37 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="environment"><a class="link" href="#environment">Environment</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A minimal local configuration is:</p>
+<p>The starter&#8217;s <code>.env</code> file contains committed defaults. The example below uses the starter&#8217;s application name and project mapping; optional overrides are commented out:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-text" data-lang="text">ENONIC_API=http://127.0.0.1:8080/site/
-ENONIC_APP_NAME=com.example.site
-ENONIC_MAPPINGS=en:website/site
-ENONIC_API_TOKEN=replace-this-secret
+<pre class="highlight"><code class="language-text" data-lang="text"># Do not commit secrets. Put non-publishable values in .env.local.
 
-NEXT_PUBLIC_ENONIC_API=$ENONIC_API
-NEXT_PUBLIC_ENONIC_APP_NAME=$ENONIC_APP_NAME
-NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS</code></pre>
+# Provide a unique value used to secure preview mode
+ENONIC_API_TOKEN=mySecretKey
+
+# Enonic app name, must match the name of your app
+ENONIC_APP_NAME=tutorial.nxp
+
+# Enonic XP projects configuration for different locales
+ENONIC_MAPPINGS=en:intro/hmdb
+
+# Absolute URL to the Enonic XP API root
+ENONIC_API=http://localhost:8080/api
+
+# Absolute media API URL; only needed for another media host, such as a CDN
+# ENONIC_MEDIA_CDN=http://localhost:8080/api
+
+# Sets CORS headers to let Content Studio access the preview.
+# Defaults to the origin of ENONIC_API.
+# ENONIC_ADMIN=http://localhost:8080</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>The browser-visible variables contain routing and API location information, not credentials. Do not create <code>NEXT_PUBLIC_ENONIC_API_TOKEN</code>.</p>
+<p>Replace the example application name and project mappings with your own. <code>mySecretKey</code> is a placeholder; set the actual shared secret in <code>.env.local</code> or deployment secrets.</p>
+</div>
+<div class="paragraph">
+<p>These settings are read on the server. Do not create <code>NEXT_PUBLIC_</code> copies. Keep <code>ENONIC_API_TOKEN</code> server-side.</p>
 </div>
 <div class="paragraph">
 <p>See <a href="../nextjs/configuration.ahtml">Configuration</a> for the complete variable reference and <a href="../concepts/localization.ahtml">Projects and localization</a> for mapping syntax.</p>
@@ -486,23 +501,33 @@ NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS</code></pre>
 <h2 id="shared_secret"><a class="link" href="#shared_secret">Shared secret</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><code>ENONIC_API_TOKEN</code> protects all three integration routes. Set the same value as <code>nextjs.&lt;name&gt;.secret</code> in <code>com.enonic.app.nextxp.cfg</code>. Rotate both sides together.</p>
+<p><code>ENONIC_API_TOKEN</code> protects the proxy and all three integration routes. Set the same value as <code>nextjs.&lt;name&gt;.secret</code> in <code>com.enonic.app.nextxp.cfg</code>. Rotate both sides together.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="component_registry"><a class="link" href="#component_registry">Component registry</a></h2>
+<h2 id="exit-draft-mode"><a class="link" href="#exit-draft-mode">Exit Draft Mode button</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Replace the catch-all development mapping with explicit application mappings. Keep this import before custom registrations:</p>
+<p>The starter enables the exit button by rendering <code>DraftModeIndicator</code> in <code>src/app/[locale]/[[&#8230;&#8203;contentPath]]/layout.tsx</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">import '@enonic/nextjs-adapter/baseMappings';</code></pre>
+<pre class="highlight"><code class="language-tsx" data-lang="tsx">import {I18n} from '@enonic/nextjs-adapter';
+import DraftModeIndicator from '@enonic/nextjs-adapter/views/DraftModeIndicator';
+
+// In the layout's full-page output:
+&lt;DraftModeIndicator label={I18n.localize('draft-mode')}/&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Set a shared query only when multiple views need the same data. Its result is added to <code>props.common</code> throughout the page tree.</p>
+<p>The button appears only when Draft Mode is active and the page is opened directly in a browser tab. It is hidden inside iframes, including Content Studio. Clicking it disables Draft Mode and reloads the current URL without the <code>xp</code> preview parameter, returning to published content.</p>
+</div>
+<div class="paragraph">
+<p>To disable the button in your front end, remove the <code>DraftModeIndicator</code> element and its import from the layout. Restore them to enable it again. There is no environment setting for this control. Removing the button does not disable Draft Mode or clear an existing draft cookie.</p>
+</div>
+<div class="paragraph">
+<p>Change the <code>draft-mode</code> phrase in <code>src/phrases/&lt;locale&gt;.json</code> to customize the label, or pass a literal <code>label</code>. See <a href="../adapter/views.ahtml#draft-mode-indicator">DraftModeIndicator</a> for the component reference.</p>
 </div>
 </div>
 </div>
@@ -513,14 +538,17 @@ NEXT_PUBLIC_ENONIC_MAPPINGS=$ENONIC_MAPPINGS</code></pre>
 <p>The starter demonstrates an hourly <code>revalidate</code> value and static-path generation. These are examples, not requirements. Choose static, revalidated, or dynamic rendering according to the site&#8217;s freshness and scale requirements.</p>
 </div>
 <div class="paragraph">
-<p>Keep <code>transpilePackages</code>, the <code>@phrases</code> aliases, and the Content Studio-compatible response policy when modifying <code>next.config.js</code>.</p>
+<p>Keep <code>transpilePackages</code>, the <code>@phrases</code> aliases, <code>env.BUILD_ID</code>, the CORS headers, and the Content Studio-compatible response policy when modifying <code>next.config.js</code>.</p>
+</div>
+<div class="paragraph">
+<p>For application code that connects XP content types and page components to React views, see <a href="../concepts/components.ahtml">Components and views</a>.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

@@ -441,8 +441,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#runtime_paths">Runtime paths</a></li>
-<li><a href="#responsibilities">Responsibilities</a></li>
+<li><a href="#public_requests">Public requests</a></li>
+<li><a href="#editor_preview_and_visual_editing">Editor preview and visual editing</a></li>
+<li><a href="#publication_and_revalidation">Publication and revalidation</a></li>
 <li><a href="#data_flow">Data flow</a></li>
 <li><a href="#trust_boundaries">Trust boundaries</a></li>
 </ul>
@@ -452,88 +453,57 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Next.XP connects an Enonic XP content back end to a Next.js front end. It is the standard Enonic integration, not a requirement: projects may use the components selectively or implement their own integration.</p>
+<p>Next.XP runs across an Enonic XP installation and a Next.js application. Visitors and editors load pages from Next.js; the Next.js server queries XP through Guillotine. This page explains the request flows between them. For software components and versions, see the <a href="../index.ahtml">Next.XP overview</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="runtime_paths"><a class="link" href="#runtime_paths">Runtime paths</a></h2>
+<h2 id="public_requests"><a class="link" href="#public_requests">Public requests</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Visitors and editors reach the same Next.js application through different paths:</p>
+<p>Visitors request pages directly from Next.js. When rendering a page, the <a href="../adapter.ahtml">adapter</a> queries Guillotine for published content from the project&#8217;s <code>master</code> branch and renders it through the application&#8217;s React views. Next.js may serve cached or statically generated pages without querying XP on every visitor request.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 20%;">
-<col style="width: 40%;">
-<col style="width: 40%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Context</th>
-<th class="tableblock halign-left valign-top">Request path</th>
-<th class="tableblock halign-left valign-top">Content</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Public site</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Browser → Next.js → Guillotine</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Published content from the <code>master</code> branch</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content Studio</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content Studio → Next.XP app → Next.js → Guillotine</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Draft content, with editing metadata and preview context</p></td>
-</tr>
-</tbody>
-</table>
 <div class="paragraph">
-<p>The public site is served by Next.js. The Next.XP app is only in the Content Studio preview path; it is not a production reverse proxy.</p>
+<p>Content models and page composition are managed in XP; rendering and cache policy belong to the Next.js application. See <a href="../nextjs/caching.ahtml">Caching and revalidation</a> for delivery options.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="responsibilities"><a class="link" href="#responsibilities">Responsibilities</a></h2>
+<h2 id="editor_preview_and_visual_editing"><a class="link" href="#editor_preview_and_visual_editing">Editor preview and visual editing</a></h2>
 <div class="sectionbody">
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Component</th>
-<th class="tableblock halign-left valign-top">Responsibility</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Enonic XP</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Stores content, schemas, page components, projects, languages, and publication state.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Guillotine</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Exposes XP content and page structures through GraphQL.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@enonic/nextjs-adapter</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Selects projects, queries Guillotine, builds the page tree, maps XP descriptors to React views, and adapts URLs and editing metadata.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@enonic/react-components</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Supplies reusable React renderers and types for XP page structures and rich text, including edit-mode component and region annotations. Adapter 5 uses its rich-text layer directly while retaining its own page-tree wrappers.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>starter-nextjs</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Shows the canonical Next.js routes, component registry, localization, preview endpoints, and revalidation endpoint.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Next.XP app</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Connects Content Studio to the front-end server, proxies preview responses, and notifies Next.js after publication.</p></td>
-</tr>
-</tbody>
-</table>
+<div class="paragraph">
+<p>Preview starts with URL resolution in XP, followed by a direct browser request to Next.js:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Content Studio asks the Next.XP app for a preview URL. The Next.XP app uses the site&#8217;s front-end configuration and the mapping rules exposed by Next.js to resolve it.</p>
+</li>
+<li>
+<p>Content Studio loads that URL directly from Next.js in the editor&#8217;s browser. The front-end validates the preview parameters and enables Draft Mode.</p>
+</li>
+<li>
+<p>The adapter queries the project&#8217;s <code>draft</code> branch through Guillotine, forwarding the editor&#8217;s XP session when available.</p>
+</li>
+<li>
+<p>In visual editing mode, the adapter adds component and region annotations to the HTML. The browser-side Page Editor library communicates with Content Studio and requests updated component markup from Next.js.</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The Next.XP app resolves the URL; it does not proxy the rendered page or component refreshes. See <a href="../app/preview.ahtml">Preview live view extension</a> for URL resolution and <a href="preview.ahtml">Editing and preview</a> for session handling, render modes, and component refreshes.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="publication_and_revalidation"><a class="link" href="#publication_and_revalidation">Publication and revalidation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>When published content changes, the Next.XP app notifies the Next.js <code>/api/revalidate</code> endpoint. The handler validates the request and invalidates the affected paths so Next.js can render them with updated published content.</p>
+</div>
+<div class="paragraph">
+<p>This flow updates the public cache independently of draft preview. See <a href="../app/revalidation.ahtml">Revalidation</a> for event handling and the endpoint contract.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -543,7 +513,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>For a page request, the adapter first retrieves content metadata and the XP component structure. It then combines the registered queries for the content type and page components into a data request. The result contains content data, shared data, page structure, and runtime metadata used by the adapter views.</p>
 </div>
 <div class="paragraph">
-<p>See <a href="content-and-rendering.ahtml">Content and rendering</a> for the request model and <a href="preview.ahtml">Editing and preview</a> for the editor path.</p>
+<p>See <a href="content-and-rendering.ahtml">Content and rendering</a> for the query and rendering model.</p>
 </div>
 </div>
 </div>
@@ -551,14 +521,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="trust_boundaries"><a class="link" href="#trust_boundaries">Trust boundaries</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Next.js server must be able to reach Guillotine, and XP must be able to reach the Next.js preview endpoints. A shared token protects preview, renderability, and revalidation requests. Keep this token server-side and use HTTPS between separately hosted services.</p>
+<p>The Next.js server must be able to reach Guillotine. XP must be able to reach the Next.js mapping and revalidation endpoints, and editors' browsers must be able to load the Next.js preview.</p>
+</div>
+<div class="paragraph">
+<p>The shared secret protects integration requests between XP and Next.js. Access to draft content depends on the editor&#8217;s XP session and content permissions; neither the shared secret nor Next.js Draft Mode grants that access. Keep the secret server-side and use HTTPS between separately hosted services. See <a href="preview.ahtml">Editing and preview</a> for authentication and browser media requests.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

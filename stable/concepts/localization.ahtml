@@ -495,19 +495,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>Every project used for Content Studio preview must appear in the list. Otherwise <code>/api/mappings</code> answers <code>404</code> and Content Studio reports that the content cannot be rendered.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="mapping_selection"><a class="link" href="#mapping_selection">Mapping selection</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For direct Next.js requests, the locale route selects the mapping. For Content Studio requests, the <code>Content-Studio-Project</code> header takes precedence so preview follows the editor&#8217;s active project. If neither identifies a mapping, the default entry is used.</p>
+<p>For direct Next.js requests, the locale route selects the mapping. For Content Studio requests, the preview URL carries the locale of the editor&#8217;s active project, so preview follows that project. If neither identifies a mapping, the default entry is used.</p>
 </div>
 <div class="paragraph">
-<p>The starter&#8217;s <code>src/proxy.ts</code> rewrites URLs without a locale segment to the resolved locale route. Public content paths remain site-relative: an XP path such as <code>/site/about</code> is presented as <code>/en/about</code> when <code>en</code> is the active locale.</p>
+<p>The starter&#8217;s <code>src/proxy.ts</code> rewrites URLs without a locale segment to the default locale route. Public content paths remain site-relative: an XP path such as <code>/site/about</code> is presented as <code>/no/about</code> when <code>no</code> is the active locale.</p>
 </div>
 <div class="paragraph">
-<p>Default locale (first one in the <code>ENONIC_MAPPINGS</code> list) is not explicitly required in the URL. For example, <code>/en/about</code> and <code>/about</code> both resolve to the same content when <code>en</code> is default.</p>
+<p>Default locale (first one in the <code>ENONIC_MAPPINGS</code> list) is not included in the URL. For example, <code>/about</code> resolves to the content when <code>en</code> is default, and <code>/en/about</code> redirects to <code>/about</code>.</p>
 </div>
 </div>
 </div>
@@ -538,7 +541,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

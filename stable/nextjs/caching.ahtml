@@ -476,7 +476,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="on_demand_revalidation"><a class="link" href="#on_demand_revalidation">On-demand revalidation</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Next.XP app subscribes to XP repository and content events. When published content changes, it calls the configured front end&#8217;s <code>/api/revalidate</code> endpoint with the shared token.</p>
+<p>The Next.XP app subscribes to XP repository and content events. When published content changes, it calls the configured front end&#8217;s <code>/api/revalidate</code> endpoint, encrypting the request with the shared secret.</p>
 </div>
 <div class="paragraph">
 <p>The endpoint uses <code>revalidatePath()</code>:</p>
@@ -503,7 +503,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="draft_content"><a class="link" href="#draft_content">Draft content</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Next.js Draft Mode bypasses normal public rendering assumptions for Content Studio. The adapter reads the <code>draft</code> branch in edit and preview modes and the <code>master</code> branch for direct Next.js requests. Do not cache editor responses in a shared public cache.</p>
+<p>When Next.js Draft Mode is active, the adapter reads the <code>draft</code> branch, including when the page is opened outside Content Studio. Ordinary requests without Draft Mode read the <code>master</code> branch. Do not cache draft responses. See <a href="../starter/configuration.ahtml#exit-draft-mode">Exit Draft Mode button</a> for returning to the published site.</p>
 </div>
 </div>
 </div>
@@ -512,6 +512,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="paragraph">
 <p>Use <code>fetchContentPathsForAllLocales()</code> with <code>generateStaticParams()</code> when the set of content paths is suitable for pre-rendering. Limit or replace its query for large sites. Static generation requires on-demand revalidation to keep static pages up to date when changes occur.</p>
+</div>
+<div class="paragraph">
+<p>The build queries the <code>master</code> branch of every project in <code>ENONIC_MAPPINGS</code>, so publish the site in each project before building.</p>
 </div>
 <div class="paragraph">
 <p>The token configured in <code>ENONIC_API_TOKEN</code> env var must always remain server-side because it authorizes cache invalidation and should not be propagated to the client-side.</p>
@@ -524,7 +527,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

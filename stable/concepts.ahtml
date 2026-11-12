@@ -462,7 +462,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Public visitors access Next.js directly. The front end queries published content from Guillotine and uses the adapter to turn XP content and page components into React output.</p>
 </div>
 <div class="paragraph">
-<p>Editors use the same Next.js application through Content Studio. The Next.XP app proxies this path, carries the editing context to Next.js, and causes the adapter to query draft content and include editing metadata.</p>
+<p>Editors use the same Next.js application through Content Studio. The Next.XP app resolves the Next.js URL for this path, Content Studio loads it directly, and the Next.js proxy enables draft mode, which causes the adapter to query draft content and include editing metadata.</p>
 </div>
 <div class="paragraph">
 <p>This separation keeps public delivery under normal Next.js hosting and caching while preserving Content Studio preview and page editing.</p>
@@ -507,7 +507,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

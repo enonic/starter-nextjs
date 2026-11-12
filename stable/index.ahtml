@@ -444,9 +444,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#about">About</a></li>
 <li><a href="#what_next_xp_provides">What Next.XP provides</a></li>
 <li><a href="#how_it_fits_together">How it fits together</a></li>
-<li><a href="#components">Components</a></li>
-<li><a href="#using_this_reference">Using this reference</a></li>
+<li><a href="#software_stack">Software stack</a>
+<ul class="sectlevel2">
 <li><a href="#versioning">Versioning</a></li>
+</ul>
+</li>
+<li><a href="#using_this_reference">Using this reference</a></li>
 </ul>
 </div>
 </div>
@@ -454,16 +457,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Optimized out-of-the-box integration between <a href="https://nextjs.org/docs">Next.js</a> and <a href="https://developer.enonic.com/docs/platform">Enonic XP</a>.</p>
+<p>An integration between Next.js and <a href="https://developer.enonic.com/docs/platform">Enonic XP</a> for content-driven websites.</p>
 </div>
-<div class="admonitionblock important">
+<div class="admonitionblock tip">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-important" title="Important"></i>
+<i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Looking for a guided introduction? Follow our <a href="https://developer.enonic.com/learn/nextjs">Next.js tutorial</a> to build a complete site step by step. This documentation is the product reference and can be read in any order.
+For a step-by-step introduction, follow the <a href="https://developer.enonic.com/learn/next.xp">Next.js tutorial</a>. This documentation is the product reference and can be read in any order.
 </td>
 </tr>
 </table>
@@ -474,13 +477,10 @@ Looking for a guided introduction? Follow our <a href="https://developer.enonic.
 <h2 id="about"><a class="link" href="#about">About</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>With Next.XP, editors create structured content and assemble pages in Enonic Content Studio. The Next.js application queries that content through Guillotine, maps Enonic page components to React components, and renders the resulting site. Editors can preview their changes in Content Studio while developers continue to use the standard Next.js application model and toolchain.</p>
+<p>With Next.XP, editors create structured content, assemble pages, and preview changes in Enonic Content Studio. Developers build the front-end using Next.js and React, mapping Enonic page components to React components.</p>
 </div>
 <div class="paragraph">
-<p>Next.XP combines several independent software components into a holistic solution, making it easier to build content-driven websites with a Next.js front-end.</p>
-</div>
-<div class="paragraph">
-<p>It is Enonic&#8217;s recommended starting point for Next.js, not a mandatory architecture. Projects may adopt the complete suite, use individual components, or build a custom integration directly against Enonic APIs.</p>
+<p>Next.XP is Enonic&#8217;s recommended starting point for Next.js. Projects may adopt the complete stack, use individual software components, or build a custom integration directly against Enonic APIs.</p>
 </div>
 </div>
 </div>
@@ -488,7 +488,7 @@ Looking for a guided introduction? Follow our <a href="https://developer.enonic.
 <h2 id="what_next_xp_provides"><a class="link" href="#what_next_xp_provides">What Next.XP provides</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Next.XP connects the editing experience in Enonic XP to the rendering capabilities of Next.js. The integration provides:</p>
+<p>The integration provides:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -499,7 +499,10 @@ Looking for a guided introduction? Follow our <a href="https://developer.enonic.
 <p>Mapping between Enonic page components and React components</p>
 </li>
 <li>
-<p>Content Studio preview of the Next.js front-end</p>
+<p>Content Studio preview and visual page editing of the Next.js front-end</p>
+</li>
+<li>
+<p>Front-end revalidation when content is published</p>
 </li>
 <li>
 <p>Processing of links and rich text from Enonic content</p>
@@ -512,113 +515,84 @@ Looking for a guided introduction? Follow our <a href="https://developer.enonic.
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>Next.XP does not replace either platform. Content models, content, and page composition remain in Enonic XP, while routing, React components, data fetching, and front-end delivery remain in Next.js.</p>
-</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="how_it_fits_together"><a class="link" href="#how_it_fits_together">How it fits together</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A Next.XP solution has two running sides. Enonic XP stores and manages the content, and exposes it through the Guillotine GraphQL API. The Next.js application uses the adapter to fetch and render that content. The Next.XP Enonic application provides Content Studio preview and event notification to the Next.js front-end.</p>
+<p>A Next.XP solution has two running sides. Enonic XP manages content, schemas, and page composition, exposing content through the Guillotine GraphQL API. The Next.js application uses the adapter to fetch and render it, handling routing, caching, and front-end delivery.</p>
 </div>
 <div class="paragraph">
-<p>In production, visitors access the Next.js front-end. Editors work in Content Studio, where the same front-end is loaded in an editing context with the information required to preview pages and components.</p>
+<p>Visitors access the Next.js front-end. Editors load the same front-end in Content Studio to work with draft content. The Next.XP app connects Content Studio to the front-end and notifies it when content is published.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="components"><a class="link" href="#components">Components</a></h2>
+<h2 id="software_stack"><a class="link" href="#software_stack">Software stack</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Next.XP uses three release-aligned components and a shared React rendering library:</p>
+<p>Next.XP 6 combines three software components—the starter, adapter, and Next.XP app—with the Enonic applications and platform below. The starter is optional when integrating the adapter into an existing Next.js application.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
+<table class="tableblock frame-none grid-none stretch">
 <colgroup>
-<col style="width: 20%;">
-<col style="width: 20%;">
-<col style="width: 60%;">
+<col style="width: 33.3333%;">
+<col style="width: 16.6666%;">
+<col style="width: 50.0001%;">
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Component</th>
-<th class="tableblock halign-left valign-top">Distribution</th>
-<th class="tableblock halign-left valign-top">Purpose</th>
+<th class="tableblock halign-left valign-top">Software component</th>
+<th class="tableblock halign-left valign-top">Version</th>
+<th class="tableblock halign-left valign-top">Role</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="adapter.ahtml"><code>@enonic/nextjs-adapter</code></a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://www.npmjs.com/package/@enonic/nextjs-adapter">npm</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Library used by the Next.js front-end: fetches content via the Guillotine GraphQL API, maps Enonic components to React views, processes rich text, and handles preview and localization.</p></td>
+<td class="tableblock halign-left valign-top" colspan="3"><p class="tableblock"><strong>Next.js front-end</strong></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@enonic/react-components</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://www.npmjs.com/package/@enonic/react-components">npm</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Framework-neutral React components for rendering XP page structures and rich text. It can also emit the component and region annotations Content Studio needs when its page renderers are used. Next.XP installs it through the adapter and uses its rich-text renderer and related types directly.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="starter.ahtml">starter-nextjs</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Recommended project template showing how to use the adapter in Next.js.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="starter.ahtml"><code>starter-nextjs</code></a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://github.com/enonic/starter-nextjs">GitHub</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Next.js starter template representing canonical adapter usage — the recommended starting point for new projects.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="adapter.ahtml">@enonic/nextjs-adapter</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fetches content from Guillotine, maps Enonic page components to React views, and handles rich text, preview, and localization.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" colspan="3"><p class="tableblock"><strong>Enonic back-end</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://developer.enonic.com/docs/content-studio/stable">Content Studio</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6.1 or later</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Editorial application for managing content, visually composing pages, and previewing the Next.js front-end.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><a href="app.ahtml">Next.XP app</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://market.enonic.com/vendors/enonic/next.xp">Enonic Market</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">XP application for authenticated front-end preview in Content Studio and revalidation of published content.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">6</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">XP application for authenticated front-end preview in Content Studio and publication notifications for front-end revalidation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://developer.enonic.com/docs/guillotine/stable">Guillotine</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">9</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GraphQL API installed in XP to expose content to the Next.js front-end.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="https://developer.enonic.com/docs/xp/stable">Enonic XP</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">8.1 or later</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Back-end platform managing content, schemas, and page composition.</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Most front-end development happens in a project created from <code>starter-nextjs</code>. That project depends on <code>@enonic/nextjs-adapter</code>, while the corresponding Next.XP app runs in the Enonic XP installation.</p>
+<p>See <a href="starter.ahtml#front-end-dependencies">Starter dependencies</a> for the Next.js and React versions, supporting libraries, and Node.js/npm requirements. For an existing Next.js project, see <a href="adapter.ahtml">Adapter installation</a>.</p>
 </div>
+<div class="sect2">
+<h3 id="versioning"><a class="link" href="#versioning">Versioning</a></h3>
 <div class="paragraph">
-<p><code>@enonic/react-components</code> follows its own release cycle and is not a Next.XP version driver. Applications normally receive the compatible version transitively from the adapter.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="using_this_reference"><a class="link" href="#using_this_reference">Using this reference</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Use this documentation when you need to understand or configure the Next.XP integration itself. It covers the supported stack, the contracts between its components, and changes between product versions.</p>
-</div>
-<div class="paragraph">
-<p>For broader platform concepts, refer to the relevant upstream documentation:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://developer.enonic.com/docs/guillotine/stable">Guillotine</a> for GraphQL schemas, queries, and API configuration</p>
-</li>
-<li>
-<p><a href="https://developer.enonic.com/docs/xp/stable">Enonic XP</a> for content types, page components, Content Studio, and platform administration</p>
-</li>
-<li>
-<p><a href="https://nextjs.org/docs">Next.js</a> for routing, rendering, caching, and other framework concepts</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>The <a href="https://developer.enonic.com/learn/next.xp">Next.XP tutorial</a> is the recommended starting point for a first implementation. This reference complements it with information that is intended to remain useful after the initial setup.</p>
-</div>
-<div class="paragraph">
-<p>Start with <a href="concepts/architecture.ahtml">Architecture</a> to understand the request paths, then use the references for the <a href="adapter.ahtml">Next.js adapter</a>, <a href="starter.ahtml">Next.js starter</a>, and <a href="app.ahtml">Next.XP app</a>. For an existing application, begin with <a href="nextjs/configuration.ahtml">Configuration</a>. Common failures are collected under <a href="troubleshooting.ahtml">Troubleshooting</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="versioning"><a class="link" href="#versioning">Versioning</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The Next.XP product version follows the major version of <code>@enonic/nextjs-adapter</code>. The adapter is the version driver and the starter is released alongside it, while the Next.XP app and <code>@enonic/react-components</code> version independently. The versions this documentation covers are listed in the component table above, and each component page repeats the version it documents.</p>
-</div>
-<div class="paragraph">
-<p>Next.XP 5 targets Next.js 16 and React 19, and requires Node.js 24.15.0+ and npm 10.9.2+.</p>
-</div>
-<div class="paragraph">
-<p>On the Enonic side it requires Enonic XP 8 with Guillotine installed and configured for every project the front end queries. Both belong to the XP installation rather than to the Next.js application&#8217;s dependencies.</p>
+<p>The Next.XP product version follows the major version of <a href="adapter.ahtml">@enonic/nextjs-adapter</a>. The <a href="starter.ahtml">starter</a> and the Next.XP app align to that major within the release window; their patch versions may differ. Supporting libraries follow their own release cycles.</p>
 </div>
 <div class="paragraph">
 <p>See the <a href="release.ahtml">release notes</a> for what changed in each version, and the <a href="upgrade.ahtml">upgrade notes</a> when moving between majors.</p>
@@ -626,9 +600,34 @@ Looking for a guided introduction? Follow our <a href="https://developer.enonic.
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="using_this_reference"><a class="link" href="#using_this_reference">Using this reference</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Start with <a href="concepts/architecture.ahtml">Architecture</a> for the request flows, or go directly to the <a href="adapter.ahtml">adapter</a>, <a href="starter.ahtml">starter</a>, and <a href="app.ahtml">Next.XP app</a> references. Use <a href="nextjs/configuration.ahtml">Configuration</a> to connect an existing application and <a href="troubleshooting.ahtml">Troubleshooting</a> to diagnose common failures.</p>
+</div>
+<div class="paragraph">
+<p>For broader platform concepts, see:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://developer.enonic.com/docs/guillotine/stable">Guillotine</a> for GraphQL schemas, queries, and API configuration</p>
+</li>
+<li>
+<p><a href="https://developer.enonic.com/docs/xp/stable">Enonic XP</a> for content types, page components, and platform administration</p>
+</li>
+<li>
+<p><a href="https://developer.enonic.com/docs/content-studio/stable">Content Studio</a> for content authoring and visual page editing</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

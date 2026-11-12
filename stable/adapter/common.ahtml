@@ -444,13 +444,25 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#usage">Usage</a></li>
 <li><a href="#functions">Functions</a>
 <ul class="sectlevel2">
-<li><a href="#getcontentapiurl">getContentApiUrl</a></li>
+<li><a href="#getcontentbranch">getContentBranch</a></li>
 <li><a href="#getlocalemapping">getLocaleMapping</a></li>
 <li><a href="#getlocalemappingbylocale">getLocaleMappingByLocale</a></li>
 <li><a href="#getlocalemappingbyprojectid">getLocaleMappingByProjectId</a></li>
 <li><a href="#getrequestlocaleinfo">getRequestLocaleInfo</a></li>
-<li><a href="#geturl">getUrl</a></li>
-<li><a href="#getasset">getAsset</a></li>
+<li><a href="#localizemappings">localizeMappings</a></li>
+<li><a href="#encryptparams">encryptParams</a></li>
+<li><a href="#decryptparams">decryptParams</a></li>
+<li><a href="#imageurlquery">imageUrlQuery</a></li>
+<li><a href="#mediaurlquery">mediaUrlQuery</a></li>
+<li><a href="#attachmenturlquery">attachmentUrlQuery</a></li>
+<li><a href="#pageurlquery">pageUrlQuery</a></li>
+<li><a href="#imageurl">imageUrl</a></li>
+<li><a href="#mediaurl">mediaUrl</a></li>
+<li><a href="#attachmenturl">attachmentUrl</a></li>
+<li><a href="#pageurl">pageUrl</a></li>
+<li><a href="#richtextquery">richTextQuery</a></li>
+<li><a href="#richtextfragments">richTextFragments</a></li>
+<li><a href="#withrichtextfragments">withRichTextFragments</a></li>
 <li><a href="#sanitizegraphqlname">sanitizeGraphqlName</a></li>
 <li><a href="#validatedata">validateData</a></li>
 </ul>
@@ -459,7 +471,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#componentregistry">ComponentRegistry</a></li>
 <li><a href="#i18n">I18n</a></li>
-<li><a href="#urlprocessor">UrlProcessor</a></li>
 </ul>
 </li>
 <li><a href="#type_definitions">Type Definitions</a>
@@ -467,6 +478,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#context">Context</a></li>
 <li><a href="#locale-mapping">LocaleMapping</a></li>
 <li><a href="#component-definition-params">ComponentDefinitionParams</a></li>
+<li><a href="#global-variables">GlobalVariables</a></li>
+<li><a href="#url-mapping-rule">UrlMappingRule</a></li>
+<li><a href="#image-url">ImageUrl</a></li>
+<li><a href="#attachment-url">AttachmentUrl</a></li>
+<li><a href="#page-url">PageUrl</a></li>
+<li><a href="#media-url-meta">MediaUrlMeta</a></li>
+<li><a href="#media-url-args">MediaUrlArgs</a></li>
 <li><a href="#meta-data">MetaData</a></li>
 </ul>
 </li>
@@ -490,8 +508,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">import {
     ComponentRegistry,
     getLocaleMapping,
-    getUrl,
     I18n,
+    imageUrl,
+    imageUrlQuery,
     validateData
 } from '@enonic/nextjs-adapter';</code></pre>
 </div>
@@ -502,58 +521,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="functions"><a class="link" href="#functions">Functions</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="getcontentapiurl"><a class="link" href="#getcontentapiurl">getContentApiUrl</a></h3>
+<h3 id="getcontentbranch"><a class="link" href="#getcontentbranch">getContentBranch</a></h3>
 <div class="paragraph">
-<p>Returns the Guillotine URL for the context&#8217;s project and branch. Direct and live requests use <code>master</code>; editing contexts use <code>draft</code>.</p>
+<p>Returns the XP branch for a request context: <code>master</code> for direct Next.js and <code>live</code> requests, <code>draft</code> for editing contexts.</p>
 </div>
 <div class="paragraph lead">
 <p>Parameters</p>
 </div>
 <div class="paragraph">
-<p><code>getContentApiUrl()</code> takes a single <code>context</code> object with these properties:</p>
+<p><code>getContentBranch()</code> takes an optional <a href="#context">Context</a> object. Without it, the branch follows the <code>RENDER_MODE</code> environment variable, defaulting to <code>master</code>.</p>
 </div>
-<table class="tableblock frame-none grid-none stretch">
-<colgroup>
-<col style="width: 1%;">
-<col style="width: 1%;">
-<col style="width: 98%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Name</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>contentPath</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code> or <code>string[]</code></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>Site-relative content path.</p>
-</div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>headers</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Headers</code></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p><strong>Optional.</strong> Request headers carrying Content Studio context.</p>
-</div></div></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>locale</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p><strong>Optional.</strong> Route locale.</p>
-</div></div></td>
-</tr>
-</tbody>
-</table>
 <div class="paragraph lead">
 <p>Returns</p>
 </div>
 <div class="paragraph">
-<p><code>string</code> — absolute Guillotine project and branch URL.</p>
+<p><code>string</code> — <code>master</code> or <code>draft</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -565,7 +547,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Parameters</p>
 </div>
 <div class="paragraph">
-<p><code>getLocaleMapping()</code> takes the same single <code>context</code> object as <code>getContentApiUrl()</code>.</p>
+<p><code>getLocaleMapping()</code> takes a single <a href="#context">Context</a> object.</p>
 </div>
 <div class="paragraph lead">
 <p>Returns</p>
@@ -673,7 +655,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Parameters</p>
 </div>
 <div class="paragraph">
-<p><code>getRequestLocaleInfo()</code> takes the same single <code>context</code> object as <code>getContentApiUrl()</code>.</p>
+<p><code>getRequestLocaleInfo()</code> takes a single <a href="#context">Context</a> object.</p>
 </div>
 <div class="paragraph lead">
 <p>Returns</p>
@@ -683,9 +665,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="geturl"><a class="link" href="#geturl">getUrl</a></h3>
+<h3 id="localizemappings"><a class="link" href="#localizemappings">localizeMappings</a></h3>
 <div class="paragraph">
-<p>Processes an internal content or media URL for the supplied <code>MetaData</code>. It removes the XP site prefix and applies the public locale or Content Studio base URL.</p>
+<p>Prefixes the targets of URL mapping rules with a locale, for the <code>/api/mappings</code> response. Targets of the default mapping are returned unchanged, because default-locale URLs carry no prefix. Sources stay site-relative.</p>
 </div>
 <div class="paragraph lead">
 <p>Parameters</p>
@@ -705,17 +687,273 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>url</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mappings</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#url-mapping-rule">UrlMappingRule</a>`[]`</p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>URL to process.</p>
+<p>Rules to localize.</p>
 </div></div></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>meta</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#meta-data">MetaData</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mapping</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{locale, default}</code></p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>Runtime context returned by <code>fetchContent()</code>.</p>
+<p>Locale mapping of the project, normally from <code>getLocaleMappingByProjectId()</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><a href="#url-mapping-rule">UrlMappingRule</a>`[]`.</p>
+</div>
+<div class="paragraph lead">
+<p>Example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">const MAPPINGS: UrlMappingRule[] = [
+    {sources: ['/.*'], target: '/${siteRelativePath}'}
+];
+
+return NextResponse.json({mappings: localizeMappings(MAPPINGS, mapping)});</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="encryptparams"><a class="link" href="#encryptparams">encryptParams</a></h3>
+<div class="paragraph">
+<p>Encrypts a JSON-serializable object with AES-256-GCM, using the SHA-256 hash of <code>secret</code> as the key. The result is the <code>xp</code> blob format the Next.XP app sends. Requires Node.js <code>crypto</code>, so call it only from server code.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>params</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Record&lt;string, any&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Values to encrypt.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>secret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Shared secret, normally <code>ENONIC_API_TOKEN</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code> — base64url-encoded IV, ciphertext, and authentication tag.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="decryptparams"><a class="link" href="#decryptparams">decryptParams</a></h3>
+<div class="paragraph">
+<p>Decrypts an <code>xp</code> blob produced by the Next.XP app or <code>encryptParams()</code>. Successful decryption proves that the sender knows the shared secret. Requires Node.js <code>crypto</code>, so call it only from server code.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>blob</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Value of the <code>xp</code> parameter.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>secret</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Shared secret, normally <code>ENONIC_API_TOKEN</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>Record&lt;string, any&gt;</code> with the decrypted values, such as <code>xpProject</code>, or <code>null</code> when the blob is invalid or was encrypted with another secret.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="imageurlquery"><a class="link" href="#imageurlquery">imageUrlQuery</a></h3>
+<div class="paragraph">
+<p>Returns the Guillotine selection for an image URL: <code>imageUrl(&lt;args&gt;)</code> with every field of the <a href="#image-url">ImageUrl</a> type. Use it inside a <code>&#8230;&#8203; on media_Image</code> selection.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<div class="paragraph">
+<p><code>imageUrlQuery()</code> takes an optional <code>args</code> object with these properties:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scale</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Image scale, for example <code>width(500)</code> or <code>block(100,100)</code>. Omit to use Guillotine&#8217;s default.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>quality</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> JPEG quality.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>background</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Background color for transparent images.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>format</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Output format, for example <code>webp</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>filter</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Image filter.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>.</p>
+</div>
+<div class="paragraph lead">
+<p>Example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">`... on media_Image { ${imageUrlQuery({scale: 'width(500)'})} }`</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="mediaurlquery"><a class="link" href="#mediaurlquery">mediaUrlQuery</a></h3>
+<div class="paragraph">
+<p>Returns the Guillotine selection <code>mediaUrl(&lt;args&gt;)</code> with every field of the <a href="#attachment-url">AttachmentUrl</a> type.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<div class="paragraph">
+<p><code>mediaUrlQuery()</code> takes an optional <a href="#media-url-args">MediaUrlArgs</a> object.</p>
+</div>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="attachmenturlquery"><a class="link" href="#attachmenturlquery">attachmentUrlQuery</a></h3>
+<div class="paragraph">
+<p>Returns the Guillotine selection <code>attachmentUrl(&lt;args&gt;)</code> with every field of the <a href="#attachment-url">AttachmentUrl</a> type.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<div class="paragraph">
+<p><code>attachmentUrlQuery()</code> takes an optional <a href="#media-url-args">MediaUrlArgs</a> object.</p>
+</div>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pageurlquery"><a class="link" href="#pageurlquery">pageUrlQuery</a></h3>
+<div class="paragraph">
+<p>Returns the Guillotine selection <code>pageUrl(&lt;args&gt;) { baseUrl path queryString }</code>.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<div class="paragraph">
+<p><code>pageUrlQuery()</code> takes an optional <code>args</code> object with these properties:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>params</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Record&lt;string, unknown&gt;</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Extra query parameters added to the URL.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -728,15 +966,309 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect2">
-<h3 id="getasset"><a class="link" href="#getasset">getAsset</a></h3>
+<h3 id="imageurl"><a class="link" href="#imageurl">imageUrl</a></h3>
 <div class="paragraph">
-<p>Processes a resource URL without adding a locale segment. Use it for assets rather than navigable content links.</p>
+<p>Builds an image URL from the result of <code>imageUrlQuery()</code>. For <code>meta.branch === 'draft'</code>, it appends the media endpoint path and query string to <code>/api/media</code>. For published content, it uses the media base URL (<code>ENONIC_MEDIA_CDN</code>, default <code>ENONIC_API</code>). See <a href="../nextjs/rich-text.ahtml#media-proxy">Draft media proxy</a>. Resolve the URL on the server and pass it to client components so the environment configuration stays server-side.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#image-url">ImageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>URL object from Guillotine. Only <code>path</code> is required; <code>queryString</code> is optional. May be <code>null</code> or <code>undefined</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>meta</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#media-url-meta">MediaUrlMeta</a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Branch context, usually the page&#8217;s <a href="#meta-data">MetaData</a>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>, or <code>undefined</code> when <code>data</code> is empty.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="mediaurl"><a class="link" href="#mediaurl">mediaUrl</a></h3>
+<div class="paragraph">
+<p>Builds a draft-proxy or published media URL from the result of <code>mediaUrlQuery()</code>, in the same way as <code>imageUrl()</code>.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#attachment-url">AttachmentUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>URL object from Guillotine. Only <code>path</code> is required; <code>queryString</code> is optional. May be <code>null</code> or <code>undefined</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>meta</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#media-url-meta">MediaUrlMeta</a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Branch context, usually the page&#8217;s <a href="#meta-data">MetaData</a>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>, or <code>undefined</code> when <code>data</code> is empty.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="attachmenturl"><a class="link" href="#attachmenturl">attachmentUrl</a></h3>
+<div class="paragraph">
+<p>Builds a draft-proxy or published attachment URL from the result of <code>attachmentUrlQuery()</code>, in the same way as <code>imageUrl()</code>.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#attachment-url">AttachmentUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>URL object from Guillotine. Only <code>path</code> is required; <code>queryString</code> is optional. May be <code>null</code> or <code>undefined</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>meta</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#media-url-meta">MediaUrlMeta</a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Branch context, usually the page&#8217;s <a href="#meta-data">MetaData</a>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>, or <code>undefined</code> when <code>data</code> is empty.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="pageurl"><a class="link" href="#pageurl">pageUrl</a></h3>
+<div class="paragraph">
+<p>Builds a relative Next.js URL from the result of <code>pageUrlQuery()</code>. The site-relative <code>path</code> is prefixed with <code>meta.locale</code> unless it equals <code>meta.defaultLocale</code>.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#page-url">PageUrl</a></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>URL object from Guillotine. Only <code>path</code> is required, so <code>{path: '/'}</code> gives the site root. May be <code>null</code> or <code>undefined</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>meta</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>{locale, defaultLocale}</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Usually the page&#8217;s <a href="#meta-data">MetaData</a>. Without <code>defaultLocale</code>, the locale prefix is always added, which gives the internal <code>/[locale]</code> route path.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>, or <code>undefined</code> when <code>data</code> is empty.</p>
+</div>
+<div class="paragraph lead">
+<p>Example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-tsx" data-lang="tsx">&lt;Link href={pageUrl(parent.pageUrl, meta)}&gt;Back&lt;/Link&gt;
+&lt;Link href={pageUrl({path: '/'}, meta)}&gt;Home&lt;/Link&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="richtextquery"><a class="link" href="#richtextquery">richTextQuery</a></h3>
+<div class="paragraph">
+<p>Returns the selection for a rich-text field, including processed HTML and structured references for images, links, and registered macros. <code>fetchGuillotine()</code> appends the required fragment definitions automatically.</p>
+</div>
+<div class="paragraph lead">
+<p>Parameters</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fieldName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Name of the rich-text field in the content or component schema.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>options</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>object</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Image settings listed below.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>The optional <code>options</code> object has these properties:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageWidths</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number[]</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Responsive image widths. Default: <code>[400, 800, 1200]</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageSizes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> HTML sizes expression. Default: <code>(max-width: 400px) 400px, (max-width: 800px) 800px, 1200px</code>.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>imageSrcWidth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>number</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Primary image width. Omitted by default, leaving Guillotine&#8217;s default in effect.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>.</p>
+</div>
+<div class="paragraph lead">
+<p>Example</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-TypeScript" data-lang="TypeScript">const bodySelection = richTextQuery('body', {imageWidths: [640, 1280]});</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="richtextfragments"><a class="link" href="#richtextfragments">richTextFragments</a></h3>
+<div class="paragraph">
+<p>Returns the GraphQL fragment definitions spread by <code>richTextQuery()</code>, including the registered macros. <code>fetchGuillotine()</code> appends them automatically; use this function for queries sent through another client.</p>
+</div>
+<div class="paragraph lead">
+<p>Returns</p>
+</div>
+<div class="paragraph">
+<p><code>string</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="withrichtextfragments"><a class="link" href="#withrichtextfragments">withRichTextFragments</a></h3>
+<div class="paragraph">
+<p>Appends the rich-text fragment definitions a query spreads but does not define.</p>
 </div>
 <div class="paragraph lead">
 <p>Parameters</p>
 </div>
 <div class="paragraph">
-<p>The same <code>url</code> and <code>meta</code> parameters as <code>getUrl()</code>.</p>
+<p><code>query</code> (<code>string</code>) — GraphQL document.</p>
 </div>
 <div class="paragraph lead">
 <p>Returns</p>
@@ -951,36 +1483,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="urlprocessor"><a class="link" href="#urlprocessor">UrlProcessor</a></h3>
-<div class="paragraph">
-<p>Low-level URL processor used by <code>getUrl()</code>, <code>getAsset()</code>, and rich-text views.</p>
-</div>
-<div class="sect3">
-<h4 id="process"><a class="link" href="#process">process</a></h4>
-<div class="paragraph">
-<p>Processes a URL using <code>MetaData</code>. Optional flags distinguish server-side output and resource URLs.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="processsrcset"><a class="link" href="#processsrcset">processSrcSet</a></h4>
-<div class="paragraph">
-<p>Processes every URL in an image <code>srcset</code>, preserving width and pixel-density descriptors.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="ismedialink"><a class="link" href="#ismedialink">isMediaLink</a></h4>
-<div class="paragraph">
-<p>Tests whether a rich-text link reference points to media.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="iscontentimage"><a class="link" href="#iscontentimage">isContentImage</a></h4>
-<div class="paragraph">
-<p>Tests whether a rich-text image reference resolves to content.</p>
-</div>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
@@ -1121,9 +1623,300 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </table>
 </div>
 <div class="sect2">
+<h3 id="global-variables"><a class="link" href="#global-variables">GlobalVariables</a></h3>
+<div class="paragraph">
+<p>Variables the adapter supplies to every registered query. A variables function must return them, optionally with additional variables.</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>path</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Full XP content path, including the site.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scopeKey</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Site path from the locale mapping.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>project</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>XP project from the locale mapping.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>branch</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>draft</code> in draft mode, otherwise <code>master</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="url-mapping-rule"><a class="link" href="#url-mapping-rule">UrlMappingRule</a></h3>
+<div class="paragraph">
+<p>One rule of the <code>/api/mappings</code> response.</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sources</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string[]</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Conditions a content item must meet. A <code>field:value</code> entry compares a content field, for example <code>type:portal:site</code>; any other entry is a regular expression matched against the item&#8217;s site-relative path.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>target</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Next.js URL template. <code>${siteRelativePath}</code> is replaced by the item&#8217;s site-relative path; other <code>${field}</code> placeholders are replaced by content field values.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>matchAny</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Match when any source matches instead of all. Default: <code>false</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="image-url"><a class="link" href="#image-url">ImageUrl</a></h3>
+<div class="paragraph">
+<p>Result of <code>imageUrlQuery()</code>.</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>path</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Full media API path with a leading slash.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryString</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>URL-escaped query string with a <code>?</code> prefix.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>context</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Project context segment.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Content ID.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>fingerprint</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Media fingerprint.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>scale</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Processed scale segment.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>File name, with the requested format extension.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="attachment-url"><a class="link" href="#attachment-url">AttachmentUrl</a></h3>
+<div class="paragraph">
+<p>Result of <code>mediaUrlQuery()</code> and <code>attachmentUrlQuery()</code>. It has the <code>path</code>, <code>queryString</code>, <code>context</code>, <code>id</code>, <code>fingerprint</code>, and <code>name</code> fields of <a href="#image-url">ImageUrl</a>, plus:</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>intent</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>download</code> or <code>inline</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="page-url"><a class="link" href="#page-url">PageUrl</a></h3>
+<div class="paragraph">
+<p>Result of <code>pageUrlQuery()</code>.</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>baseUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Base URL resolved by XP. The adapter&#8217;s <code>pageUrl()</code> uses the path and locale to construct the Next.js URL instead.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>path</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Site-relative content path.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>queryString</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>URL-escaped query string.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="media-url-meta"><a class="link" href="#media-url-meta">MediaUrlMeta</a></h3>
+<div class="paragraph">
+<p>Branch context shared by <code>imageUrl()</code>, <code>mediaUrl()</code>, and <code>attachmentUrl()</code>.</p>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>branch</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>string</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><code>draft</code> selects the <code>/api/media</code> proxy. Published content uses <code>master</code> and the configured API or CDN media base URL.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="media-url-args"><a class="link" href="#media-url-args">MediaUrlArgs</a></h3>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 1%;">
+<col style="width: 1%;">
+<col style="width: 98%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>download</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>Optional.</strong> Serve the file as a download.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
 <h3 id="meta-data"><a class="link" href="#meta-data">MetaData</a></h3>
 <div class="paragraph">
-<p>Runtime information returned by <code>fetchContent()</code>: content identity and path, project, site, branch, API and preview base URLs, locale, render mode, request type, renderability, and requested component.</p>
+<p>Runtime information returned by <code>fetchContent()</code>: content identity and path, project, site, branch, XP base URL, locale, render mode, request type, renderability, and requested component.</p>
 </div>
 </div>
 </div>
@@ -1149,7 +1942,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>IS_DEV_MODE</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Whether <code>MODE</code> is <code>development</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Whether <code>NODE_ENV</code> is <code>development</code>, as under <code>next dev</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>CATCH_ALL</code></p></td>
@@ -1164,16 +1957,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Normalized page-component kinds and fetch request kinds.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FROM_XP_PARAM</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the query parameter carrying the encrypted blob from XP: <code>xp</code>.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>RENDER_MODE_HEADER</code>, <code>PROJECT_ID_HEADER</code>, <code>XP_BASE_URL_HEADER</code>, <code>JSESSIONID_HEADER</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Header names shared with the XP preview proxy.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Header names used to pass rendering, project, and session context through the integration.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>PORTAL_COMPONENT_ATTRIBUTE</code>, <code>PORTAL_REGION_ATTRIBUTE</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">DOM attributes used by Content Studio editing.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>richTextQuery</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Guillotine selection required for processed rich-text references.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1185,7 +1978,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

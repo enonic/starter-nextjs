@@ -455,7 +455,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The Next.XP app notifies the Next.js front end when published XP content changes. This allows statically generated or cached routes to be refreshed without sending public traffic through XP.</p>
 </div>
 <div class="paragraph">
-<p>Revalidation is independent of the Content Studio preview proxy: preview reads current draft content through Next.js Draft Mode, while revalidation updates the public cache after content is published.</p>
+<p>Revalidation is independent of the Content Studio preview: preview reads current draft content through Next.js Draft Mode, while revalidation updates the public cache after content is published.</p>
 </div>
 </div>
 </div>
@@ -463,7 +463,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="content_events"><a class="link" href="#content_events">Content events</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The app subscribes to XP repository and node events for projects containing a site configured with Next.XP. Published changes are sent to the front end selected by that site&#8217;s configuration.</p>
+<p>The Next.XP app subscribes to XP repository and node events for projects containing a site configured with Next.XP. Published changes are sent to the front end selected by that site&#8217;s configuration.</p>
 </div>
 <div class="paragraph">
 <p>The subscriber runs on the XP cluster master so a clustered installation does not send the same notification from every node. Bulk events are debounced before the front end is called.</p>
@@ -474,10 +474,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="paths_and_projects"><a class="link" href="#paths_and_projects">Paths and projects</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Normal publish events invalidates the affected site. Move and rename events also retain the previous path, allowing both the old and new public routes to be invalidated.</p>
+<p>Normal publish events request revalidation without a content path, which makes the starter invalidate its complete layout tree. Move and rename events also retain the previous path, allowing old public routes to be invalidated explicitly.</p>
 </div>
 <div class="paragraph">
-<p>The active XP project is sent in the <code>Content-Studio-Project</code> header. The front end uses it to resolve the correct locale and project mapping before invalidating paths.</p>
+<p>The active XP project is sent in the encrypted <code>xp</code> parameter and in the <code>Content-Studio-Project</code> header. The front end uses it to resolve the correct locale and project mapping before invalidating paths.</p>
 </div>
 </div>
 </div>
@@ -485,10 +485,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="front_end_endpoint"><a class="link" href="#front_end_endpoint">Front-end endpoint</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The app calls the protected <code>/api/revalidate</code> route on the selected Next.js front end. The starter provides the canonical route handler; a custom front end must implement the same integration contract.</p>
+<p>The Next.XP app calls the protected <code>/api/revalidate</code> route on the selected Next.js front end. The starter provides the canonical route handler; a custom front end must implement the same integration contract.</p>
 </div>
 <div class="paragraph">
-<p>The handler validates the shared token and applies Next.js path revalidation to the affected routes or the entire site, depending on the presence of the <code>path</code> parameter. The front end remains responsible for its caching policy and for any additional tags or application-specific caches.</p>
+<p>The handler decrypts the <code>xp</code> parameter with the shared secret and applies Next.js path revalidation to the affected routes or the entire site, depending on the presence of the <code>path</code> parameter. The front end remains responsible for its caching policy and for any additional tags or application-specific caches.</p>
 </div>
 <div class="paragraph">
 <p>See <a href="../nextjs/caching.ahtml">Caching and revalidation</a> for the corresponding Next.js behavior.</p>
@@ -499,7 +499,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="configuration_and_security"><a class="link" href="#configuration_and_security">Configuration and security</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The destination URL and token come from the site&#8217;s selected entry in <code>com.enonic.app.nextxp.cfg</code>. The token must match <code>ENONIC_API_TOKEN</code> env var in the front-end deployment, and <code>/api/revalidate</code> must reject requests with an invalid token.</p>
+<p>The destination URL and token come from the site&#8217;s selected entry in <code>com.enonic.app.nextxp.cfg</code>. The token must match <code>ENONIC_API_TOKEN</code> env var in the front-end deployment, and <code>/api/revalidate</code> must reject requests whose <code>xp</code> parameter cannot be decrypted.</p>
 </div>
 <div class="paragraph">
 <p>XP must be able to reach the configured URL from the cluster master. Use HTTPS outside a trusted local network and use a unique secret for every shared or production environment.</p>
@@ -512,7 +512,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

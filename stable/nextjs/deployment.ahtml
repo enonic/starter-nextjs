@@ -452,7 +452,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>A production Next.XP deployment consists of an XP service, a reachable Guillotine endpoint, and a Next.js service. Visitors connect to Next.js; Content Studio connects to it through the Next.XP app.</p>
+<p>A production Next.XP deployment consists of an XP service, a reachable Guillotine endpoint, and a Next.js service. Visitors connect to Next.js; Content Studio loads it directly in its preview pane.</p>
 </div>
 </div>
 </div>
@@ -460,7 +460,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="requirements"><a class="link" href="#requirements">Requirements</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>For Next.XP 5, the front end requires Node.js 24.15.0+ and npm 10.9.2+. The supported framework stack is listed on the <a href="../index.ahtml">Next.XP overview</a>.</p>
+<p>For Next.XP 6, the front end requires Node.js 24.15.0+ and npm 10.9.2+. The supported framework stack is listed under <a href="../starter.ahtml#front-end-dependencies">Starter dependencies</a>.</p>
 </div>
 </div>
 </div>
@@ -487,19 +487,29 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content and page queries</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Next.js server</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">XP media API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Authenticated draft media requests</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">XP server</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Next.js server</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content Studio preview, renderability checks, and revalidation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL mappings and revalidation</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Browser</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Next.js server</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Public site traffic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Public site traffic, Content Studio preview, and draft media through <code>/api/media</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Browser</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">XP media API or CDN</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Published media</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>The Next.js URL configured in XP must be reachable from the XP nodes; <code>localhost</code> is only appropriate when both services share a host. Use HTTPS and a private network where possible.</p>
+<p>The Next.js URL configured in XP must be reachable from the XP nodes and from editors' browsers; <code>localhost</code> is only appropriate when all of them share a host. Use HTTPS and a private network where possible.</p>
 </div>
 </div>
 </div>
@@ -515,19 +525,22 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p><code>ENONIC_MAPPINGS</code> names existing XP projects and sites.</p>
 </li>
 <li>
-<p><code>ENONIC_API</code> addresses the correct Guillotine installation.</p>
+<p><code>ENONIC_API</code> points to the API root of the correct XP installation.</p>
 </li>
 <li>
 <p>The same secret is used for <code>ENONIC_API_TOKEN</code> and the selected XP front-end configuration.</p>
 </li>
 <li>
-<p>The Next.XP app is installed and added to every site that needs Content Studio preview.</p>
+<p>The Next.XP app is installed with the front-end URL configured explicitly, and added to every XP site rendered through Next.XP with its front-end configuration selected.</p>
 </li>
 <li>
 <p>The front-end response policy allows Content Studio to embed the site.</p>
 </li>
 <li>
-<p>Preview and revalidation API routes are deployed with a server runtime.</p>
+<p>Preview, mappings, revalidation, and media API routes are deployed with a server runtime.</p>
+</li>
+<li>
+<p>Caching is bypassed for <code>/api/media</code>, including error responses.</p>
 </li>
 </ul>
 </div>
@@ -537,7 +550,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="public_delivery"><a class="link" href="#public_delivery">Public delivery</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Next.XP does not prescribe a hosting provider. Standard Next.js deployment, CDN, cache, observability, and scaling guidance applies. Preserve request headers and cookies on the Content Studio preview path when a proxy or platform sits in front of Next.js.</p>
+<p>Next.XP does not prescribe a hosting provider. Standard Next.js deployment, CDN, cache, observability, and scaling guidance applies. Preserve query parameters and cookies on the Content Studio preview path when a proxy or platform sits in front of Next.js.</p>
 </div>
 <div class="paragraph">
 <p>See <a href="https://nextjs.org/docs">Next.js documentation</a> for framework deployment options and <a href="https://developer.enonic.com/docs/xp/stable">XP documentation</a> for platform operations.</p>
@@ -547,7 +560,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>

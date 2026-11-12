@@ -471,23 +471,35 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Adapter reports a missing environment variable</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Define <code>ENONIC_API</code>, <code>ENONIC_APP_NAME</code>, and <code>ENONIC_MAPPINGS</code> before the Next.js process starts. Rebuild when changing browser-visible variables.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Define <code>ENONIC_API</code>, <code>ENONIC_APP_NAME</code>, and <code>ENONIC_MAPPINGS</code> before the Next.js process starts. Keep these values server-side and restart or redeploy after changing them.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Every query fails with 404</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ENONIC_API</code> must point to the XP API root, for example <code><a href="http://localhost:8080/api" class="bare">http://localhost:8080/api</a></code>, not to the <code>/site</code> endpoint.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content returns 404</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Check the locale mapping, XP project, site path, publication state, and requested site-relative path. Direct requests read <code>master</code>; Content Studio reads <code>draft</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check the locale mapping, XP project, site path, publication state, and requested site-relative path. Requests with Draft Mode enabled read <code>draft</code>; ordinary requests read <code>master</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Guillotine returns validation errors</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Verify the query against Guillotine 8, the application schema, variables, and project/branch endpoint. Component queries are combined, so the server log identifies the failing selection.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verify the query against Guillotine 9, the application schema, variables, and the <code>scopeKey</code>, <code>project</code>, and <code>branch</code> arguments of the <code>guillotine()</code> field. URL fields such as <code>imageUrl</code> require a subselection. Component queries are combined, so the server log identifies the failing selection.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Page renders but a component is missing</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Register the exact application-qualified descriptor and import the mappings before <code>fetchContent()</code>. Catch-all mappings do not make components production-renderable.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Content Studio preview returns 407</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">The token sent by XP does not match <code>ENONIC_API_TOKEN</code>, or the token is absent. Compare it with <code>nextjs.&lt;name&gt;.secret</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content Studio preview returns 401</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">The <code>xp</code> parameter sent by XP cannot be decrypted with <code>ENONIC_API_TOKEN</code>, or is absent. Compare it with <code>nextjs.&lt;name&gt;.secret</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Content Studio reports that the content cannot be rendered</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check that the project is listed in <code>ENONIC_MAPPINGS</code> and that XP can reach <code>/api/mappings</code>. Mappings are cached per project for up to 24 hours.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Preview is blocked by the browser</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">In production mode, only explicitly configured front-end URLs are added to Content Studio&#8217;s Content Security Policy by the Next.XP app. For CORS errors, set <code>ENONIC_ADMIN</code> to Content Studio&#8217;s browser-facing origin if its scheme, hostname, or port differs from the origin of <code>ENONIC_API</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Content Studio cannot contact the front end</p></td>
@@ -495,23 +507,35 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Preview shows published instead of draft content</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Confirm <code>/api/preview</code> enables Draft Mode and the proxy cookie is preserved. Check the <code>Content-Studio-Mode</code> header.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Confirm <code>/api/preview</code> enables Draft Mode and the draft cookie is preserved. Check that <code>env.BUILD_ID</code> is defined in <code>next.config.js</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Opening the site outside Content Studio still shows drafts</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Draft Mode persists in the browser. Use the exit button to return to published content. See <a href="starter/configuration.ahtml#exit-draft-mode">Exit Draft Mode button</a>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exit Draft Mode button is missing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check that <code>DraftModeIndicator</code> is rendered by the page layout. It appears only with Draft Mode enabled in a top-level browser window, and is hidden inside all iframes. See <a href="starter/configuration.ahtml#exit-draft-mode">Starter configuration</a> to enable it.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Images are missing in preview only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Draft media URLs should begin with <code>/api/media/media:</code> on the Next.js host. Pass <code>meta</code> to the media URL helpers and preserve the starter&#8217;s media route. Check that Draft Mode is active and the proxy receives a valid XP session; successful Guillotine fetching alone does not authenticate browser media requests. See <a href="nextjs/rich-text.ahtml#media-proxy">Draft media proxy</a>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Internal links contain the XP site name</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Check that the site segment in <code>ENONIC_MAPPINGS</code> matches the actual XP site path and render links through <code>getUrl()</code> or <code>RichTextView</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Check that the site segment in <code>ENONIC_MAPPINGS</code> matches the actual XP site path and render links through <code>pageUrl()</code> or <code>RichTextView</code>.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Locale route loops or rewrites assets</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure <code>src/proxy.ts</code> excludes configured locales, API routes, Next.js internals, and all top-level public asset paths.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ensure <code>src/proxy.ts</code> handles configured locale prefixes once and excludes API routes, Next.js internals, and all top-level public asset paths from its matcher.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Published changes remain cached</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Confirm the site uses Next.XP, the XP master node subscribed successfully, <code>/api/revalidate</code> is reachable, and the shared token matches.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Confirm the published site uses Next.XP, the XP master node subscribed successfully, <code>/api/revalidate</code> is reachable, and the shared token matches.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Component preview refresh fails but full page works</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Verify the component has an explicit mapping and that the catch-all layout preserves the single-component marker used by the XP proxy.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verify the component has an explicit mapping and that the catch-all layout preserves the single-component marker.</p></td>
 </tr>
 </tbody>
 </table>
@@ -531,7 +555,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-10 16:45:13 UTC
+Last updated 2026-11-12 11:08:49 UTC
 </div>
 </div>
 </body>
