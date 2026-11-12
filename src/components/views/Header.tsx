@@ -21,7 +21,7 @@ const Header = ({title, logoUrl, meta}: HeaderProps) => {
             )}
             {logoUrl && (
                 <img src={logoUrl}
-                     width={33}
+                     width={40}
                      height={40}
                      alt={"Enonic XP logo"}
                 />
