@@ -27,6 +27,6 @@
 :npm-minimum: 10.9.2
 
 // Frequently referenced docs
-:tutorial-docs: https://developer.enonic.com/learn/next.xp
+:tutorial-docs: https://developer.enonic.com/learn/nextjs
 :xp-docs: https://developer.enonic.com/docs/xp/stable
 :guillotine-docs: https://developer.enonic.com/docs/guillotine/stable

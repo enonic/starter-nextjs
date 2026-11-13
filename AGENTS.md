@@ -18,7 +18,7 @@ The adapter depends on **`@enonic/react-components`**, a separately versioned su
 
 The documentation covers all three, targeted at **front-end/Next.js developers** integrating with Enonic, but should also make sense for **Enonic developers** adding a Next.js front-end.
 
-Keep content focused on Next.XP. The step-by-step tutorial lives in the `demo-nextjs` repo (published at https://developer.enonic.com/learn/next.xp) and builds on top of this content — do not duplicate tutorial material here. Link to https://nextjs.org/docs for framework concepts (app router, SSG/ISR, etc.) and only explain what is Next.XP-specific.
+Keep content focused on Next.XP. The step-by-step tutorial lives in the `demo-nextjs` repo (published at https://developer.enonic.com/learn/nextjs) and builds on top of this content — do not duplicate tutorial material here. Link to https://nextjs.org/docs for framework concepts (app router, SSG/ISR, etc.) and only explain what is Next.XP-specific.
 
 ## Versioning
 

@@ -62,7 +62,7 @@ Configure the Enonic API, application name, project mappings, and shared preview
 npm run dev
 ----
 
-TIP: Follow the https://developer.enonic.com/learn/next.xp[Next.XP tutorial] for a guided implementation that builds a complete site from the starter.
+TIP: Follow the https://developer.enonic.com/learn/nextjs[Next.XP tutorial] for a guided implementation that builds a complete site from the starter.
 
 == Project structure
 
