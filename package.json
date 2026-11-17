@@ -16,7 +16,7 @@
     "@enonic/page-editor": "^2.0.1",
     "cross-env": "^10.1.0",
     "html-react-parser": "^6.1.9",
-    "next": "^16.4.3",
+    "next": "^16.4.6",
     "react": "^19.2.6",
     "react-dom": "^19.3.0",
     "unescape": "^1.0.1"
