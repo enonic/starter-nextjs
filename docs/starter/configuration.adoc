@@ -17,7 +17,7 @@ The starter's `.env` file contains committed defaults. The example below uses th
 ENONIC_API_TOKEN=mySecretKey
 
 # Enonic app name, must match the name of your app
-ENONIC_APP_NAME=tutorial.nxp
+ENONIC_APP_NAME=com.example.tutorial.nextjs
 
 # Enonic XP projects configuration for different locales
 ENONIC_MAPPINGS=en:intro/hmdb
