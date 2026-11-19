@@ -470,7 +470,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 ENONIC_API_TOKEN=mySecretKey
 
 # Enonic app name, must match the name of your app
-ENONIC_APP_NAME=tutorial.nxp
+ENONIC_APP_NAME=com.example.tutorial.nextjs
 
 # Enonic XP projects configuration for different locales
 ENONIC_MAPPINGS=en:intro/hmdb
@@ -548,7 +548,7 @@ import DraftModeIndicator from '@enonic/nextjs-adapter/views/DraftModeIndicator'
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-11-12 11:08:49 UTC
+Last updated 2026-11-19 20:46:05 UTC
 </div>
 </div>
 </body>
